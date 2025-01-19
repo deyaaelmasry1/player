@@ -87,13 +87,17 @@
                 const fileName = decodeURIComponent(mediaUrl.split("/").pop());
                 document.title = "مشغل الوسائط - " + fileName; // Update the page title
 
+                // Update the meta description based on file name
+                const metaDescription = document.querySelector('meta[name="description"]');
+                metaDescription.setAttribute("content", "مشغل الوسائط لعرض وتحميل الملف " + fileName);
+
                 const container = document.createElement("div");
                 container.classList.add("media-container");
 
                 if (mediaUrl.includes("youtube.com") || mediaUrl.includes("youtu.be")) {
                     const videoId = getYouTubeVideoId(mediaUrl);
                     if (videoId) {
-                        container.innerHTML = `
+                        container.innerHTML = ` 
                             <iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>
                             <p><a href="https://ssyoutube.com/watch?v=${videoId}" class="button">تحميل الفيديو</a></p>
                         `;
