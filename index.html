@@ -11,6 +11,23 @@
             font-family: Arial, sans-serif;
             text-align: center;
             direction: rtl;
+            background-color: #f9f9f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #007BFF;
+            color: white;
+            padding: 20px 0;
+        }
+        h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+        .intro-text {
+            font-size: 1.2em;
+            margin: 20px 0;
         }
         .media-container {
             margin: 20px auto;
@@ -42,16 +59,49 @@
             margin-top: 10px;
             box-sizing: border-box;
         }
+        footer {
+            background-color: #333;
+            color: white;
+            padding: 10px 0;
+            margin-top: 30px;
+        }
     </style>
 </head>
 <body>
-    <div id="media-output"></div>
+    <header>
+        <h1>مشغل الوسائط</h1>
+        <p class="intro-text">مرحبًا بك في مشغل الوسائط! قم بتحميل وتشغيل ملفات الصوت والفيديو مباشرة من الإنترنت بسهولة.</p>
+    </header>
+
     <div style="width: 50%; margin: 0 auto;">
         <form id="mediaForm">
             <input type="text" name="media_url" id="mediaUrlInput" placeholder="أدخل رابط ملف الوسائط" required>
             <input type="submit" value="تشغيل">
         </form>
     </div>
+
+    <section>
+        <h2>كيفية استخدام المشغل</h2>
+        <p>يمكنك بسهولة إدخال رابط ملف الوسائط من يوتيوب أو رابط مباشر لملفات الصوت والفيديو.</p>
+        <p>فقط قم بلصق الرابط في الحقل أعلاه واضغط على "تشغيل" لعرض الوسائط على الصفحة.</p>
+    </section>
+
+    <section>
+        <h2>مزايا المشغل</h2>
+        <ul>
+            <li>دعم لملفات الصوت والفيديو بجميع الصيغ الشائعة.</li>
+            <li>تشغيل مقاطع الفيديو من يوتيوب مباشرة.</li>
+            <li>تحميل الوسائط بسهولة.</li>
+            <li>واجهة استخدام بسيطة وسهلة التصفح.</li>
+        </ul>
+    </section>
+
+    <div id="media-output"></div>
+
+    <footer>
+        <p>© 2025 جميع الحقوق محفوظة</p>
+    </footer>
+
     <script>
         // Function to extract YouTube video ID from URL
         function getYouTubeVideoId(url) {
@@ -92,7 +142,7 @@
                 if (mediaUrl.includes("youtube.com") || mediaUrl.includes("youtu.be")) {
                     const videoId = getYouTubeVideoId(mediaUrl);
                     if (videoId) {
-                        container.innerHTML = `
+                        container.innerHTML = ` 
                             <iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>
                             <p><a href="https://ssyoutube.com/watch?v=${videoId}" class="button">تحميل الفيديو</a></p>
                         `;
@@ -104,7 +154,7 @@
                     const mediaTag = isVideo ? "video" : "audio";
                     const typeText = isVideo ? "الفيديو" : "الصوت";
 
-                    container.innerHTML = `
+                    container.innerHTML = ` 
                         <${mediaTag} width="560" height="315" controls style="max-width: 100%;">
                             <source src="${mediaUrl}">
                             متصفحك لا يدعم عنصر ${typeText}.
@@ -115,7 +165,7 @@
 
                 const mediaInfo = document.createElement("div");
                 mediaInfo.classList.add("media-info");
-                mediaInfo.innerHTML = `
+                mediaInfo.innerHTML = ` 
                     <h2>تفاصيل الوسائط</h2>
                     <p>العنوان: ${fileName}</p>
                     <p>الوصف: ${fileName}</p>
