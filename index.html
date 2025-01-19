@@ -48,7 +48,7 @@
     <div id="media-output"></div>
     <div style="width: 50%; margin: 0 auto;">
         <form id="mediaForm">
-            <input type="text" name="media_url" placeholder="أدخل رابط ملف الوسائط" required>
+            <input type="text" name="media_url" id="mediaUrlInput" placeholder="أدخل رابط ملف الوسائط" required>
             <input type="submit" value="تشغيل">
         </form>
     </div>
@@ -60,9 +60,25 @@
             return match ? match[1] : null;
         }
 
-        document.getElementById("mediaForm").addEventListener("submit", function(event) {
-            event.preventDefault();
-            const mediaUrl = document.querySelector("input[name='media_url']").value;
+        // Function to update the URL with the file parameter
+        function updateUrlParameter(param, value) {
+            const url = new URL(window.location.href);
+            url.searchParams.set(param, value);
+            history.pushState(null, '', url.toString());
+        }
+
+        // Function to load media from URL parameter
+        function loadMediaFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const mediaUrl = urlParams.get('file');
+            if (mediaUrl) {
+                document.getElementById("mediaUrlInput").value = mediaUrl;
+                renderMedia(mediaUrl);
+            }
+        }
+
+        // Function to render media
+        function renderMedia(mediaUrl) {
             const mediaOutput = document.getElementById("media-output");
             mediaOutput.innerHTML = "";
 
@@ -108,7 +124,20 @@
                 mediaOutput.appendChild(container);
                 mediaOutput.appendChild(mediaInfo);
             }
+        }
+
+        // Form submission handler
+        document.getElementById("mediaForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const mediaUrl = document.querySelector("input[name='media_url']").value;
+            if (mediaUrl) {
+                updateUrlParameter('file', mediaUrl);
+                renderMedia(mediaUrl);
+            }
         });
+
+        // Load media on page load if file parameter exists
+        window.addEventListener("DOMContentLoaded", loadMediaFromUrl);
     </script>
 </body>
 </html>
