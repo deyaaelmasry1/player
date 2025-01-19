@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مشغل الوسائط</title>
+    <meta name="description" content="مشغل الوسائط لتحميل وعرض ملفات الصوت والفيديو.">
+    <meta name="robots" content="index, follow">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -60,9 +63,8 @@
         // Function to update the URL with the file parameter
         function updateUrlParameter(param, value) {
             const url = new URL(window.location.href);
-            url.searchParams.set(param, value); // Set the file parameter
-            history.pushState(null, '', url.toString()); // Update the browser URL without reloading the page
-            console.log(`URL updated to: ${url.toString()}`); // Debugging purpose
+            url.searchParams.set(param, value);
+            history.pushState(null, '', url.toString());
         }
 
         // Function to load media from URL parameter
@@ -70,31 +72,19 @@
             const urlParams = new URLSearchParams(window.location.search);
             const mediaUrl = urlParams.get('file');
             if (mediaUrl) {
-                document.getElementById("mediaUrlInput").value = mediaUrl; // Pre-fill the input field
-                renderMedia(mediaUrl); // Load the media automatically
+                document.getElementById("mediaUrlInput").value = mediaUrl;
+                renderMedia(mediaUrl);
             }
         }
 
-        // Function to render media in the output container
+        // Function to render media
         function renderMedia(mediaUrl) {
             const mediaOutput = document.getElementById("media-output");
-            mediaOutput.innerHTML = ""; // Clear previous content
+            mediaOutput.innerHTML = "";
 
             if (mediaUrl) {
                 const fileName = decodeURIComponent(mediaUrl.split("/").pop());
-                
-                // Dynamically update title and description in the head
-                document.title = "مشغل الوسائط - " + fileName; // Update the page title
-
-                // Update the meta description dynamically
-                let metaDescription = document.querySelector('meta[name="description"]');
-                if (!metaDescription) {
-                    // If the meta description tag doesn't exist, create it
-                    metaDescription = document.createElement('meta');
-                    metaDescription.setAttribute('name', 'description');
-                    document.head.appendChild(metaDescription);
-                }
-                metaDescription.setAttribute('content', "مشغل الوسائط لعرض وتحميل الملف " + fileName);
+                document.title = "مشغل الوسائط - " + fileName;
 
                 const container = document.createElement("div");
                 container.classList.add("media-container");
@@ -102,7 +92,7 @@
                 if (mediaUrl.includes("youtube.com") || mediaUrl.includes("youtu.be")) {
                     const videoId = getYouTubeVideoId(mediaUrl);
                     if (videoId) {
-                        container.innerHTML = ` 
+                        container.innerHTML = `
                             <iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>
                             <p><a href="https://ssyoutube.com/watch?v=${videoId}" class="button">تحميل الفيديو</a></p>
                         `;
@@ -141,8 +131,8 @@
             event.preventDefault();
             const mediaUrl = document.querySelector("input[name='media_url']").value;
             if (mediaUrl) {
-                updateUrlParameter('file', mediaUrl); // Update the browser URL
-                renderMedia(mediaUrl); // Render the media
+                updateUrlParameter('file', mediaUrl);
+                renderMedia(mediaUrl);
             }
         });
 
