@@ -1,4 +1,4 @@
-=<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
@@ -32,10 +32,13 @@
         h1 a:hover {
             text-decoration: underline;
         }
-        .content {
+        .intro-text {
+            font-size: 1.2em;
+            margin: 20px 0;
+        }
+        .media-container {
             margin: 20px auto;
             text-align: center;
-            width: 50%;
         }
         .button {
             display: inline-block;
@@ -51,8 +54,17 @@
         }
         .media-info {
             margin-top: 20px;
-            font-size: 1.2em;
-            color: #555;
+            text-align: center;
+        }
+        form {
+            width: 50%;
+            margin: 0 auto;
+        }
+        input[type="text"], input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            box-sizing: border-box;
         }
         footer {
             background-color: #333;
@@ -65,11 +77,17 @@
 <body>
     <header>
         <h1><a href="/">مشغل الوسائط</a></h1>
+        <p class="intro-text">مرحبًا بك في مشغل الوسائط! قم بتحميل وتشغيل ملفات الصوت والفيديو مباشرة من الإنترنت بسهولة.</p>
     </header>
 
-    <div id="content" class="content">
-        <!-- Content will be dynamically updated here -->
+    <div style="width: 50%; margin: 0 auto;">
+        <form id="mediaForm">
+            <input type="text" name="media_url" id="mediaUrlInput" placeholder="أدخل رابط ملف الوسائط" required>
+            <input type="submit" value="تشغيل">
+        </form>
     </div>
+
+    <div id="media-output"></div>
 
     <footer>
         <p>© 2025 جميع الحقوق محفوظة</p>
@@ -83,96 +101,85 @@
             return match ? match[1] : null;
         }
 
-        // Function to render the index page content
-        function renderIndexPage() {
-            const content = document.getElementById("content");
-            content.innerHTML = `
-                <form id="mediaForm">
-                    <input type="text" name="media_url" id="mediaUrlInput" placeholder="أدخل رابط ملف الوسائط" required>
-                    <input type="submit" value="تشغيل">
-                </form>
-                <section>
-                    <h2>كيفية استخدام المشغل</h2>
-                    <p>يمكنك بسهولة إدخال رابط ملف الوسائط من يوتيوب أو رابط مباشر لملفات الصوت والفيديو.</p>
-                    <p>فقط قم بلصق الرابط في الحقل أعلاه واضغط على "تشغيل" لعرض الوسائط على الصفحة.</p>
-                </section>
-                <section>
-                    <h2>مزايا المشغل</h2>
-                    <ul>
-                        <li>دعم لملفات الصوت والفيديو بجميع الصيغ الشائعة.</li>
-                        <li>تشغيل مقاطع الفيديو من يوتيوب مباشرة.</li>
-                        <li>تحميل الوسائط بسهولة.</li>
-                        <li>واجهة استخدام بسيطة وسهلة التصفح.</li>
-                    </ul>
-                </section>
-            `;
-
-            document.getElementById("mediaForm").addEventListener("submit", function(event) {
-                event.preventDefault();
-                const mediaUrl = document.getElementById("mediaUrlInput").value;
-                if (mediaUrl) {
-                    const url = new URL(window.location.href);
-                    url.searchParams.set("file", mediaUrl);
-                    window.location.href = url.toString();
-                }
-            });
+        // Function to update the URL with the file parameter
+        function updateUrlParameter(param, value) {
+            const url = new URL(window.location.href);
+            url.searchParams.set(param, value);
+            history.pushState(null, '', url.toString());
         }
 
-        // Function to render the player page content
-        function renderPlayerPage(mediaUrl) {
-            const content = document.getElementById("content");
-            const fileName = decodeURIComponent(mediaUrl.split("/").pop());
-            document.title = "مشغل الوسائط - " + fileName;
-
-            let playerHTML = "";
-
-            if (mediaUrl.includes("youtube.com") || mediaUrl.includes("youtu.be")) {
-                const videoId = getYouTubeVideoId(mediaUrl);
-                if (videoId) {
-                    playerHTML = `
-                        <iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>
-                        <p><a href="https://ssyoutube.com/watch?v=${videoId}" class="button">تحميل الفيديو</a></p>
-                    `;
-                } else {
-                    playerHTML = "<p>يرجى إدخال رابط يوتيوب صالح.</p>";
-                }
-            } else {
-                const isVideo = /\.(mp4|webm|ogv)$/i.test(mediaUrl);
-                const mediaTag = isVideo ? "video" : "audio";
-                const typeText = isVideo ? "الفيديو" : "الصوت";
-
-                playerHTML = `
-                    <${mediaTag} width="560" height="315" controls style="max-width: 100%;">
-                        <source src="${mediaUrl}">
-                        متصفحك لا يدعم عنصر ${typeText}.
-                    </${mediaTag}>
-                    <p><a href="${mediaUrl}" class="button">تحميل الوسائط</a></p>
-                `;
-            }
-
-            content.innerHTML = `
-                <div class="media-container">
-                    ${playerHTML}
-                </div>
-                <div class="media-info">
-                    <p>العنوان: ${fileName}</p>
-                </div>
-            `;
-        }
-
-        // Main logic to decide which page to render
-        function loadPageContent() {
+        // Function to load media from URL parameter
+        function loadMediaFromUrl() {
             const urlParams = new URLSearchParams(window.location.search);
-            const mediaUrl = urlParams.get("file");
+            const mediaUrl = urlParams.get('file');
             if (mediaUrl) {
-                renderPlayerPage(mediaUrl);
-            } else {
-                renderIndexPage();
+                document.getElementById("mediaUrlInput").value = mediaUrl;
+                renderMedia(mediaUrl);
             }
         }
 
-        // Load the appropriate content on page load
-        window.addEventListener("DOMContentLoaded", loadPageContent);
+        // Function to render media
+        function renderMedia(mediaUrl) {
+            const mediaOutput = document.getElementById("media-output");
+            mediaOutput.innerHTML = "";
+
+            if (mediaUrl) {
+                const fileName = decodeURIComponent(mediaUrl.split("/").pop());
+                document.title = "مشغل الوسائط - " + fileName;
+
+                const container = document.createElement("div");
+                container.classList.add("media-container");
+
+                // Check if the URL is YouTube
+                if (mediaUrl.includes("youtube.com") || mediaUrl.includes("youtu.be")) {
+                    const videoId = getYouTubeVideoId(mediaUrl);
+                    if (videoId) {
+                        container.innerHTML =  
+                            `<iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>
+                            <p><a href="https://ssyoutube.com/watch?v=${videoId}" class="button">تحميل الفيديو</a></p>`;
+                    } else {
+                        container.innerHTML = "<p>يرجى إدخال رابط يوتيوب صالح.</p>";
+                    }
+                } else {
+                    const isVideo = /\.(mp4|webm|ogv)$/i.test(mediaUrl);
+                    const mediaTag = isVideo ? "video" : "audio";
+                    const typeText = isVideo ? "الفيديو" : "الصوت";
+
+                    container.innerHTML =  
+                        `<${mediaTag} width="560" height="315" controls style="max-width: 100%;">
+                            <source src="${mediaUrl}">
+                            متصفحك لا يدعم عنصر ${typeText}.
+                        </${mediaTag}>
+                        <p><a href="${mediaUrl}" class="button">تحميل الوسائط</a></p>`;
+                }
+
+                const mediaInfo = document.createElement("div");
+                mediaInfo.classList.add("media-info");
+                mediaInfo.innerHTML =  
+                    `<h2>تفاصيل الوسائط</h2>
+                    <p>العنوان: ${fileName}</p>
+                    <p>الوصف: ${fileName}</p>`;
+
+                mediaOutput.appendChild(container);
+                mediaOutput.appendChild(mediaInfo);
+
+                // Remove unnecessary sections when a player is shown
+                document.querySelectorAll('section').forEach(section => section.remove());
+            }
+        }
+
+        // Form submission handler
+        document.getElementById("mediaForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const mediaUrl = document.querySelector("input[name='media_url']").value;
+            if (mediaUrl) {
+                updateUrlParameter('file', mediaUrl);
+                renderMedia(mediaUrl);
+            }
+        });
+
+        // Load media on page load if file parameter exists
+        window.addEventListener("DOMContentLoaded", loadMediaFromUrl);
     </script>
 </body>
 </html>
