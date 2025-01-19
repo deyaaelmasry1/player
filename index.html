@@ -3,9 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مشغل الوسائط</title>
-    <meta name="description" content="مشغل الوسائط لتحميل وعرض ملفات الصوت والفيديو.">
-    <meta name="robots" content="index, follow">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -85,11 +82,19 @@
 
             if (mediaUrl) {
                 const fileName = decodeURIComponent(mediaUrl.split("/").pop());
+                
+                // Dynamically update title and description in the head
                 document.title = "مشغل الوسائط - " + fileName; // Update the page title
 
-                // Update the meta description based on file name
-                const metaDescription = document.querySelector('meta[name="description"]');
-                metaDescription.setAttribute("content", "مشغل الوسائط لعرض وتحميل الملف " + fileName);
+                // Update the meta description dynamically
+                let metaDescription = document.querySelector('meta[name="description"]');
+                if (!metaDescription) {
+                    // If the meta description tag doesn't exist, create it
+                    metaDescription = document.createElement('meta');
+                    metaDescription.setAttribute('name', 'description');
+                    document.head.appendChild(metaDescription);
+                }
+                metaDescription.setAttribute('content', "مشغل الوسائط لعرض وتحميل الملف " + fileName);
 
                 const container = document.createElement("div");
                 container.classList.add("media-container");
