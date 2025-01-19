@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مشغل الوسائط</title>
+    <meta name="description" content="مشغل الوسائط لتحميل وعرض ملفات الصوت والفيديو.">
+    <meta name="robots" content="index, follow">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            direction: rtl;
+        }
+        .media-container {
+            margin: 20px auto;
+            text-align: center;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-top: 10px;
+            background-color: #007BFF;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .media-info {
+            margin-top: 20px;
+            text-align: center;
+        }
+        form {
+            width: 50%;
+            margin: 0 auto;
+        }
+        input[type="text"], input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <div id="media-output"></div>
+    <div style="width: 50%; margin: 0 auto;">
+        <form id="mediaForm">
+            <input type="text" name="media_url" placeholder="أدخل رابط ملف الوسائط" required>
+            <input type="submit" value="تشغيل">
+        </form>
+    </div>
+    <script>
+        // Function to extract YouTube video ID from URL
+        function getYouTubeVideoId(url) {
+            const pattern = /(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+            const match = url.match(pattern);
+            return match ? match[1] : null;
+        }
+
+        document.getElementById("mediaForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const mediaUrl = document.querySelector("input[name='media_url']").value;
+            const mediaOutput = document.getElementById("media-output");
+            mediaOutput.innerHTML = "";
+
+            if (mediaUrl) {
+                const fileName = decodeURIComponent(mediaUrl.split("/").pop());
+                document.title = "مشغل الوسائط - " + fileName;
+
+                const container = document.createElement("div");
+                container.classList.add("media-container");
+
+                if (mediaUrl.includes("youtube.com") || mediaUrl.includes("youtu.be")) {
+                    const videoId = getYouTubeVideoId(mediaUrl);
+                    if (videoId) {
+                        container.innerHTML = `
+                            <iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>
+                            <p><a href="https://ssyoutube.com/watch?v=${videoId}" class="button">تحميل الفيديو</a></p>
+                        `;
+                    } else {
+                        container.innerHTML = "<p>يرجى إدخال رابط يوتيوب صالح.</p>";
+                    }
+                } else {
+                    const isVideo = /\.(mp4|webm|ogv)$/i.test(mediaUrl);
+                    const mediaTag = isVideo ? "video" : "audio";
+                    const typeText = isVideo ? "الفيديو" : "الصوت";
+
+                    container.innerHTML = `
+                        <${mediaTag} width="560" height="315" controls style="max-width: 100%;">
+                            <source src="${mediaUrl}">
+                            متصفحك لا يدعم عنصر ${typeText}.
+                        </${mediaTag}>
+                        <p><a href="${mediaUrl}" class="button">تحميل الوسائط</a></p>
+                    `;
+                }
+
+                const mediaInfo = document.createElement("div");
+                mediaInfo.classList.add("media-info");
+                mediaInfo.innerHTML = `
+                    <h2>تفاصيل الوسائط</h2>
+                    <p>العنوان: ${fileName}</p>
+                    <p>الوصف: ${fileName}</p>
+                `;
+
+                mediaOutput.appendChild(container);
+                mediaOutput.appendChild(mediaInfo);
+            }
+        });
+    </script>
+</body>
+</html>
