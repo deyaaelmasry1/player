@@ -63,8 +63,9 @@
         // Function to update the URL with the file parameter
         function updateUrlParameter(param, value) {
             const url = new URL(window.location.href);
-            url.searchParams.set(param, value);
-            history.pushState(null, '', url.toString());
+            url.searchParams.set(param, value); // Set the file parameter
+            history.pushState(null, '', url.toString()); // Update the browser URL without reloading the page
+            console.log(`URL updated to: ${url.toString()}`); // Debugging purpose
         }
 
         // Function to load media from URL parameter
@@ -72,19 +73,19 @@
             const urlParams = new URLSearchParams(window.location.search);
             const mediaUrl = urlParams.get('file');
             if (mediaUrl) {
-                document.getElementById("mediaUrlInput").value = mediaUrl;
-                renderMedia(mediaUrl);
+                document.getElementById("mediaUrlInput").value = mediaUrl; // Pre-fill the input field
+                renderMedia(mediaUrl); // Load the media automatically
             }
         }
 
-        // Function to render media
+        // Function to render media in the output container
         function renderMedia(mediaUrl) {
             const mediaOutput = document.getElementById("media-output");
-            mediaOutput.innerHTML = "";
+            mediaOutput.innerHTML = ""; // Clear previous content
 
             if (mediaUrl) {
                 const fileName = decodeURIComponent(mediaUrl.split("/").pop());
-                document.title = "مشغل الوسائط - " + fileName;
+                document.title = "مشغل الوسائط - " + fileName; // Update the page title
 
                 const container = document.createElement("div");
                 container.classList.add("media-container");
@@ -131,8 +132,8 @@
             event.preventDefault();
             const mediaUrl = document.querySelector("input[name='media_url']").value;
             if (mediaUrl) {
-                updateUrlParameter('file', mediaUrl);
-                renderMedia(mediaUrl);
+                updateUrlParameter('file', mediaUrl); // Update the browser URL
+                renderMedia(mediaUrl); // Render the media
             }
         });
 
