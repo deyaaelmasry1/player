@@ -87,6 +87,23 @@
         </form>
     </div>
 
+    <!-- Sections that will be removed if there is a player -->
+    <section id="usageSection">
+        <h2>كيفية استخدام المشغل</h2>
+        <p>يمكنك بسهولة إدخال رابط ملف الوسائط من يوتيوب أو رابط مباشر لملفات الصوت والفيديو.</p>
+        <p>فقط قم بلصق الرابط في الحقل أعلاه واضغط على "تشغيل" لعرض الوسائط على الصفحة.</p>
+    </section>
+
+    <section id="featuresSection">
+        <h2>مزايا المشغل</h2>
+        <ul>
+            <li>دعم لملفات الصوت والفيديو بجميع الصيغ الشائعة.</li>
+            <li>تشغيل مقاطع الفيديو من يوتيوب مباشرة.</li>
+            <li>تحميل الوسائط بسهولة.</li>
+            <li>واجهة استخدام بسيطة وسهلة التصفح.</li>
+        </ul>
+    </section>
+
     <div id="media-output"></div>
 
     <footer>
@@ -115,6 +132,10 @@
             if (mediaUrl) {
                 document.getElementById("mediaUrlInput").value = mediaUrl;
                 renderMedia(mediaUrl);
+            } else {
+                // Show sections if no media URL is provided
+                document.getElementById('usageSection').style.display = 'block';
+                document.getElementById('featuresSection').style.display = 'block';
             }
         }
 
@@ -163,8 +184,9 @@
                 mediaOutput.appendChild(container);
                 mediaOutput.appendChild(mediaInfo);
 
-                // Remove unnecessary sections when a player is shown
-                document.querySelectorAll('section').forEach(section => section.remove());
+                // Remove sections if a player is present
+                document.getElementById('usageSection').style.display = 'none';
+                document.getElementById('featuresSection').style.display = 'none';
             }
         }
 
