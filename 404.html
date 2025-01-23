@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redirecting...</title>
+  <script>
+    // Get the current URL path
+    const path = window.location.pathname;
+
+    // Redirect to the corresponding path on the new domain
+    const targetUrl = `https://iblog.pp.ua${path}`;
+
+    // Perform the redirect
+    window.location.replace(targetUrl);
+  </script>
+</head>
+<body>
+  <p>Redirecting to <a id="redirect-link" href="#">the new location</a>...</p>
+  <script>
+    // Update the fallback link for users without JavaScript
+    document.getElementById('redirect-link').href = `https://iblog.pp.ua${path}`;
+  </script>
+</body>
+</html>
