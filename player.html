@@ -131,8 +131,9 @@
             const urlParams = new URLSearchParams(window.location.search);
             const mediaUrl = urlParams.get('file');
             if (mediaUrl) {
-                document.getElementById("mediaUrlInput").value = mediaUrl;
-                renderMedia(mediaUrl);
+                // Decode URI for Arabic characters
+                document.getElementById("mediaUrlInput").value = decodeURIComponent(mediaUrl);
+                renderMedia(decodeURIComponent(mediaUrl));
             } else {
                 // Show sections if no media URL is provided
                 document.getElementById('usageSection').style.display = 'block';
@@ -196,7 +197,7 @@
             event.preventDefault();
             const mediaUrl = document.querySelector("input[name='media_url']").value;
             if (mediaUrl) {
-                updateUrlParameter('file', mediaUrl);
+                updateUrlParameter('file', encodeURIComponent(mediaUrl));  // Ensure URL is encoded
                 renderMedia(mediaUrl);
             }
         });
