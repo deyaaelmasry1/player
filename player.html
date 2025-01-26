@@ -197,7 +197,8 @@
             event.preventDefault();
             const mediaUrl = document.querySelector("input[name='media_url']").value;
             if (mediaUrl) {
-                updateUrlParameter('file', encodeURIComponent(mediaUrl));  // Ensure URL is encoded
+                // Encode the URL before passing it to the player
+                updateUrlParameter('file', encodeURIComponent(mediaUrl));
                 renderMedia(mediaUrl);
             }
         });
