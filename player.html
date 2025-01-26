@@ -199,10 +199,10 @@
             const mediaUrl = document.querySelector("input[name='media_url']").value;
 
             if (mediaUrl) {
-                // First, we encode the URL to ensure proper handling of special characters
-                const encodedUrl = encodeURIComponent(mediaUrl);
+                // Encode the URL properly to ensure it can be parsed correctly
+                const encodedUrl = encodeURIComponent(mediaUrl);  // Encode URL
                 updateUrlParameter('file', encodedUrl);
-                renderMedia(mediaUrl);
+                renderMedia(encodedUrl);  // Use the encoded URL in the player
             }
         });
 
