@@ -131,7 +131,7 @@
             const urlParams = new URLSearchParams(window.location.search);
             const mediaUrl = urlParams.get('file');
             if (mediaUrl) {
-                // Decode URI for Arabic characters
+                // Decode URI for Arabic characters and spaces
                 document.getElementById("mediaUrlInput").value = decodeURIComponent(mediaUrl);
                 renderMedia(decodeURIComponent(mediaUrl));
             } else {
