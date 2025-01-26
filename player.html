@@ -132,8 +132,9 @@
             const mediaUrl = urlParams.get('file');
             if (mediaUrl) {
                 // Decode URI for Arabic characters and spaces
-                document.getElementById("mediaUrlInput").value = decodeURIComponent(mediaUrl);
-                renderMedia(decodeURIComponent(mediaUrl));
+                const decodedUrl = decodeURIComponent(mediaUrl);
+                document.getElementById("mediaUrlInput").value = decodedUrl;
+                renderMedia(decodedUrl);
             } else {
                 // Show sections if no media URL is provided
                 document.getElementById('usageSection').style.display = 'block';
@@ -196,9 +197,11 @@
         document.getElementById("mediaForm").addEventListener("submit", function(event) {
             event.preventDefault();
             const mediaUrl = document.querySelector("input[name='media_url']").value;
+
             if (mediaUrl) {
-                // Encode the URL before passing it to the player
-                updateUrlParameter('file', encodeURIComponent(mediaUrl));
+                // First, we encode the URL to ensure proper handling of special characters
+                const encodedUrl = encodeURIComponent(mediaUrl);
+                updateUrlParameter('file', encodedUrl);
                 renderMedia(mediaUrl);
             }
         });
