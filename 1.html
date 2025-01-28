@@ -1,19 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Convert images between various formats like PNG, JPEG, and WebP directly in your browser without any API registration.">
-    <meta name="keywords" content="image converter, browser-based image conversion, PNG to JPEG, JPEG to WebP, online image tool">
-    <meta name="author" content="Your Name">
-    <title>Image Converter - No API Required</title>
+    <meta name="description" content="أداة مجانية لتحويل الصور بين جميع التنسيقات مثل PNG وJPEG وWebP مباشرة من المتصفح دون الحاجة إلى تسجيل أو رفع الملفات.">
+    <meta name="keywords" content="محول الصور, تحويل الصور, JPEG إلى PNG, PNG إلى WebP, أدوات الصور, أداة مجانية لتحويل الصور">
+    <meta name="author" content="اسمك هنا">
+    <title>محول الصور - تحويل تنسيقات الصور بسهولة</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
             background-color: #f4f4f9;
+            direction: rtl;
+            text-align: right;
         }
 
         header {
@@ -125,38 +127,38 @@
 
 <body>
     <header>
-        <h1>Browser-Based Image Converter</h1>
+        <h1>محول الصور المجاني</h1>
     </header>
     <div class="container">
-        <h2>Convert Your Images Without Any API</h2>
+        <h2>حوّل صورك بسهولة بين التنسيقات المختلفة</h2>
         <form id="image-converter-form">
-            <label for="file">Choose an image:</label>
+            <label for="file">اختر صورة:</label>
             <input type="file" id="file" accept="image/*" required>
             
-            <label for="format">Convert to format:</label>
+            <label for="format">تحويل إلى التنسيق:</label>
             <select id="format" required>
                 <option value="image/jpeg">JPEG</option>
                 <option value="image/png">PNG</option>
                 <option value="image/webp">WebP</option>
             </select>
 
-            <button type="submit">Convert</button>
+            <button type="submit">تحويل</button>
         </form>
 
         <div id="loading">
-            <img src="https://i.gifer.com/YCZH.gif" alt="Loading Spinner">
-            <p>Converting...</p>
+            <img src="https://i.gifer.com/YCZH.gif" alt="جارٍ التحويل...">
+            <p>جارٍ التحويل...</p>
         </div>
 
         <div id="output">
-            <h3>Converted Image:</h3>
-            <img id="converted-image" alt="Converted Image">
-            <button id="download-button">Download Image</button>
+            <h3>الصورة المحوّلة:</h3>
+            <img id="converted-image" alt="الصورة المحوّلة">
+            <button id="download-button">تحميل الصورة</button>
         </div>
     </div>
 
     <footer>
-        <p>&copy; 2025 Image Converter. No registration required.</p>
+        <p>&copy; 2025 محول الصور. لا حاجة للتسجيل أو رفع الملفات.</p>
     </footer>
 
     <script>
@@ -171,7 +173,7 @@
             const loadingDiv = document.getElementById('loading');
 
             if (!fileInput.files.length) {
-                alert("Please select an image file.");
+                alert("يرجى اختيار ملف صورة.");
                 return;
             }
 
