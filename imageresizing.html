@@ -7,7 +7,7 @@
     <meta name="description" content="أداة مجانية لتغيير حجم الصور مباشرة من المتصفح بسهولة ودون الحاجة إلى رفع الصور أو استهلاك الإنترنت.">
     <meta name="keywords" content="أداة تغيير حجم الصور, تغيير الحجم, تغيير حجم الصورة, أداة مجانية, تغيير الحجم بنسب, تغيير الحجم بالبكسل">
     <meta name="author" content="اسمك هنا">
-    <title>أداة تغيير حجم الصور - تغيير حجم الصور بسهولة وأمان</title>
+    <title>تغيير حجم الصور - تغيير حجم الصور بسهولة وأمان</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -128,31 +128,22 @@
 
 <body>
     <header>
-        <h1>أداة تغيير حجم الصور</h1>
+        <h1>تغيير حجم الصور</h1>
     </header>
     <div class="container">
-        <h2>تغير حجم الصور بسهولة الي اي حجم تريد </h2>
+        <h2>تغير حجم صورك بسهولة ودون الحاجة إلى رفع الصور أو استهلاك الإنترنت</h2>
         <form id="image-resizer-form">
             <label for="file">اختر صورة:</label>
             <input type="file" id="file" accept="image/*" required>
-            
-            <label for="resize-option">اختيار طريقة تغيير الحجم:</label>
-            <select id="resize-option" required>
-                <option value="custom">تغيير الحجم المخصص</option>
-                <option value="percentage">تغيير الحجم بنسبه مئوية</option>
-            </select>
 
-            <div id="custom-size">
-                <label for="width">العرض (بالبكسل):</label>
-                <input type="number" id="width" placeholder="أدخل العرض" min="1">
-                <label for="height">الارتفاع (بالبكسل):</label>
-                <input type="number" id="height" placeholder="أدخل الارتفاع" min="1">
-            </div>
+            <label for="width">العرض (بالبكسل):</label>
+            <input type="number" id="width" placeholder="أدخل العرض" min="1">
 
-            <div id="percentage-size">
-                <label for="percentage">النسبة المئوية:</label>
-                <input type="number" id="percentage" placeholder="أدخل النسبة المئوية" min="1">
-            </div>
+            <label for="height">الارتفاع (بالبكسل):</label>
+            <input type="number" id="height" placeholder="أدخل الارتفاع" min="1">
+
+            <label for="percentage">النسبة المئوية:</label>
+            <input type="number" id="percentage" placeholder="أدخل النسبة المئوية" min="1">
 
             <button type="submit">تغيير الحجم</button>
         </form>
@@ -187,7 +178,6 @@
             const widthInput = document.getElementById('width');
             const heightInput = document.getElementById('height');
             const percentageInput = document.getElementById('percentage');
-            const resizeOption = document.getElementById('resize-option').value;
 
             if (!fileInput.files.length) {
                 alert("يرجى اختيار ملف صورة.");
@@ -205,13 +195,12 @@
             };
 
             img.onload = function () {
-                let newWidth, newHeight;
+                let newWidth = parseInt(widthInput.value) || img.width;
+                let newHeight = parseInt(heightInput.value) || img.height;
 
-                if (resizeOption === 'custom') {
-                    newWidth = parseInt(widthInput.value) || img.width;
-                    newHeight = parseInt(heightInput.value) || img.height;
-                } else if (resizeOption === 'percentage') {
-                    const percentage = parseInt(percentageInput.value) || 100;
+                // If a percentage is provided, calculate the new size
+                if (percentageInput.value) {
+                    const percentage = parseInt(percentageInput.value);
                     newWidth = (img.width * percentage) / 100;
                     newHeight = (img.height * percentage) / 100;
                 }
