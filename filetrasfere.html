@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>File Transfer with Persistent Peer Code</title>
+  <title>File Transfer with Fixed Peer Code</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -11,11 +11,6 @@
       padding: 20px;
     }
     #fileInput {
-      margin: 10px 0;
-    }
-    textarea {
-      width: 80%;
-      height: 100px;
       margin: 10px 0;
     }
     button {
@@ -32,10 +27,9 @@
 </head>
 <body>
   <h1>Peer-to-Peer File Transfer</h1>
-  <p>Use a unique Peer Code to connect directly with another device.</p>
+  <p>Use a fixed Peer Code to connect directly with another device.</p>
 
-  <h2>Step 1: Create a Peer Code</h2>
-  <button id="generatePeerCode">Generate Peer Code</button>
+  <h2>Step 1: Your Fixed Peer Code</h2>
   <div id="peerCodeBox"></div>
   <p>Share this code with your peer to connect.</p>
 
@@ -58,7 +52,7 @@
     let receivedBuffer = [];
     let receivedSize = 0;
     let fileSize = 0;
-    let peerCode;
+    let peerCode = "peer123"; // Fixed Peer Code for this peer
 
     // Set a cookie with the given name and value
     function setCookie(name, value, days) {
@@ -79,19 +73,20 @@
       return null;
     }
 
-    // Generate a random peer code and save it in a cookie
-    function generatePeerCode() {
-      peerCode = Math.random().toString(36).substring(2, 10);
+    // Set the fixed peer code in the cookie
+    function saveFixedPeerCode() {
       setCookie('peerCode', peerCode, 365); // Save for 1 year
       document.getElementById('peerCodeBox').textContent = `Your Peer Code: ${peerCode}`;
     }
 
-    // Set the peer code from the cookie if available
-    function loadPeerCodeFromCookie() {
+    // Load the fixed peer code from the cookie
+    function loadFixedPeerCode() {
       const savedPeerCode = getCookie('peerCode');
       if (savedPeerCode) {
         peerCode = savedPeerCode;
         document.getElementById('peerCodeBox').textContent = `Your Peer Code: ${peerCode}`;
+      } else {
+        saveFixedPeerCode(); // Set the code if not found in cookies
       }
     }
 
@@ -140,7 +135,7 @@
       dataChannel = peerConnection.createDataChannel("fileTransfer");
       setupDataChannel();
 
-      // Simulate the peer's response based on the code (In a real system, this should be done with signaling)
+      // Check if the entered peer code matches the fixed peer code
       if (peerCode === code) {
         peerConnection.createOffer()
           .then(offer => {
@@ -154,11 +149,6 @@
         document.getElementById('status').textContent = "Invalid Peer Code!";
       }
     }
-
-    // Generate Peer Code for the user
-    document.getElementById("generatePeerCode").onclick = () => {
-      generatePeerCode();
-    };
 
     // Connect to the peer using the code entered
     document.getElementById("connectPeerButton").onclick = () => {
@@ -185,7 +175,7 @@
     };
 
     // Load the saved peer code from the cookie when the page loads
-    loadPeerCodeFromCookie();
+    loadFixedPeerCode();
   </script>
 </body>
 </html>
