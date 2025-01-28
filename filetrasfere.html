@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebRTC File Transfer (Manual Connection)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    input, button {
+      margin: 10px 0;
+      padding: 10px;
+      width: 80%;
+      max-width: 400px;
+    }
+    #downloadLink {
+      display: none;
+      margin-top: 20px;
+    }
+    .status {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Peer-to-Peer File Transfer (Manual Connection)</h1>
+  <p>Share files directly between devices using WebRTC.</p>
+
+  <div id="connection">
+    <p>Your Code: <span id="myCode"></span></p>
+    <input type="text" id="peerCodeInput" placeholder="Enter peer's code or ICE candidate">
+    <button id="connectButton">Connect</button>
+  </div>
+
+  <div id="fileTransfer" style="display: none;">
+    <input type="file" id="fileInput">
+    <button id="sendFileButton">Send File</button>
+    <a id="downloadLink">Download Received File</a>
+    <p class="status" id="status"></p>
+  </div>
+
+  <script>
+    let peerConnection, dataChannel;
+    let receivedBuffer = [];
+    let receivedSize = 0;
+    let fileSize = 0;
+    let peerCode;
+
+    // Check if there's an existing peer code in cookies
+    const getCookie = (name) => {
+      const value = document.cookie.match(`(^|;) ?${name}=([^;]*)(;|$)`);
+      return value ? value[2] : null;
+    };
+
+    const setCookie = (name, value, days) => {
+      const expires = new Date(Date.now() + days * 864e5).toUTCString();
+      document.cookie = `${name}=${value}; expires=${expires}; path=/`;
+    };
+
+    // Generate or retrieve the peer code
+    const generateCode = () => {
+      let code = getCookie('peerCode');
+      if (!code) {
+        code = Math.random().toString(36).substring(2, 10);
+        setCookie('peerCode', code, 365); // Save in cookie for 1 year
+      }
+      return code;
+    };
+
+    // Use the generated or stored peer code
+    const myCode = generateCode();
+    document.getElementById("myCode").textContent = myCode;
+
+    // Connect to a peer manually using the code
+    document.getElementById("connectButton").onclick = async () => {
+      peerCode = document.getElementById("peerCodeInput").value;
+      if (!peerCode) return alert("Please enter the peer's code or ICE candidate.");
+
+      createPeerConnection();
+      dataChannel = peerConnection.createDataChannel("fileTransfer");
+      setupDataChannel();
+
+      if (peerCode.startsWith('candidate:')) {
+        const candidate = JSON.parse(peerCode.substring(10));
+        await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+      } else {
+        const offer = JSON.parse(peerCode);
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+        const answer = await peerConnection.createAnswer();
+        await peerConnection.setLocalDescription(answer);
+        alert('Generated Answer: ' + JSON.stringify(answer));
+      }
+    };
+
+    // Create a new peer connection
+    function createPeerConnection() {
+      peerConnection = new RTCPeerConnection();
+
+      peerConnection.onicecandidate = (event) => {
+        if (event.candidate) {
+          alert('Send this ICE Candidate: ' + JSON.stringify(event.candidate));
+        }
+      };
+
+      peerConnection.ondatachannel = (event) => {
+        dataChannel = event.channel;
+        setupDataChannel();
+      };
+    }
+
+    // Setup the data channel for file transfer
+    function setupDataChannel() {
+      dataChannel.onopen = () => {
+        document.getElementById("status").textContent = "Connection established!";
+        document.getElementById("fileTransfer").style.display = "block";
+      };
+
+      dataChannel.onmessage = (event) => {
+        const { data } = event;
+        if (data instanceof ArrayBuffer) {
+          receivedBuffer.push(data);
+          receivedSize += data.byteLength;
+          if (receivedSize === fileSize) {
+            const receivedFile = new Blob(receivedBuffer);
+            const downloadLink = document.getElementById("downloadLink");
+            downloadLink.href = URL.createObjectURL(receivedFile);
+            downloadLink.download = "received_file";
+            downloadLink.style.display = "block";
+          }
+        } else if (typeof data === "string") {
+          fileSize = parseInt(data);
+        }
+      };
+    }
+
+    // Send a file
+    document.getElementById("sendFileButton").onclick = () => {
+      const fileInput = document.getElementById("fileInput");
+      if (fileInput.files.length > 0 && dataChannel) {
+        const file = fileInput.files[0];
+        dataChannel.send(file.size.toString()); // Send file size first
+        const reader = new FileReader();
+
+        reader.onload = (e) => {
+          dataChannel.send(e.target.result);
+        };
+
+        reader.readAsArrayBuffer(file);
+      }
+    };
+  </script>
+</body>
+</html>
