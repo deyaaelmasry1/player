@@ -146,19 +146,17 @@
                 img.src = event.target.result;
             };
 
-            img.onload = async function () {
+            img.onload = function () {
                 const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
                 canvas.width = img.width;
                 canvas.height = img.height;
 
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0);
+                // Draw image to canvas
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-                // Convert to selected format using Pica for better performance
-                const pica = Pica();
-                const convertedCanvas = await pica.resize(canvas, canvas);
-
-                convertedCanvas.toBlob(
+                // Convert canvas content to the selected format
+                canvas.toBlob(
                     (blob) => {
                         const url = URL.createObjectURL(blob);
                         convertedImage.src = url;
