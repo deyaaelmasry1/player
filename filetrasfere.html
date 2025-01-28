@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Peer-to-Peer File Transfer</title>
+    <title>Peer-to-Peer File Transfer with PeerJS</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -20,7 +20,7 @@
     </style>
 </head>
 <body>
-    <h2>Peer-to-Peer File Transfer</h2>
+    <h2>Peer-to-Peer File Transfer with PeerJS</h2>
 
     <div>
         <label for="peerId">Enter 4-digit Peer Code: </label>
@@ -39,23 +39,9 @@
     <button id="receiveFileButton" disabled>Receive File</button>
     <div id="receivedFileName"></div>
 
+    <script src="https://cdn.peerjs.com/peerjs/1.3.1/peerjs.min.js"></script>
+
     <script>
-        // Function to get a cookie by name
-        function getCookie(name) {
-            const value = `; ${document.cookie}`;
-            const parts = value.split(`; ${name}=`);
-            if (parts.length === 2) return parts.pop().split(';').shift();
-            return null;
-        }
-
-        // Function to set a cookie
-        function setCookie(name, value, days) {
-            const d = new Date();
-            d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
-            const expires = `expires=${d.toUTCString()}`;
-            document.cookie = `${name}=${value}; ${expires}; path=/`;
-        }
-
         const connectButton = document.getElementById('connectButton');
         const peerIdInput = document.getElementById('peerId');
         const sendFileButton = document.getElementById('sendFileButton');
@@ -65,54 +51,63 @@
         const peerCodeDisplay = document.getElementById('peerCodeDisplay');
         const generateCodeButton = document.getElementById('generateCodeButton');
 
-        let peerConnection;
-        let dataChannel;
-        let fileReader = new FileReader();
+        let peer;
+        let conn;
         let fileData = null;
         let fileBlob = null;
 
-        // WebRTC Configurations
-        const configuration = {
-            iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
-        };
+        // Initialize PeerJS
+        function initPeer() {
+            // Create a Peer with a random ID, or use a custom one if provided
+            peer = new Peer(undefined, {
+                host: 'peerjs.com', // Use the default PeerJS server
+                secure: true,
+                port: 443
+            });
 
-        // Create a new peer connection and data channel
-        function createConnection(peerId) {
-            peerConnection = new RTCPeerConnection(configuration);
+            // Get the generated peer ID
+            peer.on('open', (id) => {
+                peerCodeDisplay.textContent = `Your peer code: ${id}`;
+                peerIdInput.value = id;
+                setCookie('peerCode', id, 7); // Save the peer code in a cookie
+            });
 
-            // Setup the data channel for file transfer
-            dataChannel = peerConnection.createDataChannel('fileTransfer');
-            dataChannel.binaryType = 'arraybuffer';
+            peer.on('connection', (connection) => {
+                conn = connection;
+                setupConnection();
+            });
 
-            dataChannel.onopen = () => {
-                sendFileButton.disabled = false;
-                console.log("Data channel is open.");
-            };
+            peer.on('error', (err) => {
+                alert('Error: ' + err);
+            });
+        }
 
-            dataChannel.onmessage = (event) => {
-                if (event.data instanceof ArrayBuffer) {
-                    const receivedBlob = new Blob([event.data]);
+        // Set up the connection once a peer is connected
+        function setupConnection() {
+            conn.on('data', (data) => {
+                if (data instanceof ArrayBuffer) {
+                    const receivedBlob = new Blob([data]);
                     const link = document.createElement('a');
                     link.href = URL.createObjectURL(receivedBlob);
                     link.download = 'receivedFile';
                     link.click();
+                    alert("File received!");
                 }
-            };
+            });
 
-            // Handle ICE Candidate
-            peerConnection.onicecandidate = event => {
-                if (event.candidate) {
-                    sendICECandidate(peerId, event.candidate);
-                }
-            };
+            conn.on('open', () => {
+                sendFileButton.disabled = false;
+                receiveFileButton.disabled = false;
+                console.log("Connection established.");
+            });
         }
 
-        // Handle connection to the other peer
-        connectButton.onclick = async () => {
+        // Connect to another peer by peer ID
+        connectButton.onclick = () => {
             const peerId = peerIdInput.value;
             if (peerId.length === 4) {
-                createConnection(peerId);
-                await connectToPeer(peerId);
+                conn = peer.connect(peerId);
+                setupConnection();
             } else {
                 alert("Please enter a valid 4-digit peer code.");
             }
@@ -135,45 +130,18 @@
             }
         };
 
-        // Initiate connection and exchange offer/answer via signaling (simulated here)
-        async function connectToPeer(peerId) {
-            const offer = await peerConnection.createOffer();
-            await peerConnection.setLocalDescription(offer);
-            sendOfferToPeer(peerId, offer);
-        }
-
-        // Simulate signaling to send offer to peer
-        function sendOfferToPeer(peerId, offer) {
-            console.log('Sending offer to peer:', peerId);
-            // Here you would send the offer to your signaling server, we are skipping that step
-        }
-
-        // Handle receiving offer from peer
-        function handleOfferFromPeer(offer) {
-            peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
-            peerConnection.createAnswer()
-                .then(answer => peerConnection.setLocalDescription(answer))
-                .then(() => sendAnswerToPeer(peerIdInput.value, peerConnection.localDescription));
-        }
-
-        // Simulate signaling to send answer to peer
-        function sendAnswerToPeer(peerId, answer) {
-            console.log('Sending answer to peer:', peerId);
-            // Here you would send the answer to your signaling server, we are skipping that step
-        }
-
         // Send file
         sendFileButton.onclick = () => {
             const file = fileInput.files[0];
             if (file) {
+                const fileReader = new FileReader();
+                fileReader.onload = () => {
+                    const fileData = fileReader.result;
+                    conn.send(fileData);
+                    alert("File sent!");
+                };
                 fileReader.readAsArrayBuffer(file);
             }
-        };
-
-        fileReader.onload = () => {
-            fileData = fileReader.result;
-            dataChannel.send(fileData);
-            alert("File sent!");
         };
 
         // Receive file
@@ -186,11 +154,23 @@
             link.click();
         };
 
-        // Handle incoming ICE candidates
-        function sendICECandidate(peerId, candidate) {
-            console.log('Sending ICE candidate:', candidate);
-            // Here you would send the candidate to the signaling server
+        // Cookie functions for saving peer code
+        function setCookie(name, value, days) {
+            const d = new Date();
+            d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
+            const expires = `expires=${d.toUTCString()}`;
+            document.cookie = `${name}=${value}; ${expires}; path=/`;
         }
+
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return null;
+        }
+
+        // Initialize peer connection on page load
+        initPeer();
     </script>
 </body>
 </html>
