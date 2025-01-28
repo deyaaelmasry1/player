@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ar">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="أداة مجانية لتغيير حجم الصور مباشرة من المتصفح بسهولة ودون الحاجة إلى رفع الصور أو استهلاك الإنترنت.">
+    <meta name="keywords" content="أداة تغيير حجم الصور, تغيير الحجم, تغيير حجم الصورة, أداة مجانية, تغيير الحجم بنسب, تغيير الحجم بالبكسل">
+    <meta name="author" content="اسمك هنا">
+    <title>أداة تغيير حجم الصور - تغيير حجم الصور بسهولة وأمان</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            direction: rtl;
+            text-align: right;
+        }
+
+        header {
+            background: #4a90e2;
+            color: white;
+            text-align: center;
+            padding: 1rem 0;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2rem;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        input[type="file"],
+        select,
+        input[type="number"],
+        button {
+            padding: 0.8rem;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #4a90e2;
+            color: white;
+            cursor: pointer;
+            border: none;
+        }
+
+        button:hover {
+            background-color: #357ABD;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 2rem;
+            color: #777;
+            font-size: 0.9rem;
+        }
+
+        #output {
+            display: none;
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        #output img {
+            max-width: 100%;
+            border: 1px solid #ccc;
+            margin-top: 1rem;
+            border-radius: 8px;
+        }
+
+        #loading {
+            display: none;
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        #loading img {
+            width: 50px;
+            height: 50px;
+        }
+
+        #loading p {
+            color: #4a90e2;
+            font-weight: bold;
+            margin-top: 0.5rem;
+        }
+
+        #download-button {
+            margin-top: 1rem;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            border: none;
+            background-color: #4a90e2;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #download-button:hover {
+            background-color: #357ABD;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>أداة تغيير حجم الصور</h1>
+    </header>
+    <div class="container">
+        <h2>حوّل حجم صورك بسهولة ودون الحاجة إلى رفع الصور أو استهلاك الإنترنت</h2>
+        <form id="image-resizer-form">
+            <label for="file">اختر صورة:</label>
+            <input type="file" id="file" accept="image/*" required>
+            
+            <label for="resize-option">اختيار طريقة تغيير الحجم:</label>
+            <select id="resize-option" required>
+                <option value="custom">تغيير الحجم المخصص</option>
+                <option value="percentage">تغيير الحجم بنسبه مئوية</option>
+            </select>
+
+            <div id="custom-size" style="display: none;">
+                <label for="width">العرض (بالبكسل):</label>
+                <input type="number" id="width" placeholder="أدخل العرض" min="1">
+                <label for="height">الارتفاع (بالبكسل):</label>
+                <input type="number" id="height" placeholder="أدخل الارتفاع" min="1">
+            </div>
+
+            <div id="percentage-size" style="display: none;">
+                <label for="percentage">النسبة المئوية:</label>
+                <input type="number" id="percentage" placeholder="أدخل النسبة المئوية" min="1" max="100">
+            </div>
+
+            <button type="submit">تغيير الحجم</button>
+        </form>
+
+        <div id="loading">
+            <img src="https://i.gifer.com/YCZH.gif" alt="جارٍ تغيير الحجم...">
+            <p>جارٍ تغيير الحجم...</p>
+        </div>
+
+        <div id="output">
+            <h3>الصورة بعد تغيير الحجم:</h3>
+            <img id="resized-image" alt="الصورة بعد تغيير الحجم">
+            <button id="download-button">تحميل الصورة</button>
+        </div>
+    </div>
+    <center>
+    <p>أداة تغيير حجم الصور مجانية ولا تحتاج إلى رفع الصور أو استهلاك الإنترنت. جميع المعالجة تتم من جهازك مباشرة باستخدام المتصفح فقط.</p>
+    </center>
+    <footer>
+        <p>&copy; 2025 أداة تغيير حجم الصور. لا حاجة للتسجيل أو رفع الملفات.</p>
+    </footer>
+
+    <script>
+        document.getElementById('image-resizer-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const fileInput = document.getElementById('file');
+            const outputDiv = document.getElementById('output');
+            const resizedImage = document.getElementById('resized-image');
+            const downloadButton = document.getElementById('download-button');
+            const loadingDiv = document.getElementById('loading');
+            const widthInput = document.getElementById('width');
+            const heightInput = document.getElementById('height');
+            const percentageInput = document.getElementById('percentage');
+            const resizeOption = document.getElementById('resize-option').value;
+
+            if (!fileInput.files.length) {
+                alert("يرجى اختيار ملف صورة.");
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const img = new Image();
+            const reader = new FileReader();
+
+            loadingDiv.style.display = 'block'; // Show loading spinner
+
+            reader.onload = function (event) {
+                img.src = event.target.result;
+            };
+
+            img.onload = function () {
+                let newWidth, newHeight;
+
+                if (resizeOption === 'custom') {
+                    newWidth = parseInt(widthInput.value) || img.width;
+                    newHeight = parseInt(heightInput.value) || img.height;
+                } else if (resizeOption === 'percentage') {
+                    const percentage = parseInt(percentageInput.value) || 100;
+                    newWidth = (img.width * percentage) / 100;
+                    newHeight = (img.height * percentage) / 100;
+                }
+
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = newWidth;
+                canvas.height = newHeight;
+
+                // Draw resized image to canvas
+                ctx.drawImage(img, 0, 0, newWidth, newHeight);
+
+                // Convert canvas content to the selected format (same as original format)
+                canvas.toBlob(
+                    (blob) => {
+                        const url = URL.createObjectURL(blob);
+                        resizedImage.src = url;
+
+                        // Attach the blob to the download button
+                        downloadButton.onclick = () => {
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = `resized-image.jpg`; // The downloaded image will be a JPEG
+                            a.click();
+                        };
+
+                        outputDiv.style.display = 'block';
+                        loadingDiv.style.display = 'none'; // Hide loading spinner
+                    },
+                    'image/jpeg',
+                    0.9 // Quality for compression
+                );
+            };
+
+            reader.readAsDataURL(file);
+        });
+
+        // Toggle resize options based on selection
+        document.getElementById('resize-option').addEventListener('change', function () {
+            const resizeOption = this.value;
+            const customSizeDiv = document.getElementById('custom-size');
+            const percentageSizeDiv = document.getElementById('percentage-size');
+            
+            if (resizeOption === 'custom') {
+                customSizeDiv.style.display = 'block';
+                percentageSizeDiv.style.display = 'none';
+            } else if (resizeOption === 'percentage') {
+                customSizeDiv.style.display = 'none';
+                percentageSizeDiv.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+
+</html>
