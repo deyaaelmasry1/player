@@ -3,106 +3,64 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WebRTC File Transfer (Manual Connection)</title>
+  <title>File Transfer</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       text-align: center;
       padding: 20px;
     }
-    input, button {
+    #fileInput {
       margin: 10px 0;
-      padding: 10px;
+    }
+    textarea {
       width: 80%;
-      max-width: 400px;
+      height: 100px;
+      margin: 10px 0;
     }
-    #downloadLink {
-      display: none;
-      margin-top: 20px;
-    }
-    .status {
-      margin-top: 10px;
-      font-weight: bold;
+    button {
+      padding: 10px 15px;
+      margin: 10px;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <h1>Peer-to-Peer File Transfer (Manual Connection)</h1>
+  <h1>Peer-to-Peer File Transfer</h1>
   <p>Share files directly between devices using WebRTC.</p>
 
-  <div id="connection">
-    <p>Your Code: <span id="myCode"></span></p>
-    <input type="text" id="peerCodeInput" placeholder="Enter peer's code or ICE candidate">
-    <button id="connectButton">Connect</button>
-  </div>
+  <h2>Step 1: Sender</h2>
+  <input type="file" id="fileInput" />
+  <button id="sendFileButton">Send File</button>
 
-  <div id="fileTransfer" style="display: none;">
-    <input type="file" id="fileInput">
-    <button id="sendFileButton">Send File</button>
-    <a id="downloadLink">Download Received File</a>
-    <p class="status" id="status"></p>
-  </div>
+  <h2>Step 2: Share Signaling Data</h2>
+  <p>Copy and share the connection offer/answer:</p>
+  <textarea id="offerBox" placeholder="Offer/Answer will appear here"></textarea>
+  <button id="copyOffer">Copy Offer</button>
+  <button id="setAnswer">Set Answer</button>
+
+  <textarea id="answerBox" placeholder="Paste the answer here"></textarea>
+  <button id="setOffer">Set Offer</button>
+  <button id="startConnection">Start Connection</button>
+
+  <h2>Received Files</h2>
+  <a id="downloadLink" style="display: none;">Download Received File</a>
+  <p id="status"></p>
 
   <script>
-    let peerConnection, dataChannel;
+    let peerConnection;
+    let dataChannel;
+    let fileReader;
     let receivedBuffer = [];
     let receivedSize = 0;
     let fileSize = 0;
-    let peerCode;
 
-    // Check if there's an existing peer code in cookies
-    const getCookie = (name) => {
-      const value = document.cookie.match(`(^|;) ?${name}=([^;]*)(;|$)`);
-      return value ? value[2] : null;
-    };
-
-    const setCookie = (name, value, days) => {
-      const expires = new Date(Date.now() + days * 864e5).toUTCString();
-      document.cookie = `${name}=${value}; expires=${expires}; path=/`;
-    };
-
-    // Generate or retrieve the peer code
-    const generateCode = () => {
-      let code = getCookie('peerCode');
-      if (!code) {
-        code = Math.random().toString(36).substring(2, 10);
-        setCookie('peerCode', code, 365); // Save in cookie for 1 year
-      }
-      return code;
-    };
-
-    // Use the generated or stored peer code
-    const myCode = generateCode();
-    document.getElementById("myCode").textContent = myCode;
-
-    // Connect to a peer manually using the code
-    document.getElementById("connectButton").onclick = async () => {
-      peerCode = document.getElementById("peerCodeInput").value;
-      if (!peerCode) return alert("Please enter the peer's code or ICE candidate.");
-
-      createPeerConnection();
-      dataChannel = peerConnection.createDataChannel("fileTransfer");
-      setupDataChannel();
-
-      if (peerCode.startsWith('candidate:')) {
-        const candidate = JSON.parse(peerCode.substring(10));
-        await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
-      } else {
-        const offer = JSON.parse(peerCode);
-        await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
-        const answer = await peerConnection.createAnswer();
-        await peerConnection.setLocalDescription(answer);
-        alert('Generated Answer: ' + JSON.stringify(answer));
-      }
-    };
-
-    // Create a new peer connection
+    // Create WebRTC peer connection
     function createPeerConnection() {
       peerConnection = new RTCPeerConnection();
-
       peerConnection.onicecandidate = (event) => {
         if (event.candidate) {
-          alert('Send this ICE Candidate: ' + JSON.stringify(event.candidate));
+          console.log("New ICE Candidate:", event.candidate);
         }
       };
 
@@ -112,13 +70,12 @@
       };
     }
 
-    // Setup the data channel for file transfer
+    // Setup the data channel
     function setupDataChannel() {
       dataChannel.onopen = () => {
-        document.getElementById("status").textContent = "Connection established!";
-        document.getElementById("fileTransfer").style.display = "block";
+        console.log("Data channel is open");
+        document.getElementById('status').textContent = "Connection established!";
       };
-
       dataChannel.onmessage = (event) => {
         const { data } = event;
         if (data instanceof ArrayBuffer) {
@@ -133,23 +90,55 @@
           }
         } else if (typeof data === "string") {
           fileSize = parseInt(data);
+          console.log(`Expecting file size: ${fileSize}`);
         }
       };
     }
 
-    // Send a file
+    // Set up offer/answer for signaling
+    document.getElementById("setOffer").onclick = async () => {
+      const offer = document.getElementById("answerBox").value;
+      if (offer) {
+        await peerConnection.setRemoteDescription(JSON.parse(offer));
+      }
+    };
+
+    document.getElementById("setAnswer").onclick = async () => {
+      const answer = document.getElementById("answerBox").value;
+      if (answer) {
+        await peerConnection.setRemoteDescription(JSON.parse(answer));
+      }
+    };
+
+    document.getElementById("copyOffer").onclick = () => {
+      const offerBox = document.getElementById("offerBox");
+      offerBox.select();
+      document.execCommand("copy");
+    };
+
+    document.getElementById("startConnection").onclick = async () => {
+      if (!peerConnection) createPeerConnection();
+
+      dataChannel = peerConnection.createDataChannel("fileTransfer");
+      setupDataChannel();
+
+      const offer = await peerConnection.createOffer();
+      await peerConnection.setLocalDescription(offer);
+      document.getElementById("offerBox").value = JSON.stringify(peerConnection.localDescription);
+    };
+
     document.getElementById("sendFileButton").onclick = () => {
       const fileInput = document.getElementById("fileInput");
       if (fileInput.files.length > 0 && dataChannel) {
         const file = fileInput.files[0];
-        dataChannel.send(file.size.toString()); // Send file size first
-        const reader = new FileReader();
-
-        reader.onload = (e) => {
-          dataChannel.send(e.target.result);
+        fileReader = new FileReader();
+        fileReader.onload = (e) => {
+          const chunk = e.target.result;
+          dataChannel.send(chunk);
         };
 
-        reader.readAsArrayBuffer(file);
+        dataChannel.send(file.size.toString()); // Send file size first
+        fileReader.readAsArrayBuffer(file);
       }
     };
   </script>
