@@ -13,6 +13,10 @@
             padding: 10px;
             margin: 10px;
         }
+        #peerCodeDisplay {
+            font-size: 20px;
+            margin: 10px;
+        }
     </style>
 </head>
 <body>
@@ -22,7 +26,10 @@
         <label for="peerId">Enter 4-digit Peer Code: </label>
         <input type="text" id="peerId" maxlength="4">
         <button id="connectButton">Connect</button>
+        <button id="generateCodeButton">Generate Code</button>
     </div>
+
+    <div id="peerCodeDisplay"></div>
 
     <h3>Send a file:</h3>
     <input type="file" id="fileInput">
@@ -33,12 +40,30 @@
     <div id="receivedFileName"></div>
 
     <script>
+        // Function to get a cookie by name
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return null;
+        }
+
+        // Function to set a cookie
+        function setCookie(name, value, days) {
+            const d = new Date();
+            d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
+            const expires = `expires=${d.toUTCString()}`;
+            document.cookie = `${name}=${value}; ${expires}; path=/`;
+        }
+
         const connectButton = document.getElementById('connectButton');
         const peerIdInput = document.getElementById('peerId');
         const sendFileButton = document.getElementById('sendFileButton');
         const fileInput = document.getElementById('fileInput');
         const receiveFileButton = document.getElementById('receiveFileButton');
         const receivedFileName = document.getElementById('receivedFileName');
+        const peerCodeDisplay = document.getElementById('peerCodeDisplay');
+        const generateCodeButton = document.getElementById('generateCodeButton');
 
         let peerConnection;
         let dataChannel;
@@ -90,6 +115,23 @@
                 await connectToPeer(peerId);
             } else {
                 alert("Please enter a valid 4-digit peer code.");
+            }
+        };
+
+        // Generate a unique 4-digit peer code
+        generateCodeButton.onclick = () => {
+            const peerCode = Math.floor(1000 + Math.random() * 9000); // Generate a 4-digit code
+            peerIdInput.value = peerCode;
+            setCookie('peerCode', peerCode, 7); // Save the peer code in a cookie
+            peerCodeDisplay.textContent = `Your peer code: ${peerCode}`;
+        };
+
+        // Initialize from cookie if available
+        window.onload = () => {
+            const savedPeerCode = getCookie('peerCode');
+            if (savedPeerCode) {
+                peerCodeDisplay.textContent = `Your peer code: ${savedPeerCode}`;
+                peerIdInput.value = savedPeerCode;
             }
         };
 
