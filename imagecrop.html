@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ar">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="أداة مجانية لاقتصاص الصور مباشرة من المتصفح دون الحاجة إلى رفع الملفات.">
+    <meta name="keywords" content="اقتصاص الصور, أداة اقتصاص, تعديل الصور, أداة مجانية اقتصاص الصور">
+    <meta name="author" content="اسمك هنا">
+    <title>أداة اقتصاص الصور</title>
+
+    <!-- Cropper.js CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.css">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            direction: rtl;
+            text-align: right;
+        }
+
+        header {
+            background: #4a90e2;
+            color: white;
+            text-align: center;
+            padding: 1rem 0;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2rem;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        input[type="file"],
+        button {
+            padding: 0.8rem;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #4a90e2;
+            color: white;
+            cursor: pointer;
+            border: none;
+        }
+
+        button:hover {
+            background-color: #357ABD;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 2rem;
+            color: #777;
+            font-size: 0.9rem;
+        }
+
+        #output {
+            display: none;
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        #output img {
+            max-width: 100%;
+            border: 1px solid #ccc;
+            margin-top: 1rem;
+            border-radius: 8px;
+        }
+
+        #loading {
+            display: none;
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        #loading img {
+            width: 50px;
+            height: 50px;
+        }
+
+        #loading p {
+            color: #4a90e2;
+            font-weight: bold;
+            margin-top: 0.5rem;
+        }
+
+        #download-button {
+            margin-top: 1rem;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            border: none;
+            background-color: #4a90e2;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #download-button:hover {
+            background-color: #357ABD;
+        }
+
+        #image-container {
+            max-width: 100%;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>أداة اقتصاص الصور المجانية</h1>
+    </header>
+    <div class="container">
+        <h2>اقتصص صورتك بسهولة باستخدام أداة اقتصاص الصور هذه</h2>
+        <form id="image-cropper-form">
+            <label for="file">اختر صورة لاقتصاصها:</label>
+            <input type="file" id="file" accept="image/*" required>
+            <button type="submit">تحميل الصورة</button>
+        </form>
+
+        <div id="loading">
+            <img src="https://i.gifer.com/YCZH.gif" alt="جارٍ التحميل...">
+            <p>جارٍ تحميل الصورة...</p>
+        </div>
+
+        <div id="image-container">
+            <h3>حدد المنطقة لاقتصاص الصورة</h3>
+            <img id="image-to-crop" src="" alt="الصورة لتحديد المنطقة" style="max-width: 100%; display: none;">
+        </div>
+
+        <div id="output">
+            <h3>الصورة بعد الاقتصاص:</h3>
+            <img id="cropped-image" alt="الصورة بعد الاقتصاص">
+            <button id="download-button">تحميل الصورة المقتصة</button>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 أداة اقتصاص الصور. لا حاجة للتسجيل أو رفع الملفات.</p>
+    </footer>
+
+    <!-- Cropper.js Script -->
+    <script src="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.js"></script>
+
+    <script>
+        let cropper;
+
+        document.getElementById('image-cropper-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const fileInput = document.getElementById('file');
+            const outputDiv = document.getElementById('output');
+            const croppedImage = document.getElementById('cropped-image');
+            const downloadButton = document.getElementById('download-button');
+            const loadingDiv = document.getElementById('loading');
+            const imageContainer = document.getElementById('image-container');
+            const imageToCrop = document.getElementById('image-to-crop');
+
+            if (!fileInput.files.length) {
+                alert("يرجى اختيار ملف صورة.");
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const img = new Image();
+            const reader = new FileReader();
+
+            loadingDiv.style.display = 'block'; // Show loading spinner
+
+            reader.onload = function (event) {
+                img.src = event.target.result;
+            };
+
+            img.onload = function () {
+                imageToCrop.style.display = 'block'; // Show image to crop
+                imageToCrop.src = img.src;
+
+                // Initialize cropper.js after the image is loaded
+                if (cropper) {
+                    cropper.destroy(); // Destroy the previous cropper instance if exists
+                }
+
+                cropper = new Cropper(imageToCrop, {
+                    aspectRatio: 1,
+                    viewMode: 1,
+                    autoCropArea: 0.5,
+                    movable: true,
+                    scalable: true,
+                    zoomable: true,
+                    crop: function () {
+                        // Crop event handler logic (if needed)
+                    }
+                });
+            };
+
+            reader.readAsDataURL(file);
+        });
+
+        // Handle download after cropping
+        document.getElementById('download-button').addEventListener('click', function () {
+            if (cropper) {
+                cropper.getCroppedCanvas().toBlob(function (blob) {
+                    const url = URL.createObjectURL(blob);
+                    croppedImage.src = url;
+
+                    // Attach the blob to the download button
+                    downloadButton.onclick = () => {
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'cropped-image.png';
+                        a.click();
+                    };
+
+                    outputDiv.style.display = 'block';
+                }, 'image/png');
+            }
+        });
+    </script>
+</body>
+
+</html>
