@@ -166,6 +166,10 @@
             <img id="cropped-image" alt="الصورة بعد الاقتصاص">
             <button id="download-button">تحميل الصورة المقتصة</button>
         </div>
+
+        <div>
+            <button id="crop-button">اقتصاص وتحميل الصورة</button>
+        </div>
     </div>
 
     <footer>
@@ -221,31 +225,33 @@
                     scalable: true,
                     zoomable: true,
                     cropBoxResizable: true, // Allow resizing the crop box
-                    crop: function () {
-                        // Crop event handler logic (if needed)
-                    }
                 });
             };
 
             reader.readAsDataURL(file);
         });
 
-        // Handle download after cropping
-        document.getElementById('download-button').addEventListener('click', function () {
+        // Crop and Download button
+        document.getElementById('crop-button').addEventListener('click', function () {
             if (cropper) {
+                // Get the cropped canvas and convert it to a Blob
                 cropper.getCroppedCanvas().toBlob(function (blob) {
                     const url = URL.createObjectURL(blob);
+                    const croppedImage = document.getElementById('cropped-image');
                     croppedImage.src = url;
 
-                    // Attach the blob to the download button
+                    // Display the cropped image output
+                    const outputDiv = document.getElementById('output');
+                    outputDiv.style.display = 'block';
+
+                    // Allow downloading of the cropped image
+                    const downloadButton = document.getElementById('download-button');
                     downloadButton.onclick = () => {
                         const a = document.createElement('a');
                         a.href = url;
                         a.download = 'cropped-image.png';
                         a.click();
                     };
-
-                    outputDiv.style.display = 'block';
                 }, 'image/png');
             }
         });
