@@ -131,18 +131,25 @@
         <h1>أداة تغيير حجم الصور</h1>
     </header>
     <div class="container">
-        <h2>حوّل حجم صورك بسهولة ودون الحاجة إلى رفع الصور أو استهلاك الإنترنت</h2>
+        <h2>تغير حجم الصور بسهولة الي اي حجم تريد </h2>
         <form id="image-resizer-form">
             <label for="file">اختر صورة:</label>
             <input type="file" id="file" accept="image/*" required>
-            <div id="custom-size" style="display: none;">
+            
+            <label for="resize-option">اختيار طريقة تغيير الحجم:</label>
+            <select id="resize-option" required>
+                <option value="custom">تغيير الحجم المخصص</option>
+                <option value="percentage">تغيير الحجم بنسبه مئوية</option>
+            </select>
+
+            <div id="custom-size">
                 <label for="width">العرض (بالبكسل):</label>
                 <input type="number" id="width" placeholder="أدخل العرض" min="1">
                 <label for="height">الارتفاع (بالبكسل):</label>
                 <input type="number" id="height" placeholder="أدخل الارتفاع" min="1">
             </div>
 
-            <div id="percentage-size" style="display: none;">
+            <div id="percentage-size">
                 <label for="percentage">النسبة المئوية:</label>
                 <input type="number" id="percentage" placeholder="أدخل النسبة المئوية" min="1">
             </div>
@@ -240,21 +247,6 @@
             };
 
             reader.readAsDataURL(file);
-        });
-
-        // Toggle resize options based on selection
-        document.getElementById('resize-option').addEventListener('change', function () {
-            const resizeOption = this.value;
-            const customSizeDiv = document.getElementById('custom-size');
-            const percentageSizeDiv = document.getElementById('percentage-size');
-            
-            if (resizeOption === 'custom') {
-                customSizeDiv.style.display = 'block';
-                percentageSizeDiv.style.display = 'none';
-            } else if (resizeOption === 'percentage') {
-                customSizeDiv.style.display = 'none';
-                percentageSizeDiv.style.display = 'block';
-            }
         });
     </script>
 </body>
