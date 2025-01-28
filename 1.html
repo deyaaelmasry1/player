@@ -105,6 +105,21 @@
             font-weight: bold;
             margin-top: 0.5rem;
         }
+
+        #download-button {
+            margin-top: 1rem;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            border: none;
+            background-color: #4a90e2;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #download-button:hover {
+            background-color: #357ABD;
+        }
     </style>
 </head>
 
@@ -135,9 +150,8 @@
 
         <div id="output">
             <h3>Converted Image:</h3>
-            <a id="download-link" download="converted-image.png">
-                <img id="converted-image" alt="Converted Image">
-            </a>
+            <img id="converted-image" alt="Converted Image">
+            <button id="download-button">Download Image</button>
         </div>
     </div>
 
@@ -153,7 +167,7 @@
             const format = document.getElementById('format').value;
             const outputDiv = document.getElementById('output');
             const convertedImage = document.getElementById('converted-image');
-            const downloadLink = document.getElementById('download-link');
+            const downloadButton = document.getElementById('download-button');
             const loadingDiv = document.getElementById('loading');
 
             if (!fileInput.files.length) {
@@ -185,8 +199,15 @@
                     (blob) => {
                         const url = URL.createObjectURL(blob);
                         convertedImage.src = url;
-                        downloadLink.href = url;
-                        downloadLink.download = `converted-image.${format.split('/')[1]}`;
+
+                        // Attach the blob to the download button
+                        downloadButton.onclick = () => {
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = `converted-image.${format.split('/')[1]}`;
+                            a.click();
+                        };
+
                         outputDiv.style.display = 'block';
                         loadingDiv.style.display = 'none'; // Hide loading spinner
                     },
