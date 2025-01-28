@@ -8,7 +8,6 @@
     <meta name="keywords" content="image converter, browser-based image conversion, PNG to JPEG, JPEG to WebP, online image tool">
     <meta name="author" content="Your Name">
     <title>Image Converter - No API Required</title>
-    <script src="https://cdn.jsdelivr.net/npm/pica/dist/pica.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -89,6 +88,23 @@
             margin-top: 1rem;
             border-radius: 8px;
         }
+
+        #loading {
+            display: none;
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        #loading img {
+            width: 50px;
+            height: 50px;
+        }
+
+        #loading p {
+            color: #4a90e2;
+            font-weight: bold;
+            margin-top: 0.5rem;
+        }
     </style>
 </head>
 
@@ -111,6 +127,12 @@
 
             <button type="submit">Convert</button>
         </form>
+
+        <div id="loading">
+            <img src="https://i.gifer.com/YCZH.gif" alt="Loading Spinner">
+            <p>Converting...</p>
+        </div>
+
         <div id="output">
             <h3>Converted Image:</h3>
             <a id="download-link" download="converted-image.png">
@@ -132,6 +154,7 @@
             const outputDiv = document.getElementById('output');
             const convertedImage = document.getElementById('converted-image');
             const downloadLink = document.getElementById('download-link');
+            const loadingDiv = document.getElementById('loading');
 
             if (!fileInput.files.length) {
                 alert("Please select an image file.");
@@ -141,6 +164,8 @@
             const file = fileInput.files[0];
             const img = new Image();
             const reader = new FileReader();
+
+            loadingDiv.style.display = 'block'; // Show loading spinner
 
             reader.onload = function (event) {
                 img.src = event.target.result;
@@ -163,6 +188,7 @@
                         downloadLink.href = url;
                         downloadLink.download = `converted-image.${format.split('/')[1]}`;
                         outputDiv.style.display = 'block';
+                        loadingDiv.style.display = 'none'; // Hide loading spinner
                     },
                     format,
                     0.9 // Quality for compression (JPEG/WebP)
