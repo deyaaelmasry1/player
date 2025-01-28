@@ -214,12 +214,13 @@
                 }
 
                 cropper = new Cropper(imageToCrop, {
-                    aspectRatio: 1,
+                    aspectRatio: NaN, // Allow freeform cropping (no fixed aspect ratio)
                     viewMode: 1,
                     autoCropArea: 0.5,
                     movable: true,
                     scalable: true,
                     zoomable: true,
+                    cropBoxResizable: true, // Allow resizing the crop box
                     crop: function () {
                         // Crop event handler logic (if needed)
                     }
