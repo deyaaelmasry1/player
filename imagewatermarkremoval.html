@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remove Watermark from Image</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f7f7f7;
+            text-align: center;
+        }
+
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 1rem;
+        }
+
+        h1 {
+            margin: 0;
+        }
+
+        .container {
+            margin-top: 20px;
+        }
+
+        input[type="file"] {
+            margin: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #output {
+            margin-top: 20px;
+            display: none;
+        }
+
+        canvas {
+            border: 1px solid #ccc;
+            margin-top: 10px;
+        }
+
+        #loading {
+            display: none;
+        }
+
+        footer {
+            margin-top: 40px;
+            font-size: 0.9rem;
+            color: #777;
+        }
+
+        #download-button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 10px;
+        }
+
+        #download-button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Remove Watermark from Image</h1>
+    </header>
+
+    <div class="container">
+        <h2>Upload an Image</h2>
+        <input type="file" id="file-input" accept="image/*" />
+        <button onclick="removeWatermark()">Remove Watermark</button>
+
+        <div id="loading">
+            <p>Removing watermark...</p>
+        </div>
+
+        <div id="output">
+            <h3>Image with Watermark Removed:</h3>
+            <canvas id="output-canvas"></canvas>
+            <button id="download-button">Download Image</button>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Watermark Removal Tool. All rights reserved.</p>
+    </footer>
+
+    <script>
+        async function removeWatermark() {
+            const fileInput = document.getElementById('file-input');
+            const loadingDiv = document.getElementById('loading');
+            const outputDiv = document.getElementById('output');
+            const canvas = document.getElementById('output-canvas');
+            const downloadButton = document.getElementById('download-button');
+
+            if (!fileInput.files.length) {
+                alert("Please select an image.");
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const image = new Image();
+            const reader = new FileReader();
+
+            loadingDiv.style.display = 'block';
+
+            reader.onload = function (event) {
+                image.src = event.target.result;
+            };
+
+            image.onload = function () {
+                const canvasContext = canvas.getContext('2d');
+                canvas.width = image.width;
+                canvas.height = image.height;
+                canvasContext.drawImage(image, 0, 0, image.width, image.height);
+
+                // Define the watermark area (in this case, a region you want to "erase")
+                const watermarkRegion = {
+                    x: 50, // Starting x position
+                    y: 50, // Starting y position
+                    width: 150, // Width of the region
+                    height: 50 // Height of the region
+                };
+
+                // Get the image data
+                const imageData = canvasContext.getImageData(watermarkRegion.x, watermarkRegion.y, watermarkRegion.width, watermarkRegion.height);
+                const data = imageData.data;
+
+                // Loop through each pixel and set its alpha (transparency) to 0 (transparent)
+                for (let i = 0; i < data.length; i += 4) {
+                    data[i + 3] = 0; // Set alpha channel to 0 (transparent)
+                }
+
+                // Put the modified image data back into the canvas
+                canvasContext.putImageData(imageData, watermarkRegion.x, watermarkRegion.y);
+
+                // Hide loading message and show output canvas
+                loadingDiv.style.display = 'none';
+                outputDiv.style.display = 'block';
+
+                // Download button functionality
+                downloadButton.onclick = () => {
+                    const link = document.createElement('a');
+                    link.href = canvas.toDataURL();
+                    link.download = 'output.png';
+                    link.click();
+                };
+            };
+
+            reader.readAsDataURL(file);
+        }
+    </script>
+</body>
+
+</html>
