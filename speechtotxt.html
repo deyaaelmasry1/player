@@ -4,200 +4,119 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <meta name="description" content="تحويل الصوت إلى نص باستخدام API التعرف على الصوت، يدعم اللغة العربية">
-    <meta name="keywords" content="Speech to Text, Arabic Speech, تحويل الصوت, التعرف على الصوت, Arabic Speech Recognition">
-    <meta name="author" content="Your Name">
-    <meta name="language" content="Arabic">
-    <meta name="robots" content="index, follow">
-    <meta name="theme-color" content="#4CAF50">
-    <title>Speech to Text (Arabic)</title>
+    <title>Speech to Text (Arabic Supported)</title>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
+            font-family: Arial, sans-serif;
+            direction: rtl; /* Right-to-left text direction for Arabic */
+            background-color: #f4f4f9;
             padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            direction: rtl; /* Set document direction for Arabic */
         }
-        .container {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        h1 {
             text-align: center;
-            width: 100%;
-            max-width: 600px;
-        }
-        .title {
-            font-size: 28px;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
-        h2 {
-            font-size: 20px;
-            margin-top: 20px;
-        }
-        p {
-            font-size: 16px;
-            color: #555;
-            margin-top: 10px;
-        }
-        #speechResult {
-            font-size: 18px;
             color: #333;
-            margin-top: 20px;
-            min-height: 50px;
-            direction: rtl; /* Right-to-left text alignment for Arabic */
-            text-align: right;
-            overflow-y: auto;
         }
-        textarea {
+        #textArea {
             width: 100%;
-            height: 150px;
+            height: 300px;
+            margin-top: 20px;
             padding: 10px;
             font-size: 18px;
-            direction: rtl;
-            margin-top: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            background-color: #fff;
+            border: 2px solid #ccc;
+            border-radius: 8px;
             resize: vertical;
             overflow-y: auto;
         }
-        #startBtn, #stopBtn, #downloadBtn, #copyBtn {
+        .btn-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        button {
             padding: 10px 20px;
-            font-size: 18px;
-            background-color: #4CAF50;
-            color: white;
+            margin: 5px;
+            font-size: 16px;
+            cursor: pointer;
             border: none;
             border-radius: 5px;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: background-color 0.3s;
         }
-        #startBtn:hover, #stopBtn:hover, #downloadBtn:hover, #copyBtn:hover {
-            background-color: #45a049;
+        #start-btn {
+            background-color: #4CAF50;
+            color: white;
         }
-        #stopBtn {
+        #stop-btn {
             background-color: #f44336;
+            color: white;
         }
-        #downloadBtn {
+        #download-btn {
             background-color: #2196F3;
-        }
-        #copyBtn {
-            background-color: #f44336;
+            color: white;
         }
     </style>
 </head>
 <body>
-
-<div class="container">
-    <div class="title">تحويل الصوت إلى نص (Arabic Speech to Text)</div>
+    <h1>Speech to Text (Arabic)</h1>
+    <textarea id="textArea" placeholder="ابدأ بالتحدث..."></textarea>
     
-    <!-- Added section for description -->
-    <h2>وصف</h2>
-    <p>
-        هذه الأداة تستخدم تقنية التعرف على الصوت لتحويل الكلام إلى نص في الوقت الفعلي. يدعم التطبيق اللغة العربية، ويمكنك استخدامها لتحويل النصوص المنطوقة إلى نص مكتوب بسهولة.
-    </p>
-    
-    <!-- Added instructions -->
-    <h2>كيفية الاستخدام</h2>
-    <p>
-        1. اضغط على زر "ابدأ الاستماع" لبدء عملية التعرف على الصوت.
-    </p>
-    <p>
-        2. بعد التحدث، سيبدأ النص بالظهور في مربع النص.
-    </p>
-    <p>
-        3. عندما تنتهي من التحدث، اضغط على "إيقاف الاستماع".
-    </p>
-    <p>
-        4. يمكنك نسخ النص أو تنزيله كملف نصي من خلال الأزرار المناسبة.
-    </p>
+    <div class="btn-container">
+        <button id="start-btn" onclick="startRecognition()">ابدأ</button>
+        <button id="stop-btn" onclick="stopRecognition()" disabled>توقف</button>
+        <button id="download-btn" onclick="downloadText()">تحميل النص</button>
+    </div>
 
-    <!-- Control buttons -->
-    <button id="startBtn">ابدأ الاستماع</button>
-    <button id="stopBtn" disabled>إيقاف الاستماع</button>
+    <script>
+        const textArea = document.getElementById('textArea');
+        const startBtn = document.getElementById('start-btn');
+        const stopBtn = document.getElementById('stop-btn');
 
-    <h2>النص المحول:</h2>
-    <textarea id="speechResult" readonly></textarea>
-    
-    <!-- Copy and download buttons -->
-    <button id="copyBtn">نسخ النص</button>
-    <button id="downloadBtn">تنزيل النص</button>
-</div>
+        // Check if SpeechRecognition API is supported
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-<script>
-    const startBtn = document.getElementById('startBtn');
-    const stopBtn = document.getElementById('stopBtn');
-    const speechResult = document.getElementById('speechResult');
-    const copyBtn = document.getElementById('copyBtn');
-    const downloadBtn = document.getElementById('downloadBtn');
-
-    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    recognition.lang = 'ar-SA'; // Arabic (Saudi Arabia)
-    recognition.interimResults = true;
-    recognition.maxAlternatives = 1;
-    recognition.continuous = true;  // Keep the microphone on until stopped manually
-
-    let lastTranscript = "";  // Store the last full transcript
-    let isFirstSpeech = true;  // To track if the first speech is still being processed
-
-    recognition.onresult = (event) => {
-        let transcript = '';
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-            transcript += event.results[i][0].transcript;
+        if (!SpeechRecognition) {
+            alert("متصفحك لا يدعم التعرف على الصوت.");
         }
 
-        // Prevent repeating the same transcript, especially for the first word
-        if (transcript.trim() !== lastTranscript.trim() || isFirstSpeech) {
-            speechResult.value += transcript + " "; // Add new transcript
-            lastTranscript = transcript.trim(); // Update the last transcript
-            isFirstSpeech = false;  // Set this flag to false after the first speech
-            speechResult.scrollTop = speechResult.scrollHeight; // Scroll to the bottom
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'ar-SA'; // Arabic Language
+        recognition.interimResults = true;
+        recognition.maxAlternatives = 1;
+
+        // Start recognition
+        function startRecognition() {
+            recognition.start();
+            startBtn.disabled = true;
+            stopBtn.disabled = false;
         }
-    };
 
-    recognition.onerror = (event) => {
-        console.error('Speech recognition error', event.error);
-    };
+        // Stop recognition
+        function stopRecognition() {
+            recognition.stop();
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+        }
 
-    // Start listening
-    startBtn.addEventListener('click', () => {
-        recognition.start();
-        speechResult.value = 'استماع...';
-        startBtn.disabled = true;
-        stopBtn.disabled = false;
-    });
+        // When recognition returns results
+        recognition.onresult = function(event) {
+            const transcript = event.results[event.resultIndex][0].transcript;
+            textArea.value += transcript; // Add recognized text to text area
+            textArea.scrollTop = textArea.scrollHeight; // Keep scroll at bottom
+        };
 
-    // Stop listening
-    stopBtn.addEventListener('click', () => {
-        recognition.stop();
-        startBtn.disabled = false;
-        stopBtn.disabled = true;
-        speechResult.value += '\nتم إيقاف الاستماع';
-    });
+        // Handle recognition end
+        recognition.onend = function() {
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+        };
 
-    // Copy the text from the textarea to the clipboard
-    copyBtn.addEventListener('click', () => {
-        speechResult.select();
-        document.execCommand('copy');
-        alert('تم نسخ النص!');
-    });
-
-    // Download the speech result as a .txt file
-    downloadBtn.addEventListener('click', () => {
-        const textToDownload = speechResult.value;
-        const blob = new Blob([textToDownload], { type: 'text/plain' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = 'speech_to_text.txt';
-        link.click();
-    });
-</script>
-
+        // Download text as .txt file
+        function downloadText() {
+            const text = textArea.value;
+            const blob = new Blob([text], { type: 'text/plain' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'transcript.txt';
+            link.click();
+        }
+    </script>
 </body>
 </html>
