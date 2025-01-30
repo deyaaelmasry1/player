@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Remove Image Background using TensorFlow.js in the browser">
+    <meta name="keywords" content="background removal, TensorFlow.js, machine learning, bodypix">
+    <meta name="author" content="Your Name">
+    <title>Background Removal Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f7f7f7;
+            text-align: center;
+            direction: ltr;
+        }
+
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 1rem;
+        }
+
+        h1 {
+            margin: 0;
+        }
+
+        .container {
+            margin-top: 20px;
+        }
+
+        input[type="file"] {
+            margin: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #output {
+            margin-top: 20px;
+            display: none;
+        }
+
+        canvas {
+            border: 1px solid #ccc;
+        }
+
+        #loading {
+            display: none;
+        }
+
+        footer {
+            margin-top: 40px;
+            font-size: 0.9rem;
+            color: #777;
+        }
+
+        #download-button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 10px;
+        }
+
+        #download-button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Remove Background from Image</h1>
+    </header>
+
+    <div class="container">
+        <h2>Upload an Image</h2>
+        <input type="file" id="file-input" accept="image/*" />
+        <button onclick="removeBackground()">Remove Background</button>
+
+        <div id="loading" style="display: none;">
+            <p>Removing background...</p>
+        </div>
+
+        <div id="output">
+            <h3>Image with Background Removed:</h3>
+            <canvas id="output-canvas"></canvas>
+            <button id="download-button">Download Image</button>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Background Removal Tool. All rights reserved.</p>
+    </footer>
+
+    <!-- Include TensorFlow.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <!-- Include BodyPix model -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix"></script>
+
+    <script>
+        let net;
+
+        // Load the BodyPix model
+        async function loadModel() {
+            net = await bodyPix.load();
+            console.log('Model loaded');
+        }
+
+        loadModel();
+
+        async function removeBackground() {
+            const fileInput = document.getElementById('file-input');
+            const loadingDiv = document.getElementById('loading');
+            const outputDiv = document.getElementById('output');
+            const canvas = document.getElementById('output-canvas');
+            const downloadButton = document.getElementById('download-button');
+
+            if (!fileInput.files.length) {
+                alert("Please select an image.");
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const image = new Image();
+            const reader = new FileReader();
+
+            loadingDiv.style.display = 'block';
+
+            reader.onload = function (event) {
+                image.src = event.target.result;
+            };
+
+            image.onload = async function () {
+                const segmentation = await net.segmentPersonParts(image);
+                const canvasContext = canvas.getContext('2d');
+                canvas.width = image.width;
+                canvas.height = image.height;
+
+                // Draw the image onto the canvas
+                canvasContext.drawImage(image, 0, 0, image.width, image.height);
+
+                // Mask the background by making it transparent
+                const imageData = canvasContext.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imageData.data;
+                for (let i = 0; i < data.length; i += 4) {
+                    const index = i / 4;
+                    if (segmentation.data[index] === 0) {
+                        // Set the pixels that are part of the background to transparent
+                        data[i + 3] = 0;
+                    }
+                }
+                canvasContext.putImageData(imageData, 0, 0);
+
+                // Show the output and hide the loading spinner
+                loadingDiv.style.display = 'none';
+                outputDiv.style.display = 'block';
+
+                // Download button functionality
+                downloadButton.onclick = () => {
+                    const link = document.createElement('a');
+                    link.href = canvas.toDataURL();
+                    link.download = 'output.png';
+                    link.click();
+                };
+            };
+
+            reader.readAsDataURL(file);
+        }
+    </script>
+</body>
+
+</html>
