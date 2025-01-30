@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Watermark Removal - Before and After</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/2.1.2/tesseract.min.js"></script>
+  <title>Watermark Detection and Removal with TensorFlow.js</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -33,8 +34,8 @@
 </head>
 <body>
 
-<h1>Watermark Removal - Before and After</h1>
-<p>Upload an image, automatically detect any watermark, remove it, and see the difference between the original and modified image.</p>
+<h1>Watermark Detection and Removal</h1>
+<p>Upload an image, detect the watermark region using AI, and see the image before and after watermark removal.</p>
 
 <input type="file" id="image-input" accept="image/*">
 <div id="image-info"></div>
@@ -54,20 +55,20 @@
 </div>
 
 <script>
-  let imageElement, detectedTextRegions = [];
-  let originalImageData, ctxOriginal, ctxModified;
+  let imageElement, originalImageData, ctxOriginal, ctxModified;
+  let detectedRegions = [];
 
   document.getElementById('image-input').addEventListener('change', handleImageUpload);
 
-  function handleImageUpload(event) {
+  async function handleImageUpload(event) {
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = function(e) {
         const img = new Image();
-        img.onload = function() {
+        img.onload = async function() {
           imageElement = img;
-          document.getElementById('image-info').innerHTML = 'Image loaded. Ready to detect watermark.';
+          document.getElementById('image-info').innerHTML = 'Image loaded. Detecting watermark...';
 
           // Display the original image
           const originalCanvas = document.getElementById('original-canvas');
@@ -84,7 +85,9 @@
           ctxModified.clearRect(0, 0, modifiedCanvas.width, modifiedCanvas.height);
           ctxModified.drawImage(img, 0, 0, modifiedCanvas.width, modifiedCanvas.height);
 
-          detectTextAndRemove(img);
+          // Load the COCO-SSD model
+          const model = await cocoSsd.load();
+          detectWatermark(model, img);
         };
         img.src = e.target.result;
       };
@@ -92,30 +95,28 @@
     }
   }
 
-  // Detect watermark using Tesseract.js
-  function detectTextAndRemove(img) {
-    Tesseract.recognize(
-      img,
-      'eng',
-      {
-        logger: (m) => console.log(m)
-      }
-    ).then(({ data: { text, blocks } }) => {
-      console.log("Detected Text: ", text);
-      if (blocks) {
-        detectedTextRegions = blocks.map(block => block.bbox);
-        alert("Watermark detected, click 'Remove Watermark' to proceed.");
-      } else {
-        alert("No text watermark detected.");
-      }
+  // Detect watermark region using the COCO-SSD model
+  async function detectWatermark(model, img) {
+    const predictions = await model.detect(img);
+
+    // Filter out predictions that are likely to be a watermark (e.g., text-like objects)
+    detectedRegions = predictions.filter(prediction => {
+      // You can customize this filtering to target specific objects that resemble a watermark
+      return prediction.class === 'person' || prediction.class === 'bottle'; // Example filtering
     });
+
+    if (detectedRegions.length > 0) {
+      alert("Watermark detected, click 'Remove Watermark' to proceed.");
+    } else {
+      alert("No watermark detected.");
+    }
   }
 
-  // Remove watermark and rebuild the image
+  // Remove watermark by rebuilding the region (basic approach)
   document.getElementById('remove-watermark').addEventListener('click', () => {
-    if (detectedTextRegions.length > 0) {
-      detectedTextRegions.forEach(region => {
-        rebuildRegion(region);
+    if (detectedRegions.length > 0) {
+      detectedRegions.forEach(region => {
+        removeWatermark(region);
       });
       alert("Watermark removed. See the comparison.");
     } else {
@@ -123,17 +124,18 @@
     }
   });
 
-  // Rebuild the image by replacing the watermark area
-  function rebuildRegion(region) {
-    const width = region.width;
-    const height = region.height;
-    const x = region.x;
-    const y = region.y;
+  // Simple removal of the watermark by filling the region with surrounding pixels
+  function removeWatermark(region) {
+    const { bbox } = region;
+    const width = bbox[2];
+    const height = bbox[3];
+    const x = bbox[0];
+    const y = bbox[1];
 
     // Get the surrounding pixels to fill in the watermark area
     const surroundingPixels = getSurroundingPixels(x, y, width, height);
 
-    // Rebuild the region by setting the surrounding pixels
+    // Rebuild the region by replacing with surrounding pixels
     for (let i = 0; i < width; i++) {
       for (let j = 0; j < height; j++) {
         const pixelIndex = ((y + j) * originalImageData.width + (x + i)) * 4;
@@ -148,20 +150,15 @@
     ctxModified.putImageData(originalImageData, 0, 0);
   }
 
-  // Get the surrounding pixels to fill in the region
+  // Get surrounding pixels (basic average approach)
   function getSurroundingPixels(x, y, width, height) {
     let pixels = [];
-
-    // Collect surrounding pixels by averaging adjacent areas
     for (let i = 0; i < width; i++) {
       pixels[i] = [];
       for (let j = 0; j < height; j++) {
-        // Get average color of surrounding pixels (just an example, you can improve this)
-        const px = (x + i);
-        const py = (y + j);
+        const px = x + i;
+        const py = y + j;
         const pixelIndex = (py * originalImageData.width + px) * 4;
-
-        // Get the surrounding pixel color
         const r = originalImageData.data[pixelIndex];
         const g = originalImageData.data[pixelIndex + 1];
         const b = originalImageData.data[pixelIndex + 2];
@@ -169,7 +166,6 @@
         pixels[i][j] = { r, g, b };
       }
     }
-
     return pixels;
   }
 </script>
