@@ -174,7 +174,7 @@
                 canvas.width = image.width;
                 canvas.height = image.height;
 
-                // تحليل الصورة باستخدام BodyPix أو DeepLabV3
+                // Segment the image using both models simultaneously
                 const segmentationBodyPix = await netBodyPix.segmentPerson(image, {
                     internalResolution: 'medium',
                     segmentationThreshold: 0.7
@@ -182,8 +182,9 @@
 
                 const segmentationDeepLab = await netDeepLab.segment(image);
 
-                const segmentation = segmentationBodyPix.data.length > segmentationDeepLab.segmentation.length 
-                    ? segmentationBodyPix : segmentationDeepLab;
+                // Get the segmentation data from both models
+                const bodyPixData = segmentationBodyPix.data;
+                const deepLabData = segmentationDeepLab.segmentation;
 
                 canvasContext.drawImage(image, 0, 0, canvas.width, canvas.height);
 
@@ -192,9 +193,15 @@
 
                 for (let i = 0; i < data.length; i += 4) {
                     const index = i / 4;
-                    if (!segmentation.data[index]) {
-                        // جعل الخلفية شفافة
-                        data[i + 3] = 0;
+                    const bodyPixPixel = bodyPixData[index];
+                    const deepLabPixel = deepLabData[index] ? 1 : 0;
+
+                    // Combine results from both models
+                    // Keep the pixel if it's detected by either model
+                    if (bodyPixPixel || deepLabPixel) {
+                        data[i + 3] = 255;  // Keep the pixel (non-background)
+                    } else {
+                        data[i + 3] = 0;  // Set to transparent (background)
                     }
                 }
 
@@ -203,7 +210,7 @@
                 loadingDiv.style.display = 'none';
                 outputDiv.style.display = 'block';
 
-                // وظيفة زر التحميل
+                // Download the resulting image
                 downloadButton.onclick = () => {
                     const link = document.createElement('a');
                     link.href = canvas.toDataURL();
