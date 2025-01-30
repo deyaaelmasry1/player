@@ -105,10 +105,9 @@
             textArea.scrollTop = textArea.scrollHeight;  // Keep the scroll at the bottom
         };
 
-        // Handle the end of recognition
+        // Handle the end of recognition and restart it automatically
         recognition.onend = function() {
-            startBtn.disabled = false;
-            stopBtn.disabled = true;
+            recognition.start();  // Restart the recognition after it ends
         };
 
         // Download the text as a .txt file
