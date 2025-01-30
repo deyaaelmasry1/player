@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Text to Speech (MP3 Download)</title>
+    <title>Text to Speech (SpeechSynthesis + MP3 Download)</title>
     <script src="https://code.responsivevoice.org/responsivevoice.js?key=YOUR_KEY"></script> <!-- Free API -->
 </head>
 <body>
-    <h1>Text to Speech (Generate & Download MP3)</h1>
+    <h1>Text to Speech (Browser TTS + MP3 Download)</h1>
 
     <textarea id="text-to-speech" rows="4" cols="50" placeholder="Enter text here..."></textarea><br><br>
     <button onclick="convertTextToSpeech()">Convert to Speech</button>
@@ -18,21 +18,34 @@
     <script>
         let audioUrl = null;
 
-        async function convertTextToSpeech() {
+        // Function to generate speech using the browser's SpeechSynthesis API
+        function convertTextToSpeech() {
             const text = document.getElementById("text-to-speech").value.trim();
             if (text === "") {
                 alert("Please enter some text.");
                 return;
             }
 
-            // Use ResponsiveVoice API to generate an MP3 URL
+            // Step 1: Use SpeechSynthesis API for speaking
+            const utterance = new SpeechSynthesisUtterance(text);
+            const synth = window.speechSynthesis;
+
+            // Set up some speech properties (voice, pitch, etc.)
+            utterance.voice = synth.getVoices().find(voice => voice.lang === "en-US");
+            utterance.pitch = 1;
+            utterance.rate = 1;
+
+            // Step 2: Speak the text using the browser's SpeechSynthesis API
+            synth.speak(utterance);
+
+            // Step 3: Use ResponsiveVoice to download MP3
             responsiveVoice.speak(text, "UK English Male", {
                 onstart: function() {
                     document.getElementById("download-btn").disabled = true;
                 },
                 onend: async function() {
                     try {
-                        // Fetch the generated MP3 file (ResponsiveVoice provides MP3 links for some voices)
+                        // Fetch the generated MP3 file (ResponsiveVoice provides MP3 links)
                         const response = await fetch(`https://api.responsivevoice.org/v1/text:synthesize?text=${encodeURIComponent(text)}&lang=en-gb&engine=g1`);
                         const blob = await response.blob();
                         audioUrl = URL.createObjectURL(blob);
@@ -40,6 +53,7 @@
                         // Play the audio and enable download
                         document.getElementById("audio-player").src = audioUrl;
                         document.getElementById("download-btn").disabled = false;
+
                     } catch (error) {
                         console.error("MP3 generation failed:", error);
                         alert("Failed to generate MP3. Please try again.");
@@ -55,7 +69,7 @@
                 link.download = 'speech.mp3'; 
                 link.click();
             } else {
-                alert("No MP3 file available. Try again.");
+                alert("Recording not available. Try again.");
             }
         }
     </script>
