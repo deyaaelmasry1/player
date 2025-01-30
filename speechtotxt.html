@@ -82,19 +82,26 @@
         recognition.maxAlternatives = 1;  // Only the best alternative is returned
 
         let fullText = '';
+        let isRecognitionActive = false;  // Flag to track if recognition is active
 
         // Start speech recognition
         function startRecognition() {
-            recognition.start();
-            startBtn.disabled = true;
-            stopBtn.disabled = false;
+            if (!isRecognitionActive) {
+                recognition.start();
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+                isRecognitionActive = true;
+            }
         }
 
         // Stop speech recognition
         function stopRecognition() {
-            recognition.stop();
-            startBtn.disabled = false;
-            stopBtn.disabled = true;
+            if (isRecognitionActive) {
+                recognition.stop();
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+                isRecognitionActive = false;
+            }
         }
 
         // Event handler for when speech is detected
@@ -105,9 +112,12 @@
             textArea.scrollTop = textArea.scrollHeight;  // Keep the scroll at the bottom
         };
 
-        // Handle the end of recognition and restart it automatically
+        // Handle the end of recognition
         recognition.onend = function() {
-            recognition.start();  // Restart the recognition after it ends
+            // Do not restart automatically after stopping
+            if (isRecognitionActive) {
+                recognition.start();
+            }
         };
 
         // Download the text as a .txt file
