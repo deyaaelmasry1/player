@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -79,11 +78,16 @@
         let session;
 
         async function loadModel() {
-            session = await ort.InferenceSession.create("https://huggingface.co/onnx/models/u2net.onnx");
-            console.log("✅ تم تحميل النموذج بنجاح.");
+            try {
+                // تحميل النموذج من الرابط
+                session = await ort.InferenceSession.create("https://huggingface.co/onnx/models/u2net.onnx");
+                console.log("✅ تم تحميل النموذج بنجاح.");
+            } catch (error) {
+                console.error("❌ فشل في تحميل النموذج:", error);
+            }
         }
 
-        loadModel();
+        loadModel();  // تحميل النموذج عند تحميل الصفحة فقط
 
         async function removeBackground() {
             const fileInput = document.getElementById('file-input');
@@ -109,14 +113,18 @@
 
             image.onload = async function () {
                 const canvasContext = canvas.getContext('2d');
-                canvas.width = image.width;
-                canvas.height = image.height;
+                const maxDimension = 1024;  // تحديد حجم الصورة للمعالجة السريعة
+
+                // تصغير الصورة إذا كانت أكبر من 1024
+                const scale = Math.min(maxDimension / image.width, maxDimension / image.height);
+                canvas.width = image.width * scale;
+                canvas.height = image.height * scale;
 
                 canvasContext.drawImage(image, 0, 0, canvas.width, canvas.height);
                 const imageData = canvasContext.getImageData(0, 0, canvas.width, canvas.height);
 
                 // تحويل البيانات إلى تنسيق مناسب للنموذج
-                const tensor = new ort.Tensor("float32", new Float32Array(imageData.data), [1, 3, image.height, image.width]);
+                const tensor = new ort.Tensor("float32", new Float32Array(imageData.data), [1, 3, canvas.height, canvas.width]);
 
                 // تنفيذ النموذج
                 const results = await session.run({ input: tensor });
