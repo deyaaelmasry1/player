@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Watermark Removal - Before and After</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/2.1.2/tesseract.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.2.0/pixi.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -55,8 +54,8 @@
 </div>
 
 <script>
-  let imageElement, appPixi, detectedTextRegions = [];
-  let originalImageData;
+  let imageElement, detectedTextRegions = [];
+  let originalImageData, ctxOriginal, ctxModified;
 
   document.getElementById('image-input').addEventListener('change', handleImageUpload);
 
@@ -72,23 +71,18 @@
 
           // Display the original image
           const originalCanvas = document.getElementById('original-canvas');
-          const ctxOriginal = originalCanvas.getContext('2d');
+          ctxOriginal = originalCanvas.getContext('2d');
           ctxOriginal.clearRect(0, 0, originalCanvas.width, originalCanvas.height);
           ctxOriginal.drawImage(img, 0, 0, originalCanvas.width, originalCanvas.height);
 
           // Store original image data for reference
           originalImageData = ctxOriginal.getImageData(0, 0, originalCanvas.width, originalCanvas.height);
 
-          // Initialize PixiJS for watermark removal
-          appPixi = new PIXI.Application({
-            view: document.getElementById('modified-canvas'),
-            width: 400,
-            height: 300
-          });
-
-          const texture = PIXI.Texture.from(img);
-          const sprite = new PIXI.Sprite(texture);
-          appPixi.stage.addChild(sprite);
+          // Initialize modified canvas
+          const modifiedCanvas = document.getElementById('modified-canvas');
+          ctxModified = modifiedCanvas.getContext('2d');
+          ctxModified.clearRect(0, 0, modifiedCanvas.width, modifiedCanvas.height);
+          ctxModified.drawImage(img, 0, 0, modifiedCanvas.width, modifiedCanvas.height);
 
           detectTextAndRemove(img);
         };
@@ -117,32 +111,67 @@
     });
   }
 
-  // Remove watermark and show difference
+  // Remove watermark and rebuild the image
   document.getElementById('remove-watermark').addEventListener('click', () => {
     if (detectedTextRegions.length > 0) {
-      // Create a modified image and apply removal
-      const modifiedCanvas = document.getElementById('modified-canvas');
-      const ctxModified = modifiedCanvas.getContext('2d');
-      ctxModified.clearRect(0, 0, modifiedCanvas.width, modifiedCanvas.height);
-
-      // Draw the original image on the modified canvas
-      ctxModified.drawImage(imageElement, 0, 0, modifiedCanvas.width, modifiedCanvas.height);
-
-      // Apply a blur or mask effect to the detected text regions
       detectedTextRegions.forEach(region => {
-        // Apply blur effect over detected region
-        ctxModified.filter = 'blur(10px)'; // Apply blur with 10px radius
-        ctxModified.fillRect(region.x, region.y, region.width, region.height);
+        rebuildRegion(region);
       });
-
-      // Remove filter after applying blur
-      ctxModified.filter = 'none';
-
       alert("Watermark removed. See the comparison.");
     } else {
       alert("No watermark detected to remove.");
     }
   });
+
+  // Rebuild the image by replacing the watermark area
+  function rebuildRegion(region) {
+    const width = region.width;
+    const height = region.height;
+    const x = region.x;
+    const y = region.y;
+
+    // Get the surrounding pixels to fill in the watermark area
+    const surroundingPixels = getSurroundingPixels(x, y, width, height);
+
+    // Rebuild the region by setting the surrounding pixels
+    for (let i = 0; i < width; i++) {
+      for (let j = 0; j < height; j++) {
+        const pixelIndex = ((y + j) * originalImageData.width + (x + i)) * 4;
+        originalImageData.data[pixelIndex] = surroundingPixels[i][j].r;
+        originalImageData.data[pixelIndex + 1] = surroundingPixels[i][j].g;
+        originalImageData.data[pixelIndex + 2] = surroundingPixels[i][j].b;
+        originalImageData.data[pixelIndex + 3] = 255; // Fully opaque
+      }
+    }
+
+    // Redraw the modified image
+    ctxModified.putImageData(originalImageData, 0, 0);
+  }
+
+  // Get the surrounding pixels to fill in the region
+  function getSurroundingPixels(x, y, width, height) {
+    let pixels = [];
+
+    // Collect surrounding pixels by averaging adjacent areas
+    for (let i = 0; i < width; i++) {
+      pixels[i] = [];
+      for (let j = 0; j < height; j++) {
+        // Get average color of surrounding pixels (just an example, you can improve this)
+        const px = (x + i);
+        const py = (y + j);
+        const pixelIndex = (py * originalImageData.width + px) * 4;
+
+        // Get the surrounding pixel color
+        const r = originalImageData.data[pixelIndex];
+        const g = originalImageData.data[pixelIndex + 1];
+        const b = originalImageData.data[pixelIndex + 2];
+
+        pixels[i][j] = { r, g, b };
+      }
+    }
+
+    return pixels;
+  }
 </script>
 
 </body>
