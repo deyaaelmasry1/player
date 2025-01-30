@@ -148,8 +148,8 @@
         for (let i = event.resultIndex; i < event.results.length; i++) {
             transcript += event.results[i][0].transcript;
         }
-        // Append the new transcript to the existing text in the textarea
-        speechResult.value += transcript + ' ';
+        // Clear previous text and display the new text only
+        speechResult.value = transcript;
         // Scroll the textarea to the bottom
         speechResult.scrollTop = speechResult.scrollHeight;
     };
