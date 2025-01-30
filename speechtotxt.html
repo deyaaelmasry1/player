@@ -50,7 +50,7 @@
             border-radius: 5px;
             resize: vertical;
         }
-        #startBtn, #downloadBtn, #copyBtn {
+        #startBtn, #stopBtn, #downloadBtn, #copyBtn {
             padding: 10px 20px;
             font-size: 18px;
             background-color: #4CAF50;
@@ -61,8 +61,11 @@
             margin-top: 10px;
             transition: background-color 0.3s;
         }
-        #startBtn:hover, #downloadBtn:hover, #copyBtn:hover {
+        #startBtn:hover, #stopBtn:hover, #downloadBtn:hover, #copyBtn:hover {
             background-color: #45a049;
+        }
+        #stopBtn {
+            background-color: #f44336;
         }
         #downloadBtn {
             background-color: #2196F3;
@@ -77,6 +80,7 @@
 <div class="container">
     <div class="title">تحويل الصوت إلى نص (Arabic Speech to Text)</div>
     <button id="startBtn">ابدأ الاستماع</button>
+    <button id="stopBtn" disabled>إيقاف الاستماع</button>
     <textarea id="speechResult" readonly></textarea>
     <button id="copyBtn">نسخ النص</button>
     <button id="downloadBtn">تنزيل النص</button>
@@ -84,6 +88,7 @@
 
 <script>
     const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
     const speechResult = document.getElementById('speechResult');
     const copyBtn = document.getElementById('copyBtn');
     const downloadBtn = document.getElementById('downloadBtn');
@@ -105,9 +110,20 @@
         console.error('Speech recognition error', event.error);
     };
 
+    // Start listening
     startBtn.addEventListener('click', () => {
         recognition.start();
         speechResult.value = 'استماع...';
+        startBtn.disabled = true;
+        stopBtn.disabled = false;
+    });
+
+    // Stop listening
+    stopBtn.addEventListener('click', () => {
+        recognition.stop();
+        startBtn.disabled = false;
+        stopBtn.disabled = true;
+        speechResult.value += '\nتم إيقاف الاستماع';
     });
 
     // Copy the text from the textarea to the clipboard
