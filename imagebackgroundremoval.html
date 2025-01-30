@@ -132,20 +132,16 @@
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <!-- تضمين نموذج BodyPix -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix"></script>
-    <!-- تضمين نموذج DeepLabV3 -->
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/deeplab"></script>
 
     <script>
-        let netBodyPix, netDeepLab;
+        let net;
 
-        async function loadModels() {
-            netBodyPix = await bodyPix.load();
-            console.log('تم تحميل نموذج BodyPix بنجاح.');
-            netDeepLab = await deeplab.load();
-            console.log('تم تحميل نموذج DeepLabV3 بنجاح.');
+        async function loadModel() {
+            net = await bodyPix.load();
+            console.log('تم تحميل النموذج بنجاح.');
         }
 
-        loadModels();
+        loadModel();
 
         async function removeBackground() {
             const fileInput = document.getElementById('file-input');
@@ -174,17 +170,11 @@
                 canvas.width = image.width;
                 canvas.height = image.height;
 
-                // Segment the image using both models simultaneously
-                const segmentationBodyPix = await netBodyPix.segmentPerson(image, {
+                // تحليل الصورة وتحديد الشخص
+                const segmentation = await net.segmentPerson(image, {
                     internalResolution: 'medium',
                     segmentationThreshold: 0.7
                 });
-
-                const segmentationDeepLab = await netDeepLab.segment(image);
-
-                // Get the segmentation data from both models
-                const bodyPixData = segmentationBodyPix.data;
-                const deepLabData = segmentationDeepLab.segmentation;
 
                 canvasContext.drawImage(image, 0, 0, canvas.width, canvas.height);
 
@@ -193,15 +183,9 @@
 
                 for (let i = 0; i < data.length; i += 4) {
                     const index = i / 4;
-                    const bodyPixPixel = bodyPixData[index];
-                    const deepLabPixel = deepLabData[index] ? 1 : 0;
-
-                    // Combine results from both models
-                    // Keep the pixel if it's detected by either model
-                    if (bodyPixPixel || deepLabPixel) {
-                        data[i + 3] = 255;  // Keep the pixel (non-background)
-                    } else {
-                        data[i + 3] = 0;  // Set to transparent (background)
+                    if (!segmentation.data[index]) {
+                        // جعل الخلفية شفافة
+                        data[i + 3] = 0;
                     }
                 }
 
@@ -210,7 +194,7 @@
                 loadingDiv.style.display = 'none';
                 outputDiv.style.display = 'block';
 
-                // Download the resulting image
+                // وظيفة زر التحميل
                 downloadButton.onclick = () => {
                     const link = document.createElement('a');
                     link.href = canvas.toDataURL();
