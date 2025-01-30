@@ -3,20 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Text to Speech Converter with Recording</title>
+    <title>Text to Speech & Recording (RecordRTC)</title>
+    <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script> <!-- Load RecordRTC -->
 </head>
 <body>
-    <h1>Text to Speech Converter with Recording</h1>
+    <h1>Text to Speech with Recording (RecordRTC)</h1>
 
     <textarea id="text-to-speech" rows="4" cols="50" placeholder="Enter text here..."></textarea><br><br>
     <button onclick="convertTextToSpeech()">Convert to Speech</button>
-    <button id="download-btn" onclick="downloadSpeech()" disabled>Download as MP3</button> <!-- Initially disabled -->
+    <button id="download-btn" onclick="downloadSpeech()" disabled>Download as MP3</button>
 
     <script>
-        let mediaRecorder; 
-        let audioChunks = []; 
-        let audioStream; 
-        let recordedBlob; // Store the final audio blob
+        let recorder;
+        let recordedBlob;
 
         function convertTextToSpeech() {
             const text = document.getElementById("text-to-speech").value.trim();
@@ -25,46 +24,35 @@
                 return;
             }
 
-            // Reset audioChunks for a new recording
-            audioChunks = [];
+            // Reset previous recording
             recordedBlob = null;
+            document.getElementById("download-btn").disabled = true;
 
-            // Get microphone access
+            // Request microphone access
             navigator.mediaDevices.getUserMedia({ audio: true })
                 .then(stream => {
-                    audioStream = stream;
-                    mediaRecorder = new MediaRecorder(stream);
+                    recorder = new RecordRTC(stream, {
+                        type: 'audio',
+                        mimeType: 'audio/wav', // Can also use 'audio/mp3'
+                    });
 
-                    // Collect audio chunks
-                    mediaRecorder.ondataavailable = event => {
-                        if (event.data.size > 0) {
-                            audioChunks.push(event.data);
-                        }
-                    };
-
-                    // Stop recording when speech ends
-                    mediaRecorder.onstop = () => {
-                        recordedBlob = new Blob(audioChunks, { type: 'audio/wav' });
-
-                        // Enable download button only when the recording is ready
-                        document.getElementById("download-btn").disabled = false;
-                    };
-
-                    // Start recording
-                    mediaRecorder.start();
+                    recorder.startRecording(); // Start recording audio
 
                     // Convert text to speech
                     const utterance = new SpeechSynthesisUtterance(text);
                     window.speechSynthesis.speak(utterance);
 
-                    // When speech ends, stop the recording
+                    // Stop recording when speech ends
                     utterance.onend = () => {
-                        mediaRecorder.stop();
+                        recorder.stopRecording(() => {
+                            recordedBlob = recorder.getBlob();
+                            document.getElementById("download-btn").disabled = false;
+                        });
                     };
                 })
                 .catch(error => {
-                    console.error('Error accessing microphone: ', error);
-                    alert('Unable to access the microphone. Please allow microphone permissions.');
+                    console.error('Error accessing microphone:', error);
+                    alert('Please allow microphone access.');
                 });
         }
 
@@ -73,10 +61,10 @@
                 const audioUrl = URL.createObjectURL(recordedBlob);
                 const link = document.createElement('a');
                 link.href = audioUrl;
-                link.download = 'speech.wav';
+                link.download = 'speech.mp3'; // File name for download
                 link.click();
             } else {
-                alert("Recording not ready. Try again.");
+                alert("Recording not available. Try again.");
             }
         }
     </script>
