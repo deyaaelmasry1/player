@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Text Removal from Image</title>
+  <title>Watermark Removal - Before and After</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/2.1.2/tesseract.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.2.0/pixi.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/4.5.1/fabric.min.js"></script>
@@ -12,13 +12,6 @@
       font-family: Arial, sans-serif;
       padding: 20px;
       background-color: #f4f4f4;
-    }
-    #canvas-container {
-      margin-top: 20px;
-    }
-    canvas {
-      border: 1px solid #ccc;
-      margin-top: 10px;
     }
     #image-input {
       margin-bottom: 20px;
@@ -29,28 +22,42 @@
     .controls button {
       margin-right: 10px;
     }
+    #original-container, #modified-container {
+      display: inline-block;
+      width: 48%;
+      vertical-align: top;
+    }
+    canvas {
+      border: 1px solid #ccc;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
 
-<h1>Remove Text from Image</h1>
-<p>Upload an image, detect any text, and remove it from the image using a blur or masking effect.</p>
+<h1>Watermark Removal - Before and After</h1>
+<p>Upload an image, automatically detect any watermark, remove it, and see the difference between the original and modified image.</p>
 
 <input type="file" id="image-input" accept="image/*">
 <div id="image-info"></div>
 
-<!-- Canvas for PixiJS Image -->
-<div id="canvas-container">
-  <canvas id="pixi-canvas" width="800" height="600"></canvas>
+<!-- Containers for Original and Modified Image -->
+<div id="original-container">
+  <h3>Original Image</h3>
+  <canvas id="original-canvas" width="400" height="300"></canvas>
+</div>
+<div id="modified-container">
+  <h3>Modified Image</h3>
+  <canvas id="modified-canvas" width="400" height="300"></canvas>
 </div>
 
 <div class="controls">
-  <button id="remove-text">Remove Text</button>
+  <button id="remove-watermark">Remove Watermark</button>
 </div>
 
 <script>
-  let imageElement, appPixi;
-  let detectedTextRegions = [];
+  let imageElement, appPixi, detectedTextRegions = [];
+  let originalImageData;
 
   document.getElementById('image-input').addEventListener('change', handleImageUpload);
 
@@ -59,17 +66,22 @@
     if (file) {
       const reader = new FileReader();
       reader.onload = function(e) {
-        // Create image element
         const img = new Image();
         img.onload = function() {
           imageElement = img;
-          document.getElementById('image-info').innerHTML = 'Image loaded. Ready to detect text.';
+          document.getElementById('image-info').innerHTML = 'Image loaded. Ready to detect watermark.';
 
-          // Initialize PixiJS canvas
+          // Display the original image
+          const originalCanvas = document.getElementById('original-canvas');
+          const ctxOriginal = originalCanvas.getContext('2d');
+          ctxOriginal.clearRect(0, 0, originalCanvas.width, originalCanvas.height);
+          ctxOriginal.drawImage(img, 0, 0, originalCanvas.width, originalCanvas.height);
+
+          // Initialize PixiJS for watermark removal
           appPixi = new PIXI.Application({
-            view: document.getElementById('pixi-canvas'),
-            width: 800,
-            height: 600
+            view: document.getElementById('modified-canvas'),
+            width: 400,
+            height: 300
           });
 
           const texture = PIXI.Texture.from(img);
@@ -84,7 +96,7 @@
     }
   }
 
-  // Detect text in the image using Tesseract.js
+  // Detect watermark using Tesseract.js
   function detectTextAndRemove(img) {
     Tesseract.recognize(
       img,
@@ -95,39 +107,37 @@
     ).then(({ data: { text, blocks } }) => {
       console.log("Detected Text: ", text);
       if (blocks) {
-        // Loop through each block and store the region where text is found
         detectedTextRegions = blocks.map(block => block.bbox);
-        alert("Text detected, now you can remove it.");
+        alert("Watermark detected, click 'Remove Watermark' to proceed.");
       } else {
-        alert("No text detected.");
+        alert("No text watermark detected.");
       }
     });
   }
 
-  // Remove detected text areas from the image by applying a blur or mask
-  document.getElementById('remove-text').addEventListener('click', () => {
+  // Remove watermark and show difference
+  document.getElementById('remove-watermark').addEventListener('click', () => {
     if (appPixi && imageElement && detectedTextRegions.length > 0) {
+      // Recreate PixiJS sprite for modified image
       const texture = PIXI.Texture.from(imageElement);
       const sprite = new PIXI.Sprite(texture);
       appPixi.stage.addChild(sprite);
 
-      // For each detected text region, apply a blur or masking effect
+      // Apply a mask (or blur) to remove detected text
       detectedTextRegions.forEach(region => {
         const rect = new PIXI.Graphics();
         rect.beginFill(0xFFFFFF, 1); // White fill to mask the text
         rect.drawRect(region.x, region.y, region.width, region.height);
         rect.endFill();
-
-        // Add the rectangle over the detected text area
         appPixi.stage.addChild(rect);
 
-        // Optionally, you could apply a blur to the text region:
+        // Optionally, you could apply a blur instead of masking (comment out the masking lines and uncomment the blur filter lines)
         // rect.filters = [new PIXI.filters.BlurFilter(5)]; // Adjust blur amount as needed
       });
 
       appPixi.render();
     } else {
-      alert("No text detected to remove.");
+      alert("No watermark detected to remove.");
     }
   });
 </script>
