@@ -4,10 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="إزالة خلفية أي صورة مجانًا بدون حدود أو تسجيل. أداة إزالة الخلفية باستخدام الذكاء الاصطناعي تعمل مباشرة في المتصفح.">
-    <meta name="keywords" content="إزالة الخلفية مجانًا, إزالة الخلفية من الصور, أداة إزالة الخلفية, بدون تسجيل, بدون حدود">
+    <meta name="description" content="إزالة خلفية أي صورة مجانًا بدون حدود أو تسجيل.">
+    <meta name="keywords" content="إزالة الخلفية مجانًا, إزالة الخلفية من الصور, أداة إزالة الخلفية">
     <meta name="author" content="أداة إزالة الخلفية">
-    <title>إزالة الخلفية مجانًا - بدون حدود أو تسجيل</title>
+    <title>إزالة الخلفية مجانًا - دقة عالية</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -15,17 +15,12 @@
             padding: 0;
             background-color: #f7f7f7;
             text-align: center;
-            direction: rtl;
         }
 
         header {
             background-color: #4CAF50;
             color: white;
             padding: 1rem;
-        }
-
-        h1 {
-            margin: 0;
         }
 
         .container {
@@ -51,7 +46,6 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 1rem;
         }
 
         button:hover {
@@ -73,27 +67,6 @@
             font-weight: bold;
             color: #d9534f;
         }
-
-        footer {
-            margin-top: 40px;
-            font-size: 0.9rem;
-            color: #777;
-        }
-
-        #download-button {
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1rem;
-            margin-top: 10px;
-        }
-
-        #download-button:hover {
-            background-color: #45a049;
-        }
     </style>
 </head>
 
@@ -104,12 +77,8 @@
     </header>
 
     <div class="container">
-        <h2>حول هذه الأداة</h2>
-        <p>تستخدم هذه الأداة الذكاء الاصطناعي لإزالة الخلفيات من الصور بسرعة وكفاءة. لا حاجة للتسجيل أو تحميل أي برامج!</p>
-
         <h2>قم برفع صورتك</h2>
-        <p>اختر صورة، وسيقوم الذكاء الاصطناعي تلقائيًا بإزالة الخلفية في ثوانٍ.</p>
-        <input type="file" id="file-input" accept="image/*" />
+        <input type="file" id="file-input" accept="image/*">
         <button onclick="removeBackground()">إزالة الخلفية</button>
 
         <div id="loading">
@@ -117,28 +86,28 @@
         </div>
 
         <div id="output">
-            <h3>تحميل الصورة بعد إزالة الخلفية</h3>
-            <p>اضغط أدناه لحفظ الصورة بعد إزالة الخلفية.</p>
+            <h3>الصورة بعد إزالة الخلفية</h3>
             <canvas id="output-canvas"></canvas>
             <button id="download-button">تحميل الصورة</button>
         </div>
     </div>
 
-    <footer>
-        <p>&copy; 2025 أداة إزالة الخلفية. بدون تسجيل، بدون حدود.</p>
-    </footer>
-
-    <!-- تضمين مكتبة TensorFlow.js -->
+    <!-- مكتبة TensorFlow.js -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-    <!-- تضمين نموذج BodyPix -->
+    <!-- مكتبة BodyPix -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix"></script>
 
     <script>
         let net;
 
         async function loadModel() {
-            net = await bodyPix.load();
-            console.log('تم تحميل النموذج بنجاح.');
+            net = await bodyPix.load({
+                architecture: 'ResNet50',
+                outputStride: 16,
+                multiplier: 1,
+                quantBytes: 2
+            });
+            console.log('تم تحميل النموذج.');
         }
 
         loadModel();
@@ -166,39 +135,41 @@
             };
 
             image.onload = async function () {
-                const canvasContext = canvas.getContext('2d');
+                const ctx = canvas.getContext('2d');
                 canvas.width = image.width;
                 canvas.height = image.height;
 
-                // تحليل الصورة وتحديد الشخص
-                const segmentation = await net.segmentPerson(image, {
-                    internalResolution: 'medium',
-                    segmentationThreshold: 0.7
+                // تحديد الأشخاص أو الأجسام
+                const segmentation = await net.segmentPersonParts(image, {
+                    internalResolution: 'high',
+                    segmentationThreshold: 0.75
                 });
 
-                canvasContext.drawImage(image, 0, 0, canvas.width, canvas.height);
+                ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
 
-                const imageData = canvasContext.getImageData(0, 0, canvas.width, canvas.height);
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                 const data = imageData.data;
 
                 for (let i = 0; i < data.length; i += 4) {
                     const index = i / 4;
                     if (!segmentation.data[index]) {
-                        // جعل الخلفية شفافة
-                        data[i + 3] = 0;
+                        data[i + 3] = 0; // جعل البكسل شفافًا
+                    } else {
+                        // تحسين الحواف بجعلها سلسة
+                        data[i + 3] = data[i + 3] > 100 ? 255 : data[i + 3] * 2;
                     }
                 }
 
-                canvasContext.putImageData(imageData, 0, 0);
+                ctx.putImageData(imageData, 0, 0);
 
                 loadingDiv.style.display = 'none';
                 outputDiv.style.display = 'block';
 
-                // وظيفة زر التحميل
+                // وظيفة تحميل الصورة
                 downloadButton.onclick = () => {
                     const link = document.createElement('a');
                     link.href = canvas.toDataURL();
-                    link.download = 'output.png';
+                    link.download = 'no_background.png';
                     link.click();
                 };
             };
