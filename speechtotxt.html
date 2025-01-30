@@ -143,9 +143,7 @@
     recognition.maxAlternatives = 1;
     recognition.continuous = true;  // Keep the microphone on until stopped manually
 
-    let lastWord = "";  // Store the last word spoken
-    let lastTimestamp = Date.now();  // Store the timestamp of the last speech input
-    const debounceTime = 500; // 500ms delay to prevent repetition
+    let lastTranscript = "";  // Store the last full transcript
 
     recognition.onresult = (event) => {
         let transcript = '';
@@ -153,13 +151,10 @@
             transcript += event.results[i][0].transcript;
         }
 
-        const currentWord = transcript.trim().split(" ").pop(); // Get the last word spoken
-        
-        // If the last word is the same as the current word, and it's within debounce time, don't append
-        if (currentWord !== lastWord || Date.now() - lastTimestamp > debounceTime) {
-            speechResult.value += transcript + " "; // Add the new sentence
-            lastWord = currentWord;  // Update the last word
-            lastTimestamp = Date.now(); // Update the last timestamp
+        // Compare with the last transcript and add if it's new
+        if (transcript.trim() !== lastTranscript.trim()) {
+            speechResult.value += transcript + " "; // Add new transcript
+            lastTranscript = transcript.trim(); // Update the last transcript
             speechResult.scrollTop = speechResult.scrollHeight; // Scroll to the bottom
         }
     };
