@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="description" content="Speech to Text Demo">
-    <title>Speech to Text</title>
+    <title>Speech to Text (Arabic)</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
             background-color: #f4f4f4;
             margin: 0;
             padding: 20px;
@@ -24,7 +24,7 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             text-align: center;
             width: 100%;
-            max-width: 500px;
+            max-width: 600px;
         }
         .title {
             font-size: 24px;
@@ -36,8 +36,21 @@
             color: #333;
             margin-top: 20px;
             min-height: 50px;
+            direction: rtl; /* Right-to-left text alignment for Arabic */
+            text-align: right;
         }
-        #startBtn {
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            font-size: 18px;
+            direction: rtl; /* Right-to-left text alignment for Arabic */
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: vertical;
+        }
+        #startBtn, #downloadBtn, #copyBtn {
             padding: 10px 20px;
             font-size: 18px;
             background-color: #4CAF50;
@@ -45,27 +58,38 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            margin-top: 10px;
             transition: background-color 0.3s;
         }
-        #startBtn:hover {
+        #startBtn:hover, #downloadBtn:hover, #copyBtn:hover {
             background-color: #45a049;
+        }
+        #downloadBtn {
+            background-color: #2196F3;
+        }
+        #copyBtn {
+            background-color: #f44336;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="title">Speech to Text Demo</div>
-    <button id="startBtn">Start Listening</button>
-    <div id="speechResult"></div>
+    <div class="title">تحويل الصوت إلى نص (Arabic Speech to Text)</div>
+    <button id="startBtn">ابدأ الاستماع</button>
+    <textarea id="speechResult" readonly></textarea>
+    <button id="copyBtn">نسخ النص</button>
+    <button id="downloadBtn">تنزيل النص</button>
 </div>
 
 <script>
     const startBtn = document.getElementById('startBtn');
     const speechResult = document.getElementById('speechResult');
-    
+    const copyBtn = document.getElementById('copyBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+
     const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    recognition.lang = 'en-US';
+    recognition.lang = 'ar-SA'; // Arabic (Saudi Arabia)
     recognition.interimResults = true;
     recognition.maxAlternatives = 1;
 
@@ -74,7 +98,7 @@
         for (let i = event.resultIndex; i < event.results.length; i++) {
             transcript += event.results[i][0].transcript;
         }
-        speechResult.textContent = transcript;
+        speechResult.value = transcript; // Display speech result in the textarea
     };
 
     recognition.onerror = (event) => {
@@ -83,7 +107,24 @@
 
     startBtn.addEventListener('click', () => {
         recognition.start();
-        speechResult.textContent = 'Listening...';
+        speechResult.value = 'استماع...';
+    });
+
+    // Copy the text from the textarea to the clipboard
+    copyBtn.addEventListener('click', () => {
+        speechResult.select();
+        document.execCommand('copy');
+        alert('تم نسخ النص!');
+    });
+
+    // Download the speech result as a .txt file
+    downloadBtn.addEventListener('click', () => {
+        const textToDownload = speechResult.value;
+        const blob = new Blob([textToDownload], { type: 'text/plain' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'speech_to_text.txt';
+        link.click();
     });
 </script>
 
