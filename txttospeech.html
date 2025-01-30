@@ -18,6 +18,7 @@
         let recorder;
         let audioStream;
 
+        // Function to convert text to speech and record it
         function convertTextToSpeech() {
             const text = document.getElementById("text-to-speech").value;
             if (text.trim() === "") {
@@ -28,7 +29,9 @@
             // Try to get microphone access
             navigator.mediaDevices.getUserMedia({ audio: true })
                 .then(stream => {
+                    // Store the audio stream
                     audioStream = stream;
+                    // Initialize recorder with the microphone stream
                     recorder = new Recorder(new MediaStream([stream.getTracks()[0]]), { numChannels: 1 });
                     recorder.record();
 
@@ -48,12 +51,13 @@
                 });
         }
 
+        // Function to download the recorded speech as an MP3 file
         function downloadSpeech() {
             if (recorder && audioStream) {
                 recorder.exportWAV(blob => {
                     const link = document.createElement('a');
                     link.href = URL.createObjectURL(blob);
-                    link.download = "speech.mp3";
+                    link.download = "speech.mp3";  // Name of the downloaded file
                     link.click();
                 });
             } else {
