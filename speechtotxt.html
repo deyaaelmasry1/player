@@ -143,7 +143,7 @@
     recognition.maxAlternatives = 1;
     recognition.continuous = true;  // Keep the microphone on until stopped manually
 
-    let lastTranscript = "";  // To track the previous transcription and avoid repeating it.
+    let lastTranscript = "";  // To track the previous transcription and avoid repetition.
 
     recognition.onresult = (event) => {
         let transcript = '';
@@ -151,13 +151,11 @@
             transcript += event.results[i][0].transcript;
         }
 
-        // Avoid repetition: Check if the new transcript is different from the last one
-        if (transcript !== lastTranscript) {
-            // Append the new sentence
-            speechResult.value += transcript + " "; 
-            lastTranscript = transcript;  // Update the last transcript
-            // Scroll the textarea to the bottom
-            speechResult.scrollTop = speechResult.scrollHeight;
+        // Append new transcript if it's different from the last one
+        if (transcript.trim() !== lastTranscript.trim()) {
+            speechResult.value += transcript + " "; // Add the new sentence
+            lastTranscript = transcript.trim(); // Update the last transcript
+            speechResult.scrollTop = speechResult.scrollHeight; // Scroll to the bottom
         }
     };
 
