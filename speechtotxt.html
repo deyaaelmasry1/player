@@ -75,16 +75,20 @@
             // Set up Arabic language
             annyang.setLanguage('ar-SA');  // Arabic (Saudi Arabia)
 
-            // Define the speech recognition function
+            // Define a variable to hold the full speech text
+            let fullText = '';
+
+            // Define the callback function to capture the speech result
             const recognitionCallback = function(phrases) {
-                const transcript = phrases[0];
-                textArea.value += transcript; // Add recognized text to the text area
+                // Concatenate the newly recognized phrase to the full text
+                fullText += phrases[0] + ' ';
+                textArea.value = fullText;  // Update the text area with the full text
                 textArea.scrollTop = textArea.scrollHeight; // Keep scroll at bottom
             };
 
             // Add a command to process speech input
             const commands = {
-                '*phrase': recognitionCallback // Any recognized phrase will be passed to the callback
+                '*phrase': recognitionCallback // This captures any recognized phrase
             };
 
             // Add commands to annyang
