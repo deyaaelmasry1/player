@@ -4,7 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <meta name="description" content="Speech to Text Demo">
+    <meta name="description" content="تحويل الصوت إلى نص باستخدام API التعرف على الصوت، يدعم اللغة العربية">
+    <meta name="keywords" content="Speech to Text, Arabic Speech, تحويل الصوت, التعرف على الصوت, Arabic Speech Recognition">
+    <meta name="author" content="Your Name">
+    <meta name="language" content="Arabic">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#4CAF50">
     <title>Speech to Text (Arabic)</title>
     <style>
         body {
@@ -16,6 +21,7 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
+            direction: rtl; /* Set document direction for Arabic */
         }
         .container {
             background-color: white;
@@ -27,9 +33,18 @@
             max-width: 600px;
         }
         .title {
-            font-size: 24px;
+            font-size: 28px;
             font-weight: bold;
             margin-bottom: 20px;
+        }
+        h2 {
+            font-size: 20px;
+            margin-top: 20px;
+        }
+        p {
+            font-size: 16px;
+            color: #555;
+            margin-top: 10px;
         }
         #speechResult {
             font-size: 18px;
@@ -38,19 +53,19 @@
             min-height: 50px;
             direction: rtl; /* Right-to-left text alignment for Arabic */
             text-align: right;
-            overflow-y: auto; /* Allow vertical scrolling */
+            overflow-y: auto;
         }
         textarea {
             width: 100%;
             height: 150px;
             padding: 10px;
             font-size: 18px;
-            direction: rtl; /* Right-to-left text alignment for Arabic */
+            direction: rtl;
             margin-top: 20px;
             border: 1px solid #ccc;
             border-radius: 5px;
             resize: vertical;
-            overflow-y: auto; /* Allow vertical scrolling */
+            overflow-y: auto;
         }
         #startBtn, #stopBtn, #downloadBtn, #copyBtn {
             padding: 10px 20px;
@@ -81,9 +96,36 @@
 
 <div class="container">
     <div class="title">تحويل الصوت إلى نص (Arabic Speech to Text)</div>
+    
+    <!-- Added section for description -->
+    <h2>وصف</h2>
+    <p>
+        هذه الأداة تستخدم تقنية التعرف على الصوت لتحويل الكلام إلى نص في الوقت الفعلي. يدعم التطبيق اللغة العربية، ويمكنك استخدامها لتحويل النصوص المنطوقة إلى نص مكتوب بسهولة.
+    </p>
+    
+    <!-- Added instructions -->
+    <h2>كيفية الاستخدام</h2>
+    <p>
+        1. اضغط على زر "ابدأ الاستماع" لبدء عملية التعرف على الصوت.
+    </p>
+    <p>
+        2. بعد التحدث، سيبدأ النص بالظهور في مربع النص.
+    </p>
+    <p>
+        3. عندما تنتهي من التحدث، اضغط على "إيقاف الاستماع".
+    </p>
+    <p>
+        4. يمكنك نسخ النص أو تنزيله كملف نصي من خلال الأزرار المناسبة.
+    </p>
+
+    <!-- Control buttons -->
     <button id="startBtn">ابدأ الاستماع</button>
     <button id="stopBtn" disabled>إيقاف الاستماع</button>
+
+    <h2>النص المحول:</h2>
     <textarea id="speechResult" readonly></textarea>
+    
+    <!-- Copy and download buttons -->
     <button id="copyBtn">نسخ النص</button>
     <button id="downloadBtn">تنزيل النص</button>
 </div>
