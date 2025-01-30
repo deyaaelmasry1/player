@@ -132,16 +132,20 @@
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <!-- تضمين نموذج BodyPix -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix"></script>
+    <!-- تضمين نموذج DeepLabV3 -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/deeplab"></script>
 
     <script>
-        let net;
+        let netBodyPix, netDeepLab;
 
-        async function loadModel() {
-            net = await bodyPix.load();
-            console.log('تم تحميل النموذج بنجاح.');
+        async function loadModels() {
+            netBodyPix = await bodyPix.load();
+            console.log('تم تحميل نموذج BodyPix بنجاح.');
+            netDeepLab = await deeplab.load();
+            console.log('تم تحميل نموذج DeepLabV3 بنجاح.');
         }
 
-        loadModel();
+        loadModels();
 
         async function removeBackground() {
             const fileInput = document.getElementById('file-input');
@@ -170,11 +174,16 @@
                 canvas.width = image.width;
                 canvas.height = image.height;
 
-                // تحليل الصورة وتحديد الشخص
-                const segmentation = await net.segmentPerson(image, {
+                // تحليل الصورة باستخدام BodyPix أو DeepLabV3
+                const segmentationBodyPix = await netBodyPix.segmentPerson(image, {
                     internalResolution: 'medium',
                     segmentationThreshold: 0.7
                 });
+
+                const segmentationDeepLab = await netDeepLab.segment(image);
+
+                const segmentation = segmentationBodyPix.data.length > segmentationDeepLab.segmentation.length 
+                    ? segmentationBodyPix : segmentationDeepLab;
 
                 canvasContext.drawImage(image, 0, 0, canvas.width, canvas.height);
 
