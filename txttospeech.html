@@ -31,7 +31,6 @@
             // Create an audio context to capture speech output
             const audioContext = new (window.AudioContext || window.webkitAudioContext)();
             const destination = audioContext.createMediaStreamDestination(); // Virtual audio output
-            const utterance = new SpeechSynthesisUtterance(text);
             const speechSynth = window.speechSynthesis;
 
             // Create an oscillator (silent) to keep the stream alive
@@ -39,20 +38,27 @@
             oscillator.connect(destination);
             oscillator.start();
 
-            // Create a speech synthesis audio source
-            const speechSource = audioContext.createMediaStreamSource(destination);
+            // Create an audio element to play the speech output
+            const audioElement = new Audio();
+            const utterance = new SpeechSynthesisUtterance(text);
             
+            // Create a SpeechSynthesis audio source
+            const speechSource = audioContext.createMediaStreamSource(destination);
+            speechSource.connect(audioContext.destination); // Connect to output (so we can hear it)
+
             // Use RecordRTC to record the virtual audio output
             recorder = new RecordRTC(destination.stream, {
                 type: 'audio',
-                mimeType: 'audio/wav' // Can be changed to MP3 if needed
+                mimeType: 'audio/wav' // Change to 'audio/mp3' if needed
             });
 
             // Start recording
             recorder.startRecording();
 
-            // Speak the text
-            speechSynth.speak(utterance);
+            // Convert text to speech and play through the virtual stream
+            utterance.onstart = () => {
+                speechSynth.speak(utterance);
+            };
 
             // Stop recording when speech ends
             utterance.onend = () => {
