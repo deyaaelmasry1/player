@@ -78,7 +78,7 @@
 
         const recognition = new SpeechRecognition();
         recognition.lang = 'ar-SA';  // Set language to Arabic (Saudi Arabia)
-        recognition.interimResults = true;  // To get real-time results
+        recognition.interimResults = false;  // Only show final results
         recognition.maxAlternatives = 1;  // Only the best alternative is returned
 
         let fullText = '';
