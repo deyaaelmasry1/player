@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Text to Speech (Using API)</title>
+    <title>Text to Speech (MP3 Download)</title>
     <script src="https://code.responsivevoice.org/responsivevoice.js?key=YOUR_KEY"></script> <!-- Free API -->
-    <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script> <!-- For Recording -->
 </head>
 <body>
-    <h1>Text to Speech (API + Recording)</h1>
+    <h1>Text to Speech (Generate & Download MP3)</h1>
 
     <textarea id="text-to-speech" rows="4" cols="50" placeholder="Enter text here..."></textarea><br><br>
     <button onclick="convertTextToSpeech()">Convert to Speech</button>
-    <button id="download-btn" onclick="downloadSpeech()" disabled>Download as MP3</button>
+    <button id="download-btn" onclick="downloadSpeech()" disabled>Download MP3</button>
+
+    <audio id="audio-player" controls></audio> <!-- Play generated audio -->
 
     <script>
-        let recorder;
-        let recordedBlob;
+        let audioUrl = null;
 
         async function convertTextToSpeech() {
             const text = document.getElementById("text-to-speech").value.trim();
@@ -25,43 +25,37 @@
                 return;
             }
 
-            // Reset recording
-            recordedBlob = null;
-            document.getElementById("download-btn").disabled = true;
+            // Use ResponsiveVoice API to generate an MP3 URL
+            responsiveVoice.speak(text, "UK English Male", {
+                onstart: function() {
+                    document.getElementById("download-btn").disabled = true;
+                },
+                onend: async function() {
+                    try {
+                        // Fetch the generated MP3 file (ResponsiveVoice provides MP3 links for some voices)
+                        const response = await fetch(`https://api.responsivevoice.org/v1/text:synthesize?text=${encodeURIComponent(text)}&lang=en-gb&engine=g1`);
+                        const blob = await response.blob();
+                        audioUrl = URL.createObjectURL(blob);
 
-            // Create a virtual audio output to record
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const destination = audioContext.createMediaStreamDestination();
-            const speechSource = audioContext.createMediaStreamSource(destination);
-            speechSource.connect(audioContext.destination); // Connect to speakers
-
-            // Use RecordRTC to capture the output
-            recorder = new RecordRTC(destination.stream, {
-                type: 'audio',
-                mimeType: 'audio/wav'
+                        // Play the audio and enable download
+                        document.getElementById("audio-player").src = audioUrl;
+                        document.getElementById("download-btn").disabled = false;
+                    } catch (error) {
+                        console.error("MP3 generation failed:", error);
+                        alert("Failed to generate MP3. Please try again.");
+                    }
+                }
             });
-
-            // Start recording
-            recorder.startRecording();
-
-            // Use the API to speak
-            responsiveVoice.speak(text, "UK English Male", { onend: () => {
-                recorder.stopRecording(() => {
-                    recordedBlob = recorder.getBlob();
-                    document.getElementById("download-btn").disabled = false;
-                });
-            }});
         }
 
         function downloadSpeech() {
-            if (recordedBlob) {
-                const audioUrl = URL.createObjectURL(recordedBlob);
+            if (audioUrl) {
                 const link = document.createElement('a');
                 link.href = audioUrl;
                 link.download = 'speech.mp3'; 
                 link.click();
             } else {
-                alert("Recording not available. Try again.");
+                alert("No MP3 file available. Try again.");
             }
         }
     </script>
