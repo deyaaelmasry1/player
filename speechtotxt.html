@@ -143,15 +143,22 @@
     recognition.maxAlternatives = 1;
     recognition.continuous = true;  // Keep the microphone on until stopped manually
 
+    let lastTranscript = "";  // To track the previous transcription and avoid repeating it.
+
     recognition.onresult = (event) => {
         let transcript = '';
         for (let i = event.resultIndex; i < event.results.length; i++) {
             transcript += event.results[i][0].transcript;
         }
-        // Clear previous text and display the new text only
-        speechResult.value = transcript;
-        // Scroll the textarea to the bottom
-        speechResult.scrollTop = speechResult.scrollHeight;
+
+        // Avoid repetition: Check if the new transcript is different from the last one
+        if (transcript !== lastTranscript) {
+            // Append the new sentence
+            speechResult.value += transcript + " "; 
+            lastTranscript = transcript;  // Update the last transcript
+            // Scroll the textarea to the bottom
+            speechResult.scrollTop = speechResult.scrollHeight;
+        }
     };
 
     recognition.onerror = (event) => {
