@@ -25,7 +25,7 @@
                 return;
             }
 
-            // Start recording the speech for later downloading as MP3
+            // Try to get microphone access
             navigator.mediaDevices.getUserMedia({ audio: true })
                 .then(stream => {
                     audioStream = stream;
@@ -42,8 +42,9 @@
                     };
                 })
                 .catch(error => {
+                    // Handle microphone access errors
                     console.error('Error accessing microphone: ', error);
-                    alert('Unable to access microphone for recording.');
+                    alert('Unable to access the microphone. Please make sure you have given the browser permission to access the microphone.');
                 });
         }
 
