@@ -144,6 +144,7 @@
     recognition.continuous = true;  // Keep the microphone on until stopped manually
 
     let lastTranscript = "";  // Store the last full transcript
+    let isFirstSpeech = true;  // To track if the first speech is still being processed
 
     recognition.onresult = (event) => {
         let transcript = '';
@@ -151,10 +152,11 @@
             transcript += event.results[i][0].transcript;
         }
 
-        // Compare with the last transcript and add if it's new
-        if (transcript.trim() !== lastTranscript.trim()) {
+        // Prevent repeating the same transcript, especially for the first word
+        if (transcript.trim() !== lastTranscript.trim() || isFirstSpeech) {
             speechResult.value += transcript + " "; // Add new transcript
             lastTranscript = transcript.trim(); // Update the last transcript
+            isFirstSpeech = false;  // Set this flag to false after the first speech
             speechResult.scrollTop = speechResult.scrollHeight; // Scroll to the bottom
         }
     };
