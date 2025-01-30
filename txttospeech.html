@@ -3,22 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Text to Speech Converter</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Recorderjs/0.1.0/recorder.js"></script>
+    <title>Text to Speech Converter with Recording</title>
+    <script src="https://cdn.webrtc.org/recordrtc/RecordRTC.js"></script>
 </head>
 <body>
-    <h1>Text to Speech Converter</h1>
+    <h1>Text to Speech Converter with Recording</h1>
 
     <textarea id="text-to-speech" rows="4" cols="50" placeholder="Enter text here..."></textarea><br><br>
     <button onclick="convertTextToSpeech()">Convert to Speech</button>
     <button onclick="downloadSpeech()">Download as MP3</button>
 
     <script>
-        // Initialize the Recorder.js
-        let recorder;
-        let audioStream;
+        let recorder;  // To store the recorder instance
+        let audioStream;  // To store the audio stream
 
-        // Function to convert text to speech and record it
+        // Function to convert text to speech and start recording
         function convertTextToSpeech() {
             const text = document.getElementById("text-to-speech").value;
             if (text.trim() === "") {
@@ -29,23 +28,26 @@
             // Try to get microphone access
             navigator.mediaDevices.getUserMedia({ audio: true })
                 .then(stream => {
-                    // Store the audio stream
                     audioStream = stream;
-                    // Initialize recorder with the microphone stream
-                    recorder = new Recorder(new MediaStream([stream.getTracks()[0]]), { numChannels: 1 });
-                    recorder.record();
+                    recorder = RecordRTC(stream, {
+                        type: 'audio',
+                        mimeType: 'audio/wav',
+                        recorderType: RecordRTC.StereoAudioRecorder
+                    });
+                    recorder.startRecording();  // Start recording audio
 
-                    // Convert the text to speech using the SpeechSynthesis API
+                    // Convert the text to speech using SpeechSynthesis API
                     const utterance = new SpeechSynthesisUtterance(text);
                     window.speechSynthesis.speak(utterance);
 
-                    // Stop recording once the speech ends
+                    // Stop recording once the speech synthesis ends
                     utterance.onend = () => {
-                        recorder.stop();
+                        recorder.stopRecording(() => {
+                            console.log("Recording stopped");
+                        });
                     };
                 })
                 .catch(error => {
-                    // Handle microphone access errors
                     console.error('Error accessing microphone: ', error);
                     alert('Unable to access the microphone. Please make sure you have given the browser permission to access the microphone.');
                 });
@@ -54,11 +56,11 @@
         // Function to download the recorded speech as an MP3 file
         function downloadSpeech() {
             if (recorder && audioStream) {
-                recorder.exportWAV(blob => {
+                recorder.getDataURL(function(dataURL) {
                     const link = document.createElement('a');
-                    link.href = URL.createObjectURL(blob);
-                    link.download = "speech.mp3";  // Name of the downloaded file
-                    link.click();
+                    link.href = dataURL;  // The URL of the recorded audio
+                    link.download = 'speech.mp3';  // Name of the file
+                    link.click();  // Trigger the download
                 });
             } else {
                 alert("No speech recorded to download.");
