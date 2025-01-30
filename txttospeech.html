@@ -25,28 +25,30 @@
                 return;
             }
 
-            // Convert the text to speech using the SpeechSynthesis API
-            const utterance = new SpeechSynthesisUtterance(text);
-            window.speechSynthesis.speak(utterance);
-
             // Start recording the speech for later downloading as MP3
-            if (audioStream) {
-                audioStream.getTracks().forEach(track => track.stop());
-            }
             navigator.mediaDevices.getUserMedia({ audio: true })
                 .then(stream => {
                     audioStream = stream;
                     recorder = new Recorder(new MediaStream([stream.getTracks()[0]]), { numChannels: 1 });
                     recorder.record();
+
+                    // Convert the text to speech using the SpeechSynthesis API
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    window.speechSynthesis.speak(utterance);
+
+                    // Stop recording once the speech ends
+                    utterance.onend = () => {
+                        recorder.stop();
+                    };
                 })
                 .catch(error => {
                     console.error('Error accessing microphone: ', error);
+                    alert('Unable to access microphone for recording.');
                 });
         }
 
         function downloadSpeech() {
             if (recorder && audioStream) {
-                recorder.stop();
                 recorder.exportWAV(blob => {
                     const link = document.createElement('a');
                     link.href = URL.createObjectURL(blob);
