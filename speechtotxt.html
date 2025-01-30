@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="description" content="Speech to Text Demo">
+    <title>Speech to Text</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 500px;
+        }
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        #speechResult {
+            font-size: 18px;
+            color: #333;
+            margin-top: 20px;
+            min-height: 50px;
+        }
+        #startBtn {
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #startBtn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="title">Speech to Text Demo</div>
+    <button id="startBtn">Start Listening</button>
+    <div id="speechResult"></div>
+</div>
+
+<script>
+    const startBtn = document.getElementById('startBtn');
+    const speechResult = document.getElementById('speechResult');
+    
+    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = 'en-US';
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 1;
+
+    recognition.onresult = (event) => {
+        let transcript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+            transcript += event.results[i][0].transcript;
+        }
+        speechResult.textContent = transcript;
+    };
+
+    recognition.onerror = (event) => {
+        console.error('Speech recognition error', event.error);
+    };
+
+    startBtn.addEventListener('click', () => {
+        recognition.start();
+        speechResult.textContent = 'Listening...';
+    });
+</script>
+
+</body>
+</html>
