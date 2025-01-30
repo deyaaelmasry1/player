@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Watermark Detection and Removal with TensorFlow.js</title>
+  <title>Watermark Removal with User Selection</title>
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
   <style>
@@ -30,12 +30,17 @@
       border: 1px solid #ccc;
       margin-top: 10px;
     }
+    .selection-box {
+      border: 2px dashed #ff0000;
+      position: absolute;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
 
-<h1>Watermark Detection and Removal</h1>
-<p>Upload an image, detect the watermark region using AI, and see the image before and after watermark removal.</p>
+<h1>Watermark Removal with User Selection</h1>
+<p>Upload an image, select the watermark region, and remove it.</p>
 
 <input type="file" id="image-input" accept="image/*">
 <div id="image-info"></div>
@@ -51,24 +56,26 @@
 </div>
 
 <div class="controls">
-  <button id="remove-watermark">Remove Watermark</button>
+  <button id="remove-selected">Remove Selected Area</button>
 </div>
 
 <script>
   let imageElement, originalImageData, ctxOriginal, ctxModified;
-  let detectedRegions = [];
+  let selectionBox = null;
+  let selectionStartX = 0, selectionStartY = 0;
+  let selectionWidth = 0, selectionHeight = 0;
 
   document.getElementById('image-input').addEventListener('change', handleImageUpload);
 
-  async function handleImageUpload(event) {
+  function handleImageUpload(event) {
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = function(e) {
         const img = new Image();
-        img.onload = async function() {
+        img.onload = function() {
           imageElement = img;
-          document.getElementById('image-info').innerHTML = 'Image loaded. Detecting watermark...';
+          document.getElementById('image-info').innerHTML = 'Image loaded. Please select the watermark area to remove.';
 
           // Display the original image
           const originalCanvas = document.getElementById('original-canvas');
@@ -85,9 +92,8 @@
           ctxModified.clearRect(0, 0, modifiedCanvas.width, modifiedCanvas.height);
           ctxModified.drawImage(img, 0, 0, modifiedCanvas.width, modifiedCanvas.height);
 
-          // Load the COCO-SSD model
-          const model = await cocoSsd.load();
-          detectWatermark(model, img);
+          // Allow selection of the region for removal
+          enableRegionSelection(originalCanvas);
         };
         img.src = e.target.result;
       };
@@ -95,44 +101,61 @@
     }
   }
 
-  // Detect watermark region using the COCO-SSD model
-  async function detectWatermark(model, img) {
-    const predictions = await model.detect(img);
+  // Enable region selection on the canvas
+  function enableRegionSelection(canvas) {
+    canvas.addEventListener('mousedown', onMouseDown);
+    canvas.addEventListener('mousemove', onMouseMove);
+    canvas.addEventListener('mouseup', onMouseUp);
+  }
 
-    // Filter out predictions that are likely to be a watermark (e.g., text-like objects)
-    detectedRegions = predictions.filter(prediction => {
-      // You can customize this filtering to target specific objects that resemble a watermark
-      return prediction.class === 'person' || prediction.class === 'bottle'; // Example filtering
-    });
+  // Start selection when the mouse is pressed
+  function onMouseDown(event) {
+    selectionStartX = event.offsetX;
+    selectionStartY = event.offsetY;
+    selectionWidth = 0;
+    selectionHeight = 0;
 
-    if (detectedRegions.length > 0) {
-      alert("Watermark detected, click 'Remove Watermark' to proceed.");
-    } else {
-      alert("No watermark detected.");
+    if (selectionBox) {
+      selectionBox.remove();
+    }
+    selectionBox = document.createElement('div');
+    selectionBox.className = 'selection-box';
+    document.body.appendChild(selectionBox);
+  }
+
+  // Update selection area while the mouse is moving
+  function onMouseMove(event) {
+    if (selectionBox) {
+      selectionWidth = event.offsetX - selectionStartX;
+      selectionHeight = event.offsetY - selectionStartY;
+
+      // Update position and size of the selection box
+      selectionBox.style.left = `${selectionStartX}px`;
+      selectionBox.style.top = `${selectionStartY}px`;
+      selectionBox.style.width = `${Math.abs(selectionWidth)}px`;
+      selectionBox.style.height = `${Math.abs(selectionHeight)}px`;
     }
   }
 
-  // Remove watermark by rebuilding the region (basic approach)
-  document.getElementById('remove-watermark').addEventListener('click', () => {
-    if (detectedRegions.length > 0) {
-      detectedRegions.forEach(region => {
-        removeWatermark(region);
-      });
-      alert("Watermark removed. See the comparison.");
+  // Finalize selection and store the region
+  function onMouseUp() {
+    if (selectionWidth !== 0 && selectionHeight !== 0) {
+      alert("Region selected. Click 'Remove Selected Area' to proceed.");
+    }
+  }
+
+  // Remove the selected area from the image
+  document.getElementById('remove-selected').addEventListener('click', () => {
+    if (selectionWidth !== 0 && selectionHeight !== 0) {
+      removeSelectedArea(selectionStartX, selectionStartY, Math.abs(selectionWidth), Math.abs(selectionHeight));
     } else {
-      alert("No watermark detected to remove.");
+      alert("No area selected to remove.");
     }
   });
 
-  // Simple removal of the watermark by filling the region with surrounding pixels
-  function removeWatermark(region) {
-    const { bbox } = region;
-    const width = bbox[2];
-    const height = bbox[3];
-    const x = bbox[0];
-    const y = bbox[1];
-
-    // Get the surrounding pixels to fill in the watermark area
+  // Remove selected area by filling it with surrounding pixels
+  function removeSelectedArea(x, y, width, height) {
+    // Get the surrounding pixels to fill in the selected area
     const surroundingPixels = getSurroundingPixels(x, y, width, height);
 
     // Rebuild the region by replacing with surrounding pixels
@@ -150,7 +173,7 @@
     ctxModified.putImageData(originalImageData, 0, 0);
   }
 
-  // Get surrounding pixels (basic average approach)
+  // Get surrounding pixels (simple average approach)
   function getSurroundingPixels(x, y, width, height) {
     let pixels = [];
     for (let i = 0; i < width; i++) {
