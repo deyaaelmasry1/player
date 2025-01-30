@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Text to Speech Converter with Recording</title>
-    <script src="https://cdn.webrtc.org/recordrtc/RecordRTC.js"></script>
 </head>
 <body>
     <h1>Text to Speech Converter with Recording</h1>
@@ -14,8 +13,9 @@
     <button onclick="downloadSpeech()">Download as MP3</button>
 
     <script>
-        let recorder;  // To store the recorder instance
-        let audioStream;  // To store the audio stream
+        let mediaRecorder; // To store the MediaRecorder instance
+        let audioChunks = []; // To store the audio data
+        let audioStream; // To store the audio stream
 
         // Function to convert text to speech and start recording
         function convertTextToSpeech() {
@@ -29,12 +29,15 @@
             navigator.mediaDevices.getUserMedia({ audio: true })
                 .then(stream => {
                     audioStream = stream;
-                    recorder = RecordRTC(stream, {
-                        type: 'audio',
-                        mimeType: 'audio/wav',
-                        recorderType: RecordRTC.StereoAudioRecorder
-                    });
-                    recorder.startRecording();  // Start recording audio
+                    mediaRecorder = new MediaRecorder(stream);
+
+                    // Record audio chunks as they are available
+                    mediaRecorder.ondataavailable = event => {
+                        audioChunks.push(event.data);
+                    };
+
+                    // Start recording
+                    mediaRecorder.start();
 
                     // Convert the text to speech using SpeechSynthesis API
                     const utterance = new SpeechSynthesisUtterance(text);
@@ -42,9 +45,7 @@
 
                     // Stop recording once the speech synthesis ends
                     utterance.onend = () => {
-                        recorder.stopRecording(() => {
-                            console.log("Recording stopped");
-                        });
+                        mediaRecorder.stop();
                     };
                 })
                 .catch(error => {
@@ -55,13 +56,15 @@
 
         // Function to download the recorded speech as an MP3 file
         function downloadSpeech() {
-            if (recorder && audioStream) {
-                recorder.getDataURL(function(dataURL) {
+            if (mediaRecorder && audioStream) {
+                mediaRecorder.onstop = () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                    const audioUrl = URL.createObjectURL(audioBlob);
                     const link = document.createElement('a');
-                    link.href = dataURL;  // The URL of the recorded audio
-                    link.download = 'speech.mp3';  // Name of the file
-                    link.click();  // Trigger the download
-                });
+                    link.href = audioUrl;
+                    link.download = 'speech.mp3'; // Name of the downloaded file
+                    link.click(); // Trigger the download
+                };
             } else {
                 alert("No speech recorded to download.");
             }
