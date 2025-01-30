@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Speech to Text (Arabic Supported)</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/annyang/2.6.1/annyang.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -69,53 +70,51 @@
         const startBtn = document.getElementById('start-btn');
         const stopBtn = document.getElementById('stop-btn');
 
-        // Check if SpeechRecognition API is supported
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        // Check if annyang is available
+        if (annyang) {
+            // Set up Arabic language
+            annyang.setLanguage('ar-SA');  // Arabic (Saudi Arabia)
 
-        if (!SpeechRecognition) {
+            // Define the speech recognition function
+            const recognitionCallback = function(phrases) {
+                const transcript = phrases[0];
+                textArea.value += transcript; // Add recognized text to the text area
+                textArea.scrollTop = textArea.scrollHeight; // Keep scroll at bottom
+            };
+
+            // Add a command to process speech input
+            const commands = {
+                '*phrase': recognitionCallback // Any recognized phrase will be passed to the callback
+            };
+
+            // Add commands to annyang
+            annyang.addCommands(commands);
+
+            // Start speech recognition
+            function startRecognition() {
+                annyang.start();
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+            }
+
+            // Stop speech recognition
+            function stopRecognition() {
+                annyang.abort();
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+            }
+
+            // Download text as a .txt file
+            function downloadText() {
+                const text = textArea.value;
+                const blob = new Blob([text], { type: 'text/plain' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'transcript.txt';
+                link.click();
+            }
+        } else {
             alert("متصفحك لا يدعم التعرف على الصوت.");
-        }
-
-        const recognition = new SpeechRecognition();
-        recognition.lang = 'ar-SA'; // Arabic Language
-        recognition.interimResults = true;
-        recognition.maxAlternatives = 1;
-
-        // Start recognition
-        function startRecognition() {
-            recognition.start();
-            startBtn.disabled = true;
-            stopBtn.disabled = false;
-        }
-
-        // Stop recognition
-        function stopRecognition() {
-            recognition.stop();
-            startBtn.disabled = false;
-            stopBtn.disabled = true;
-        }
-
-        // When recognition returns results
-        recognition.onresult = function(event) {
-            const transcript = event.results[event.resultIndex][0].transcript;
-            textArea.value += transcript; // Add recognized text to text area
-            textArea.scrollTop = textArea.scrollHeight; // Keep scroll at bottom
-        };
-
-        // Handle recognition end
-        recognition.onend = function() {
-            startBtn.disabled = false;
-            stopBtn.disabled = true;
-        };
-
-        // Download text as .txt file
-        function downloadText() {
-            const text = textArea.value;
-            const blob = new Blob([text], { type: 'text/plain' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = 'transcript.txt';
-            link.click();
         }
     </script>
 </body>
