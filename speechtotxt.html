@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Speech to Text (Arabic Supported)</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/annyang/2.6.1/annyang.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -70,55 +69,56 @@
         const startBtn = document.getElementById('start-btn');
         const stopBtn = document.getElementById('stop-btn');
 
-        // Check if annyang is available
-        if (annyang) {
-            // Set up Arabic language
-            annyang.setLanguage('ar-SA');  // Arabic (Saudi Arabia)
-
-            // Define a variable to hold the full speech text
-            let fullText = '';
-
-            // Define the callback function to capture the speech result
-            const recognitionCallback = function(phrases) {
-                // Concatenate the newly recognized phrase to the full text
-                fullText += phrases[0] + ' ';
-                textArea.value = fullText;  // Update the text area with the full text
-                textArea.scrollTop = textArea.scrollHeight; // Keep scroll at bottom
-            };
-
-            // Add a command to process speech input
-            const commands = {
-                '*phrase': recognitionCallback // This captures any recognized phrase
-            };
-
-            // Add commands to annyang
-            annyang.addCommands(commands);
-
-            // Start speech recognition
-            function startRecognition() {
-                annyang.start();
-                startBtn.disabled = true;
-                stopBtn.disabled = false;
-            }
-
-            // Stop speech recognition
-            function stopRecognition() {
-                annyang.abort();
-                startBtn.disabled = false;
-                stopBtn.disabled = true;
-            }
-
-            // Download text as a .txt file
-            function downloadText() {
-                const text = textArea.value;
-                const blob = new Blob([text], { type: 'text/plain' });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = 'transcript.txt';
-                link.click();
-            }
-        } else {
+        // Check if SpeechRecognition API is available
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        
+        if (!SpeechRecognition) {
             alert("متصفحك لا يدعم التعرف على الصوت.");
+        }
+
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'ar-SA';  // Set language to Arabic (Saudi Arabia)
+        recognition.interimResults = true;  // To get real-time results
+        recognition.maxAlternatives = 1;  // Only the best alternative is returned
+
+        let fullText = '';
+
+        // Start speech recognition
+        function startRecognition() {
+            recognition.start();
+            startBtn.disabled = true;
+            stopBtn.disabled = false;
+        }
+
+        // Stop speech recognition
+        function stopRecognition() {
+            recognition.stop();
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+        }
+
+        // Event handler for when speech is detected
+        recognition.onresult = function(event) {
+            const transcript = event.results[event.resultIndex][0].transcript;
+            fullText += transcript + ' ';  // Append the recognized text
+            textArea.value = fullText;     // Update the text area
+            textArea.scrollTop = textArea.scrollHeight;  // Keep the scroll at the bottom
+        };
+
+        // Handle the end of recognition
+        recognition.onend = function() {
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+        };
+
+        // Download the text as a .txt file
+        function downloadText() {
+            const text = textArea.value;
+            const blob = new Blob([text], { type: 'text/plain' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'transcript.txt';
+            link.click();
         }
     </script>
 </body>
