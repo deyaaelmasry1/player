@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Text to Speech (Record Only System Audio)</title>
-    <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script> <!-- Load RecordRTC -->
+    <title>Text to Speech (Using API)</title>
+    <script src="https://code.responsivevoice.org/responsivevoice.js?key=YOUR_KEY"></script> <!-- Free API -->
+    <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script> <!-- For Recording -->
 </head>
 <body>
-    <h1>Text to Speech (Record Only System Audio)</h1>
+    <h1>Text to Speech (API + Recording)</h1>
 
     <textarea id="text-to-speech" rows="4" cols="50" placeholder="Enter text here..."></textarea><br><br>
     <button onclick="convertTextToSpeech()">Convert to Speech</button>
@@ -28,45 +29,28 @@
             recordedBlob = null;
             document.getElementById("download-btn").disabled = true;
 
-            // Create an audio context to capture speech output
+            // Create a virtual audio output to record
             const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const destination = audioContext.createMediaStreamDestination(); // Virtual audio output
-            const speechSynth = window.speechSynthesis;
-
-            // Create an oscillator (silent) to keep the stream alive
-            const oscillator = audioContext.createOscillator();
-            oscillator.connect(destination);
-            oscillator.start();
-
-            // Create an audio element to play the speech output
-            const audioElement = new Audio();
-            const utterance = new SpeechSynthesisUtterance(text);
-            
-            // Create a SpeechSynthesis audio source
+            const destination = audioContext.createMediaStreamDestination();
             const speechSource = audioContext.createMediaStreamSource(destination);
-            speechSource.connect(audioContext.destination); // Connect to output (so we can hear it)
+            speechSource.connect(audioContext.destination); // Connect to speakers
 
-            // Use RecordRTC to record the virtual audio output
+            // Use RecordRTC to capture the output
             recorder = new RecordRTC(destination.stream, {
                 type: 'audio',
-                mimeType: 'audio/wav' // Change to 'audio/mp3' if needed
+                mimeType: 'audio/wav'
             });
 
             // Start recording
             recorder.startRecording();
 
-            // Convert text to speech and play through the virtual stream
-            utterance.onstart = () => {
-                speechSynth.speak(utterance);
-            };
-
-            // Stop recording when speech ends
-            utterance.onend = () => {
+            // Use the API to speak
+            responsiveVoice.speak(text, "UK English Male", { onend: () => {
                 recorder.stopRecording(() => {
                     recordedBlob = recorder.getBlob();
                     document.getElementById("download-btn").disabled = false;
                 });
-            };
+            }});
         }
 
         function downloadSpeech() {
@@ -74,7 +58,7 @@
                 const audioUrl = URL.createObjectURL(recordedBlob);
                 const link = document.createElement('a');
                 link.href = audioUrl;
-                link.download = 'speech.mp3'; // Save as MP3 or WAV
+                link.download = 'speech.mp3'; 
                 link.click();
             } else {
                 alert("Recording not available. Try again.");
