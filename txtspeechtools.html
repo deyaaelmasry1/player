@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>أدوات تحويل الصوت إلى نص والنص إلى صوت</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            text-align: right;
+        }
+
+        h1 {
+            color: #333;
+            margin-top: 20px;
+        }
+
+        .tool-container {
+            width: 80%;
+            max-width: 1000px;
+            margin-top: 50px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+
+        .tool-container h2 {
+            color: #4CAF50;
+        }
+
+        .button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 0;
+            transition: background-color 0.3s;
+        }
+
+        .button:hover {
+            background-color: #45a049;
+        }
+
+        .tool-box {
+            margin-top: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .tool-box a {
+            text-decoration: none;
+        }
+
+        .tools-row {
+            display: flex;
+            justify-content: space-evenly;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>مرحبًا بك في أدوات تحويل الصوت إلى نص والنص إلى صوت</h1>
+
+    <div class="tool-container">
+        <div class="tools-row">
+            <div class="tool-box">
+                <h2>تحويل الصوت إلى نص</h2>
+                <textarea id="speechTextInput" placeholder="تحدث في الميكروفون..."></textarea>
+                <br>
+                <a href="https://www.iblog.pp.ua/speechtotxt.html" target="_blank">
+                    <button class="button">ابدأ تحويل الصوت إلى نص</button>
+                </a>
+            </div>
+
+            <div class="tool-box">
+                <h2>تحويل النص إلى صوت</h2>
+                <textarea id="textInput" placeholder="اكتب النص هنا..."></textarea>
+                <br>
+                <a href="https://www.iblog.pp.ua/txttospeech.html" target="_blank">
+                    <button class="button">ابدأ تحويل النص إلى صوت</button>
+                </a>
+            </div>
+        </div>
+
+        <p style="margin-top: 20px; font-size: 14px; color: #666;">
+            استكشف هذه الأدوات لتحويل الصوت إلى نص أو اكتب النص للاستماع إليه كصوت.
+        </p>
+    </div>
+
+</body>
+</html>
