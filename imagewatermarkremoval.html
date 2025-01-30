@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Watermark Removal Demo</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/2.1.2/tesseract.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.2.0/pixi.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/4.5.1/fabric.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f4f4f4;
+    }
+    #canvas-container {
+      margin-top: 20px;
+    }
+    canvas {
+      border: 1px solid #ccc;
+      margin-top: 10px;
+    }
+    #image-input {
+      margin-bottom: 20px;
+    }
+    .controls {
+      margin-top: 10px;
+    }
+    .controls button {
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Watermark Removal Demo</h1>
+<p>Upload an image, detect watermark text (if any), and remove it by masking or blurring the watermark area.</p>
+
+<input type="file" id="image-input" accept="image/*">
+<div id="image-info"></div>
+
+<!-- Canvas for PixiJS Image -->
+<div id="canvas-container">
+  <canvas id="pixi-canvas" width="800" height="600"></canvas>
+</div>
+
+<div class="controls">
+  <button id="blur-watermark">Blur Watermark Area</button>
+  <button id="mask-watermark">Mask Watermark Area</button>
+</div>
+
+<script>
+  let imageElement, canvasPixi, appPixi;
+
+  document.getElementById('image-input').addEventListener('change', handleImageUpload);
+
+  function handleImageUpload(event) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        // Create image element
+        const img = new Image();
+        img.onload = function() {
+          imageElement = img;
+          document.getElementById('image-info').innerHTML = 'Image loaded. Ready to detect watermark.';
+
+          // Initialize PixiJS canvas
+          appPixi = new PIXI.Application({
+            view: document.getElementById('pixi-canvas'),
+            width: 800,
+            height: 600
+          });
+
+          const texture = PIXI.Texture.from(img);
+          const sprite = new PIXI.Sprite(texture);
+          appPixi.stage.addChild(sprite);
+
+          detectWatermarkWithOCR(img);
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  // Detect watermark using Tesseract.js
+  function detectWatermarkWithOCR(img) {
+    Tesseract.recognize(
+      img,
+      'eng',
+      {
+        logger: (m) => console.log(m)
+      }
+    ).then(({ data: { text } }) => {
+      if (text.includes("watermark") || text.trim() !== "") {
+        alert("Watermark detected: " + text);
+      } else {
+        alert("No text watermark detected.");
+      }
+    });
+  }
+
+  // Blurring the watermark area using PixiJS
+  document.getElementById('blur-watermark').addEventListener('click', () => {
+    if (appPixi && imageElement) {
+      const texture = PIXI.Texture.from(imageElement);
+      const sprite = new PIXI.Sprite(texture);
+      appPixi.stage.addChild(sprite);
+
+      // Apply blur filter to a specific area (this is a simplistic approach)
+      sprite.filters = [new PIXI.filters.BlurFilter(5)]; // Adjust blur amount as needed
+    }
+  });
+
+  // Masking the watermark area using Fabric.js (simplified for demonstration)
+  document.getElementById('mask-watermark').addEventListener('click', () => {
+    const canvasFabric = new fabric.Canvas('pixi-canvas');
+    fabric.Image.fromURL(imageElement.src, function(img) {
+      canvasFabric.add(img);
+
+      // Define a rectangle over the watermark area (you would adjust this manually)
+      const maskRect = new fabric.Rect({
+        left: 100, // X position of watermark
+        top: 100,  // Y position of watermark
+        width: 150, // Width of watermark area
+        height: 50, // Height of watermark area
+        fill: 'white', // Mask color (white or black)
+        opacity: 1
+      });
+
+      canvasFabric.add(maskRect);
+      canvasFabric.renderAll();
+    });
+  });
+</script>
+
+</body>
+</html>
