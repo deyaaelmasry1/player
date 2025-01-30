@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Remove Image Background using TensorFlow.js in the browser">
-    <meta name="keywords" content="background removal, TensorFlow.js, machine learning, bodypix">
-    <meta name="author" content="Your Name">
-    <title>Background Removal Tool</title>
+    <meta name="description" content="إزالة خلفية أي صورة مجانًا بدون حدود أو تسجيل. أداة إزالة الخلفية باستخدام الذكاء الاصطناعي تعمل مباشرة في المتصفح.">
+    <meta name="keywords" content="إزالة الخلفية مجانًا, إزالة الخلفية من الصور, أداة إزالة الخلفية, بدون تسجيل, بدون حدود">
+    <meta name="author" content="أداة إزالة الخلفية">
+    <title>إزالة الخلفية مجانًا - بدون حدود أو تسجيل</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -15,6 +15,7 @@
             padding: 0;
             background-color: #f7f7f7;
             text-align: center;
+            direction: rtl;
         }
 
         header {
@@ -28,7 +29,12 @@
         }
 
         .container {
-            margin-top: 20px;
+            margin: 20px auto;
+            max-width: 600px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
         }
 
         input[type="file"] {
@@ -64,6 +70,8 @@
 
         #loading {
             display: none;
+            font-weight: bold;
+            color: #d9534f;
         }
 
         footer {
@@ -91,32 +99,38 @@
 
 <body>
     <header>
-        <h1>Remove Background from Image</h1>
+        <h1>إزالة الخلفية مجانًا</h1>
+        <p>احذف الخلفية من أي صورة فورًا – مجاني 100%، بدون قيود أو تسجيل.</p>
     </header>
 
     <div class="container">
-        <h2>Upload an Image</h2>
+        <h2>حول هذه الأداة</h2>
+        <p>تستخدم هذه الأداة الذكاء الاصطناعي لإزالة الخلفيات من الصور بسرعة وكفاءة. لا حاجة للتسجيل أو تحميل أي برامج!</p>
+
+        <h2>قم برفع صورتك</h2>
+        <p>اختر صورة، وسيقوم الذكاء الاصطناعي تلقائيًا بإزالة الخلفية في ثوانٍ.</p>
         <input type="file" id="file-input" accept="image/*" />
-        <button onclick="removeBackground()">Remove Background</button>
+        <button onclick="removeBackground()">إزالة الخلفية</button>
 
         <div id="loading">
-            <p>Removing background...</p>
+            <p>جاري المعالجة... الرجاء الانتظار.</p>
         </div>
 
         <div id="output">
-            <h3>Image with Background Removed:</h3>
+            <h3>تحميل الصورة بعد إزالة الخلفية</h3>
+            <p>اضغط أدناه لحفظ الصورة بعد إزالة الخلفية.</p>
             <canvas id="output-canvas"></canvas>
-            <button id="download-button">Download Image</button>
+            <button id="download-button">تحميل الصورة</button>
         </div>
     </div>
 
     <footer>
-        <p>&copy; 2025 Background Removal Tool. All rights reserved.</p>
+        <p>&copy; 2025 أداة إزالة الخلفية. بدون تسجيل، بدون حدود.</p>
     </footer>
 
-    <!-- Include TensorFlow.js -->
+    <!-- تضمين مكتبة TensorFlow.js -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-    <!-- Include BodyPix model -->
+    <!-- تضمين نموذج BodyPix -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix"></script>
 
     <script>
@@ -124,7 +138,7 @@
 
         async function loadModel() {
             net = await bodyPix.load();
-            console.log('Model loaded');
+            console.log('تم تحميل النموذج بنجاح.');
         }
 
         loadModel();
@@ -137,7 +151,7 @@
             const downloadButton = document.getElementById('download-button');
 
             if (!fileInput.files.length) {
-                alert("Please select an image.");
+                alert("يرجى اختيار صورة.");
                 return;
             }
 
@@ -156,7 +170,7 @@
                 canvas.width = image.width;
                 canvas.height = image.height;
 
-                // Segment the entire person
+                // تحليل الصورة وتحديد الشخص
                 const segmentation = await net.segmentPerson(image, {
                     internalResolution: 'medium',
                     segmentationThreshold: 0.7
@@ -170,7 +184,7 @@
                 for (let i = 0; i < data.length; i += 4) {
                     const index = i / 4;
                     if (!segmentation.data[index]) {
-                        // Make background transparent
+                        // جعل الخلفية شفافة
                         data[i + 3] = 0;
                     }
                 }
@@ -180,7 +194,7 @@
                 loadingDiv.style.display = 'none';
                 outputDiv.style.display = 'block';
 
-                // Download button functionality
+                // وظيفة زر التحميل
                 downloadButton.onclick = () => {
                     const link = document.createElement('a');
                     link.href = canvas.toDataURL();
