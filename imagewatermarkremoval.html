@@ -6,7 +6,6 @@
   <title>Watermark Removal - Before and After</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/2.1.2/tesseract.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.2.0/pixi.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/4.5.1/fabric.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -77,6 +76,9 @@
           ctxOriginal.clearRect(0, 0, originalCanvas.width, originalCanvas.height);
           ctxOriginal.drawImage(img, 0, 0, originalCanvas.width, originalCanvas.height);
 
+          // Store original image data for reference
+          originalImageData = ctxOriginal.getImageData(0, 0, originalCanvas.width, originalCanvas.height);
+
           // Initialize PixiJS for watermark removal
           appPixi = new PIXI.Application({
             view: document.getElementById('modified-canvas'),
@@ -117,25 +119,26 @@
 
   // Remove watermark and show difference
   document.getElementById('remove-watermark').addEventListener('click', () => {
-    if (appPixi && imageElement && detectedTextRegions.length > 0) {
-      // Recreate PixiJS sprite for modified image
-      const texture = PIXI.Texture.from(imageElement);
-      const sprite = new PIXI.Sprite(texture);
-      appPixi.stage.addChild(sprite);
+    if (detectedTextRegions.length > 0) {
+      // Create a modified image and apply removal
+      const modifiedCanvas = document.getElementById('modified-canvas');
+      const ctxModified = modifiedCanvas.getContext('2d');
+      ctxModified.clearRect(0, 0, modifiedCanvas.width, modifiedCanvas.height);
 
-      // Apply a mask (or blur) to remove detected text
+      // Draw the original image on the modified canvas
+      ctxModified.drawImage(imageElement, 0, 0, modifiedCanvas.width, modifiedCanvas.height);
+
+      // Apply a blur or mask effect to the detected text regions
       detectedTextRegions.forEach(region => {
-        const rect = new PIXI.Graphics();
-        rect.beginFill(0xFFFFFF, 1); // White fill to mask the text
-        rect.drawRect(region.x, region.y, region.width, region.height);
-        rect.endFill();
-        appPixi.stage.addChild(rect);
-
-        // Optionally, you could apply a blur instead of masking (comment out the masking lines and uncomment the blur filter lines)
-        // rect.filters = [new PIXI.filters.BlurFilter(5)]; // Adjust blur amount as needed
+        // Apply blur effect over detected region
+        ctxModified.filter = 'blur(10px)'; // Apply blur with 10px radius
+        ctxModified.fillRect(region.x, region.y, region.width, region.height);
       });
 
-      appPixi.render();
+      // Remove filter after applying blur
+      ctxModified.filter = 'none';
+
+      alert("Watermark removed. See the comparison.");
     } else {
       alert("No watermark detected to remove.");
     }
