@@ -1,164 +1,61 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <meta name="description" content="تحويل الصوت إلى نص باللغة العربية بسهولة باستخدام التعرف على الصوت">
-    <meta name="author" content="سعد">
-    <meta name="keywords" content="تحويل الصوت, نص, التعرف على الصوت, Arabic speech to text">
-    <meta name="robots" content="index, follow">
-    <title>تحويل الصوت إلى نص (دعم اللغة العربية)</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            direction: rtl; /* Right-to-left text direction for Arabic */
-            background-color: #f4f4f9;
-            padding: 20px;
-        }
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-        h2 {
-            text-align: center;
-            color: #555;
-        }
-        #textArea {
-            width: 100%;
-            height: 300px;
-            margin-top: 20px;
-            padding: 10px;
-            font-size: 18px;
-            background-color: #fff;
-            border: 2px solid #ccc;
-            border-radius: 8px;
-            resize: vertical;
-            overflow-y: auto;
-        }
-        .btn-container {
-            text-align: center;
-            margin-top: 20px;
-        }
-        button {
-            padding: 10px 20px;
-            margin: 5px;
-            font-size: 16px;
-            cursor: pointer;
-            border: none;
-            border-radius: 5px;
-        }
-        #start-btn {
-            background-color: #4CAF50;
-            color: white;
-        }
-        #stop-btn {
-            background-color: #f44336;
-            color: white;
-        }
-        #download-btn {
-            background-color: #2196F3;
-            color: white;
-        }
-        #speak-btn {
-            background-color: #FF9800;
-            color: white;
-        }
-    </style>
+    <title>Text to Speech Converter</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Recorderjs/0.1.0/recorder.js"></script>
 </head>
 <body>
-    <h1>تحويل الصوت إلى نص (دعم اللغة العربية)</h1>
-    <h2>سهولة التحويل من الكلام إلى النص باستخدام تقنيات التعرف على الصوت</h2>
-    <p>باستخدام هذه الأداة، يمكنك تحويل أي كلام منطوق باللغة العربية إلى نص مكتوب بسهولة، من دون الحاجة إلى الكتابة اليدوية. ما عليك سوى الضغط على "ابدأ" لبدء التسجيل و"توقف" لإيقافه. يمكنك أيضًا تحميل النص المحول كملف نصي عند الانتهاء. كما يمكنك تحويل النص إلى كلام وتنزيله كملف MP3.</p>
+    <h1>Text to Speech Converter</h1>
 
-    <textarea id="textArea" placeholder="ابدأ بالتحدث..."></textarea>
-    
-    <div class="btn-container">
-        <button id="start-btn" onclick="startRecognition()">ابدأ</button>
-        <button id="stop-btn" onclick="stopRecognition()" disabled>توقف</button>
-        <button id="download-btn" onclick="downloadText()">تحميل النص</button>
-        <button id="speak-btn" onclick="speakText()">تحويل النص إلى كلام</button>
-    </div>
+    <textarea id="text-to-speech" rows="4" cols="50" placeholder="Enter text here..."></textarea><br><br>
+    <button onclick="convertTextToSpeech()">Convert to Speech</button>
+    <button onclick="downloadSpeech()">Download as MP3</button>
 
     <script>
-        const textArea = document.getElementById('textArea');
-        const startBtn = document.getElementById('start-btn');
-        const stopBtn = document.getElementById('stop-btn');
-        const speakBtn = document.getElementById('speak-btn');
-        const downloadBtn = document.getElementById('download-btn');
+        // Initialize the Recorder.js
+        let recorder;
+        let audioStream;
 
-        // Check if SpeechRecognition API is available
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        
-        if (!SpeechRecognition) {
-            alert("متصفحك لا يدعم التعرف على الصوت.");
-        }
-
-        const recognition = new SpeechRecognition();
-        recognition.lang = 'ar-SA';  // Set language to Arabic (Saudi Arabia)
-        recognition.interimResults = false;  // Only show final results
-        recognition.maxAlternatives = 1;  // Only the best alternative is returned
-
-        let fullText = '';
-        let isRecognitionActive = false;  // Flag to track if recognition is active
-
-        // Start speech recognition
-        function startRecognition() {
-            if (!isRecognitionActive) {
-                recognition.start();
-                startBtn.disabled = true;
-                stopBtn.disabled = false;
-                isRecognitionActive = true;
+        function convertTextToSpeech() {
+            const text = document.getElementById("text-to-speech").value;
+            if (text.trim() === "") {
+                alert("Please enter some text.");
+                return;
             }
-        }
 
-        // Stop speech recognition
-        function stopRecognition() {
-            if (isRecognitionActive) {
-                recognition.stop();
-                startBtn.disabled = false;
-                stopBtn.disabled = true;
-                isRecognitionActive = false;
-            }
-        }
-
-        // Event handler for when speech is detected
-        recognition.onresult = function(event) {
-            const transcript = event.results[event.resultIndex][0].transcript;
-            fullText += transcript + ' ';  // Append the recognized text
-            textArea.value = fullText;     // Update the text area
-            textArea.scrollTop = textArea.scrollHeight;  // Keep the scroll at the bottom
-        };
-
-        // Handle the end of recognition
-        recognition.onend = function() {
-            // Do not restart automatically after stopping
-            if (isRecognitionActive) {
-                recognition.start();
-            }
-        };
-
-        // Download the text as a .txt file
-        function downloadText() {
-            const text = textArea.value;
-            const blob = new Blob([text], { type: 'text/plain' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = 'transcript.txt';
-            link.click();
-        }
-
-        // Convert text to speech and play it
-        function speakText() {
-            const text = textArea.value;
-
-            // Use the SpeechSynthesis API to convert text to speech
+            // Convert the text to speech using the SpeechSynthesis API
             const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'ar-SA';  // Set language to Arabic (Saudi Arabia)
             window.speechSynthesis.speak(utterance);
 
-            // Optional: You can also save the audio as MP3 by integrating a library or API for MP3 generation
-            // For simplicity, the browser will just play the speech.
+            // Start recording the speech for later downloading as MP3
+            if (audioStream) {
+                audioStream.getTracks().forEach(track => track.stop());
+            }
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(stream => {
+                    audioStream = stream;
+                    recorder = new Recorder(new MediaStream([stream.getTracks()[0]]), { numChannels: 1 });
+                    recorder.record();
+                })
+                .catch(error => {
+                    console.error('Error accessing microphone: ', error);
+                });
+        }
+
+        function downloadSpeech() {
+            if (recorder && audioStream) {
+                recorder.stop();
+                recorder.exportWAV(blob => {
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = "speech.mp3";
+                    link.click();
+                });
+            } else {
+                alert("No speech recorded to download.");
+            }
         }
     </script>
 </body>
