@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Watermark Removal Tool</title>
     <style>
-        /* Styling */
         body { font-family: Arial, sans-serif; text-align: center; }
         canvas { border: 1px solid #ccc; margin-top: 20px; }
         input[type="file"] { margin: 20px; padding: 10px; }
@@ -25,14 +24,16 @@
     <script>
         let net;
 
+        // Load the model
         async function loadModel() {
             net = await bodyPix.load();
             console.log("Model Loaded!");
         }
 
-        // Load the model when the page is ready
+        // Load model on page load
         loadModel();
 
+        // Function to remove watermark
         async function removeWatermark() {
             const fileInput = document.getElementById('file-input');
             const canvas = document.getElementById('output-canvas');
@@ -52,29 +53,32 @@
             };
 
             image.onload = async function () {
-                // Resize the canvas to match the image size
+                // Resize canvas to match image size
                 canvas.width = image.width;
                 canvas.height = image.height;
                 context.drawImage(image, 0, 0, image.width, image.height);
 
-                // Segment the image to find the watermark area (use BodyPix or other segmentation model)
-                const segmentation = await net.segmentPerson(image);
+                // Perform image segmentation to find watermark region (approximated for body parts)
+                const segmentation = await net.segmentPerson(image, {
+                    internalResolution: 'medium',
+                    segmentationThreshold: 0.7
+                });
 
                 const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
                 const data = imageData.data;
 
-                // Loop through each pixel, and if it's part of the watermark, set it to transparent
+                // Loop through each pixel and remove watermark (you can add custom logic here for watermark removal)
                 for (let i = 0; i < data.length; i += 4) {
                     const index = i / 4;
-                    if (segmentation.data[index] === 0) {  // Background or watermark
+                    if (segmentation.data[index] === 0) {  // If it's part of the background (simplified logic)
                         data[i + 3] = 0;  // Set alpha to 0 (transparent)
                     }
                 }
 
-                // Put the edited image data back onto the canvas
+                // Put the modified image data back to the canvas
                 context.putImageData(imageData, 0, 0);
 
-                // Display the modified image
+                // Allow the user to download the output image
                 const link = document.createElement('a');
                 link.href = canvas.toDataURL();
                 link.download = 'output.png';
