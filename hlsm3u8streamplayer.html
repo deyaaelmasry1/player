@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HLS Live Streaming Player</title>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <style>
+        body {
+            display: flex;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        .sidebar {
+            width: 250px;
+            background: #333;
+            color: white;
+            padding: 10px;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        .sidebar a {
+            display: block;
+            padding: 10px;
+            color: white;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .sidebar a:hover {
+            background: #555;
+        }
+        .player-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: black;
+        }
+        video {
+            width: 80%;
+            height: auto;
+            max-height: 90vh;
+        }
+        .form-container {
+            padding: 10px;
+            background: #222;
+            color: white;
+        }
+        input, button {
+            padding: 5px;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar" id="channelList">
+        <div class="form-container">
+            <input type="text" id="streamUrl" placeholder="Enter Stream URL">
+            <button onclick="addStream()">Add Stream</button>
+            <input type="file" id="fileInput" accept=".txt" onchange="loadFile(event)">
+        </div>
+    </div>
+    <div class="player-container">
+        <video id="video" controls autoplay></video>
+    </div>
+    
+    <script>
+        let channels = [];
+
+        function loadChannels() {
+            const channelList = document.getElementById("channelList");
+            channelList.innerHTML = `<div class="form-container">
+                <input type="text" id="streamUrl" placeholder="Enter Stream URL">
+                <button onclick="addStream()">Add Stream</button>
+                <input type="file" id="fileInput" accept=".txt" onchange="loadFile(event)">
+            </div>`;
+            channels.forEach(channel => {
+                const link = document.createElement("a");
+                link.textContent = channel.name;
+                link.href = "?stream=" + encodeURIComponent(channel.url);
+                link.onclick = (e) => {
+                    e.preventDefault();
+                    playStream(channel.url);
+                    history.pushState(null, "", link.href);
+                };
+                channelList.appendChild(link);
+            });
+        }
+
+        function playStream(url) {
+            const video = document.getElementById("video");
+            if (Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(url);
+                hls.attachMedia(video);
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = url;
+            }
+            video.play();
+        }
+
+        function checkQueryParam() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const streamUrl = urlParams.get("stream");
+            if (streamUrl) playStream(streamUrl);
+        }
+
+        function addStream() {
+            const streamUrl = document.getElementById("streamUrl").value;
+            if (streamUrl) {
+                channels.push({ name: `Stream ${channels.length + 1}`, url: streamUrl });
+                loadChannels();
+            }
+        }
+
+        function loadFile(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const lines = e.target.result.split('\n');
+                    lines.forEach(line => {
+                        if (line.trim()) {
+                            channels.push({ name: `Stream ${channels.length + 1}`, url: line.trim() });
+                        }
+                    });
+                    loadChannels();
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        loadChannels();
+        checkQueryParam();
+    </script>
+</body>
+</html>
