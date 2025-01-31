@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HLS Live Streaming Player</title>
-    <meta name="description" content="Watch live streaming channels seamlessly using our HLS player. Easily add and manage your favorite streams.">
-    <meta name="keywords" content="HLS, live streaming, m3u8, video player, online TV">
-    <meta name="author" content="Your Name">
+    <title>مشغل البث المباشر HLS</title>
+    <meta name="description" content="شاهد قنوات البث المباشر بسهولة باستخدام مشغل HLS. قم بإضافة وإدارة قنواتك المفضلة بسهولة.">
+    <meta name="keywords" content="HLS, بث مباشر, m3u8, مشغل فيديو, تلفزيون أونلاين">
+    <meta name="author" content="اسمك">
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
         body {
@@ -70,16 +70,16 @@
     <div class="main-container">
         <div class="sidebar" id="channelList">
             <div class="form-container">
-                <input type="text" id="streamUrl" placeholder="Enter Stream URL">
-                <button onclick="addStream()">Add Stream</button>
+                <input type="text" id="streamUrl" placeholder="أدخل رابط البث">
+                <button onclick="addStream()">إضافة بث</button>
                 <input type="file" id="fileInput" accept=".txt" onchange="loadFile(event)">
             </div>
         </div>
         <div class="player-content">
             <video id="video" controls autoplay></video>
             <div class="content">
-                <h1>Live Streaming Player</h1>
-                <p>Watch your favorite live streams seamlessly. Add streams manually or upload a file containing stream URLs. Enjoy smooth playback with our HLS-powered player.</p>
+                <h1>مشغل البث المباشر</h1>
+                <p>شاهد البث المباشر لقنواتك المفضلة بسهولة. قم بإضافة البث يدويًا أو قم برفع ملف يحتوي على روابط البث. استمتع بتشغيل سلس مع مشغل HLS.</p>
             </div>
         </div>
     </div>
@@ -90,8 +90,8 @@
         function loadChannels() {
             const channelList = document.getElementById("channelList");
             channelList.innerHTML = `<div class="form-container">
-                <input type="text" id="streamUrl" placeholder="Enter Stream URL">
-                <button onclick="addStream()">Add Stream</button>
+                <input type="text" id="streamUrl" placeholder="أدخل رابط البث">
+                <button onclick="addStream()">إضافة بث</button>
                 <input type="file" id="fileInput" accept=".txt" onchange="loadFile(event)">
             </div>`;
             channels.forEach(channel => {
@@ -128,7 +128,7 @@
         function addStream() {
             const streamUrl = document.getElementById("streamUrl").value;
             if (streamUrl) {
-                channels.push({ name: `Stream ${channels.length + 1}`, url: streamUrl });
+                channels.push({ name: `بث ${channels.length + 1}`, url: streamUrl });
                 loadChannels();
             }
         }
@@ -141,7 +141,7 @@
                     const lines = e.target.result.split('\n');
                     lines.forEach(line => {
                         if (line.trim()) {
-                            channels.push({ name: `Stream ${channels.length + 1}`, url: line.trim() });
+                            channels.push({ name: `بث ${channels.length + 1}`, url: line.trim() });
                         }
                     });
                     loadChannels();
