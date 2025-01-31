@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مشغل البث المباشر HLS</title>
-    <meta name="description" content="شاهد قنوات البث المباشر بسهولة باستخدام مشغل HLS. قم بإضافة وإدارة قنواتك المفضلة بسهولة.">
+    <title id="pageTitle">مشغل البث المباشر HLS</title>
+    <meta name="description" id="metaDescription" content="شاهد قنوات البث المباشر بسهولة باستخدام مشغل HLS. قم بإضافة وإدارة قنواتك المفضلة بسهولة.">
     <meta name="keywords" content="HLS, بث مباشر, m3u8, مشغل فيديو, تلفزيون أونلاين">
     <meta name="author" content="اسمك">
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
@@ -72,14 +72,14 @@
             <div class="form-container">
                 <input type="text" id="streamUrl" placeholder="أدخل رابط البث">
                 <button onclick="addStream()">إضافة بث</button>
-                <input type="file" id="fileInput" accept=".txt" onchange="loadFile(event)">
+                <input type="file" id="fileInput" accept=".m3u" onchange="loadFile(event)">
             </div>
         </div>
         <div class="player-content">
+            <h1 id="streamTitle">مشغل البث المباشر</h1>
             <video id="video" controls autoplay></video>
             <div class="content">
-                <h1>مشغل البث المباشر</h1>
-                <p>شاهد البث المباشر لقنواتك المفضلة بسهولة. قم بإضافة البث يدويًا أو قم برفع ملف يحتوي على روابط البث. استمتع بتشغيل سلس مع مشغل HLS.</p>
+                <p id="streamDescription">شاهد البث المباشر لقنواتك المفضلة بسهولة. قم بإضافة البث يدويًا أو قم برفع ملف يحتوي على روابط البث. استمتع بتشغيل سلس مع مشغل HLS.</p>
             </div>
         </div>
     </div>
@@ -87,28 +87,39 @@
     <script>
         let channels = [];
 
+        function extractTitleFromUrl(url) {
+            let name = url.split('/').pop();
+            name = name.split('?')[0].split('#')[0];
+            return name.replace(/\.(m3u8|m3u|ts)$/i, "");
+        }
+
         function loadChannels() {
             const channelList = document.getElementById("channelList");
             channelList.innerHTML = `<div class="form-container">
                 <input type="text" id="streamUrl" placeholder="أدخل رابط البث">
                 <button onclick="addStream()">إضافة بث</button>
-                <input type="file" id="fileInput" accept=".txt" onchange="loadFile(event)">
+                <input type="file" id="fileInput" accept=".m3u" onchange="loadFile(event)">
             </div>`;
             channels.forEach(channel => {
                 const link = document.createElement("a");
-                link.textContent = channel.name;
+                link.textContent = channel.name || extractTitleFromUrl(channel.url);
                 link.href = "?stream=" + encodeURIComponent(channel.url);
                 link.onclick = (e) => {
                     e.preventDefault();
-                    playStream(channel.url);
+                    playStream(channel.url, channel.name || extractTitleFromUrl(channel.url));
                     history.pushState(null, "", link.href);
                 };
                 channelList.appendChild(link);
             });
         }
 
-        function playStream(url) {
+        function playStream(url, name) {
             const video = document.getElementById("video");
+            const finalName = name || extractTitleFromUrl(url);
+            document.getElementById("streamTitle").textContent = finalName;
+            document.getElementById("pageTitle").textContent = finalName;
+            document.getElementById("metaDescription").setAttribute("content", `شاهد البث المباشر لقناة ${finalName}. استمتع بمشاهدة مباشرة عبر مشغل HLS.`);
+            
             if (Hls.isSupported()) {
                 const hls = new Hls();
                 hls.loadSource(url);
@@ -122,26 +133,31 @@
         function checkQueryParam() {
             const urlParams = new URLSearchParams(window.location.search);
             const streamUrl = urlParams.get("stream");
-            if (streamUrl) playStream(streamUrl);
+            if (streamUrl) playStream(streamUrl, extractTitleFromUrl(streamUrl));
         }
 
         function addStream() {
             const streamUrl = document.getElementById("streamUrl").value;
-            if (streamUrl) {
-                channels.push({ name: `بث ${channels.length + 1}`, url: streamUrl });
+            let streamName = prompt("أدخل اسم القناة:");
+            if (!streamName) streamName = extractTitleFromUrl(streamUrl);
+            if (streamUrl.endsWith(".m3u8")) {
+                channels.push({ name: streamName, url: streamUrl });
                 loadChannels();
             }
         }
 
         function loadFile(event) {
             const file = event.target.files[0];
-            if (file) {
+            if (file && file.name.endsWith(".m3u")) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     const lines = e.target.result.split('\n');
+                    let currentName = "";
                     lines.forEach(line => {
-                        if (line.trim()) {
-                            channels.push({ name: `بث ${channels.length + 1}`, url: line.trim() });
+                        if (line.startsWith("#EXTINF:")) {
+                            currentName = line.split(",")[1] || "";
+                        } else if (line.trim().endsWith(".m3u8")) {
+                            channels.push({ name: currentName || extractTitleFromUrl(line.trim()), url: line.trim() });
                         }
                     });
                     loadChannels();
