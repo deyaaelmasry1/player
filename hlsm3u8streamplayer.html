@@ -19,8 +19,6 @@
         }
         .main-container {
             display: flex;
-            align-items: flex-start;
-            padding: 10px;
             flex-wrap: wrap;
             width: 100%;
         }
@@ -58,9 +56,9 @@
             width: 100%;
         }
         video {
-            width: 80%;
+            width: 100%; /* Full width */
             height: auto;
-            max-height: 60vh;
+            max-height: 80vh; /* Adjust player height */
         }
         .content {
             text-align: center;
@@ -111,7 +109,7 @@
 <body>
     <button class="sidebar-btn" onclick="toggleSidebar()">☰</button>
     <div class="main-container">
-        <div class="sidebar" id="channelList">
+        <div class="sidebar collapsed" id="channelList">
             <div class="form-container">
                 <input type="text" id="streamUrl" placeholder="أدخل رابط البث">
                 <button onclick="addStream()">إضافة بث</button>
@@ -191,7 +189,7 @@
 
         function loadFile(event) {
             const file = event.target.files[0];
-            if (file && file.name.endsWith(".m3u")) {
+            if (file && file.name.endswith(".m3u")) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     const lines = e.target.result.split('\n');
