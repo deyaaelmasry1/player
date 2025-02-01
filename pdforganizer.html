@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>منظم PDF</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.15.349/pdf.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: right; margin: 20px; direction: rtl; }
+    .controls { margin-bottom: 10px; }
+    #pdf-container { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; padding: 10px; }
+    .pdf-page { border: 1px solid #ccc; cursor: pointer; width: 150px; position: relative; background: white; }
+    .pdf-page img { width: 100%; height: auto; background: white; }
+    .pdf-page.selected { border: 2px solid red; }
+    .delete-icon { position: absolute; top: 5px; left: 5px; background: red; color: white; padding: 3px; cursor: pointer; }
+    button { margin: 5px; padding: 8px 12px; background: #007bff; color: white; border: none; cursor: pointer; }
+    button:hover { background: #0056b3; }
+  </style>
+</head>
+<body>
+
+  <h1>منظم PDF</h1>
+  <p>يسمح لك منظم PDF هذا بتحميل، عرض، تعديل، وتنزيل مستندات PDF الخاصة بك. يمكنك حذف الصفحات، تحريك الصفحات إلى مواقع مختلفة، وإضافة صفحات جديدة من ملفات PDF أخرى.</p>
+
+  <div class="controls">
+    <!-- File input for uploading a PDF -->
+    <input type="file" id="file-input" accept="application/pdf">
+    <button onclick="document.getElementById('upload-pages').click()">إضافة الصفحات المحملة</button>
+    <input type="file" id="upload-pages" accept="application/pdf" style="display: none">
+    
+    <!-- Buttons for page deletion and movement -->
+    <button onclick="deleteSelectedPage()">حذف الصفحة المحددة</button>
+    <input type="number" id="new-page-number" placeholder="انتقل إلى الصفحة #">
+    <button onclick="moveSelectedPage()">تحريك الصفحة</button>
+    <button onclick="downloadEditedPDF()">تنزيل PDF المعدل</button>
+  </div>
+
+  <div id="pdf-container"></div>
+
+  <script>
+    let pdfDoc = null;
+    let pdfBytes = null;
+    let selectedPageIndex = null;
+
+    // Event listener for uploading a PDF file
+    document.getElementById('file-input').addEventListener('change', async (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const fileReader = new FileReader();
+        fileReader.onload = async (e) => {
+          pdfBytes = new Uint8Array(e.target.result);
+          pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
+          await renderPdf();
+        };
+        fileReader.readAsArrayBuffer(file);
+      }
+    });
+
+    // This function renders the uploaded PDF pages as images in the PDF container.
+    async function renderPdf() {
+      if (!pdfBytes) return;
+      const loadingTask = pdfjsLib.getDocument({ data: pdfBytes });
+      const pdf = await loadingTask.promise;
+      const pdfContainer = document.getElementById('pdf-container');
+      pdfContainer.innerHTML = ''; // Clear the existing pages
+
+      for (let i = 0; i < pdf.numPages; i++) {
+        const page = await pdf.getPage(i + 1);
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        const viewport = page.getViewport({ scale: 1.5 });
+
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        await page.render({ canvasContext: context, viewport }).promise;
+
+        const img = document.createElement('img');
+        img.src = canvas.toDataURL();
+        img.onload = () => URL.revokeObjectURL(img.src); 
+
+        const pageElement = document.createElement('div');
+        pageElement.classList.add('pdf-page');
+        pageElement.dataset.index = i;
+        pageElement.appendChild(img);
+        pageElement.addEventListener('click', () => selectPage(i, pageElement));
+
+        const deleteIcon = document.createElement('div');
+        deleteIcon.classList.add('delete-icon');
+        deleteIcon.textContent = 'X';
+        deleteIcon.onclick = (e) => {
+          e.stopPropagation();
+          deletePage(i);
+        };
+
+        pageElement.appendChild(deleteIcon);
+        pdfContainer.appendChild(pageElement);
+      }
+    }
+
+    // Function to handle page selection. Highlights the selected page with a red border.
+    function selectPage(index, pageElement) {
+      document.querySelectorAll('.pdf-page').forEach(page => page.classList.remove('selected'));
+      selectedPageIndex = index;
+      pageElement.classList.add('selected');
+    }
+
+    // Function to delete a selected page from the document and update the UI.
+    async function deletePage(index) {
+      if (!pdfDoc) return;
+      pdfDoc.removePage(index);
+      pdfBytes = await pdfDoc.save();
+
+      // Remove the page from the UI
+      document.querySelector(`[data-index="${index}"]`).remove();
+    }
+
+    // Delete the selected page when the "Delete Selected Page" button is clicked.
+    async function deleteSelectedPage() {
+      if (selectedPageIndex !== null) {
+        await deletePage(selectedPageIndex);
+        selectedPageIndex = null;
+      } else {
+        alert("يرجى تحديد صفحة للحذف.");
+      }
+    }
+
+    // Move the selected page to a new position specified by the user.
+    async function moveSelectedPage() {
+      if (selectedPageIndex === null) {
+        alert("حدد صفحة للتحريك.");
+        return;
+      }
+
+      const newPosition = parseInt(document.getElementById('new-page-number').value);
+      if (isNaN(newPosition) || newPosition < 1 || newPosition > pdfDoc.getPageCount()) {
+        alert("رقم الصفحة غير صالح.");
+        return;
+      }
+
+      if (newPosition - 1 === selectedPageIndex) {
+        alert("الصفحة في هذا الموقع بالفعل.");
+        return;
+      }
+
+      const pages = pdfDoc.getPages();
+      const movedPage = await pdfDoc.copyPages(pdfDoc, [selectedPageIndex]);
+
+      pdfDoc.insertPage(newPosition - 1, movedPage[0]);
+      pdfDoc.removePage(selectedPageIndex < newPosition ? selectedPageIndex : selectedPageIndex + 1);
+      pdfBytes = await pdfDoc.save();
+
+      // Update the UI to reflect the new position of the moved page
+      const pdfContainer = document.getElementById('pdf-container');
+      const movedElement = document.querySelector(`[data-index="${selectedPageIndex}"]`);
+      movedElement.dataset.index = newPosition - 1;
+
+      pdfContainer.insertBefore(movedElement, pdfContainer.children[newPosition - 1] || null);
+    }
+
+    // Event listener for uploading additional pages to be added to the existing PDF
+    document.getElementById('upload-pages').addEventListener('change', async (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const fileReader = new FileReader();
+        fileReader.onload = async (e) => {
+          const uploadedPdfBytes = new Uint8Array(e.target.result);
+          const uploadedPdfDoc = await PDFLib.PDFDocument.load(uploadedPdfBytes);
+          const uploadedPages = await pdfDoc.copyPages(uploadedPdfDoc, uploadedPdfDoc.getPages().map((_, i) => i));
+
+          uploadedPages.forEach((page, i) => pdfDoc.insertPage(i, page));
+
+          pdfBytes = await pdfDoc.save();
+
+          // Only add new pages to UI
+          await renderPdf();
+        };
+        fileReader.readAsArrayBuffer(file);
+      }
+    });
+
+    // Function to download the edited PDF after modifications.
+    async function downloadEditedPDF() {
+      if (!pdfDoc) {
+        alert("لا يوجد PDF محمل.");
+        return;
+      }
+      const editedPdfBytes = await pdfDoc.save();
+      const blob = new Blob([editedPdfBytes], { type: "application/pdf" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "معدل.pdf";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  </script>
+</body>
+</html>
