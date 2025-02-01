@@ -129,9 +129,9 @@
         let channels = [];
 
         function extractTitleFromUrl(url) {
-            let name = url.split('/').pop();
-            name = name.split('?')[0].split('#')[0];
-            return name.replace(/\.(m3u8|m3u|ts)$/i, "");
+            let name = url.split('/').pop(); // Get the last part after the last slash
+            name = name.substring(0, name.lastIndexOf('.')); // Remove everything after the last dot
+            return name;
         }
 
         function loadChannels() {
@@ -189,7 +189,7 @@
 
         function loadFile(event) {
             const file = event.target.files[0];
-            if (file && file.name.endswith(".m3u")) {
+            if (file && file.name.endsWith(".m3u")) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     const lines = e.target.result.split('\n');
