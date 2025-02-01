@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Iframe Loader</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        iframe {
+            width: 100%;
+            height: 500px;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <h2>Enter URL to Load in Iframe</h2>
+    <form id="urlForm">
+        <input type="url" id="urlInput" placeholder="Enter URL" required>
+        <button type="submit">Load</button>
+    </form>
+    <iframe id="contentFrame" src=""></iframe>
+
+    <script>
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+        
+        function setQueryParam(param, value) {
+            const url = new URL(window.location);
+            url.searchParams.set(param, value);
+            window.history.pushState({}, '', url);
+        }
+
+        document.getElementById('urlForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const url = document.getElementById('urlInput').value;
+            setQueryParam('link', url);
+            document.getElementById('contentFrame').src = url;
+        });
+        
+        window.onload = function() {
+            const link = getQueryParam('link');
+            if (link) {
+                document.getElementById('contentFrame').src = link;
+                document.getElementById('urlInput').value = link;
+            }
+        };
+    </script>
+</body>
+</html>
