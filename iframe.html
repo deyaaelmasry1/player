@@ -26,7 +26,7 @@
         <input type="url" id="urlInput" placeholder="Enter URL" required>
         <button type="submit">Load</button>
     </form>
-    <iframe id="contentFrame" src=""></iframe>
+    <iframe id="contentFrame" sandbox="allow-scripts allow-same-origin"></iframe>
 
     <script>
         function getQueryParam(param) {
@@ -54,6 +54,22 @@
                 document.getElementById('urlInput').value = link;
             }
         };
+
+        // Block pop-ups and new windows globally
+        window.open = function(url, name, specs) {
+            console.log('Blocked pop-up:', url);
+            return null;
+        };
+        
+        // Block known ad elements, floating ads, and auto-playing audio
+        const observer = new MutationObserver(() => {
+            document.querySelectorAll('.ads, [id*="ad"], [class*="ad"], [href*="doubleclick"], [href*="adservice"], .popup, .popunder, .overlay, .floating-ad').forEach(el => el.remove());
+            document.querySelectorAll('audio, video').forEach(media => {
+                media.muted = true;
+                media.pause();
+            });
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
     </script>
 </body>
 </html>
