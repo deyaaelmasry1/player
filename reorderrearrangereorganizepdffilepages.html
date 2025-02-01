@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>منظم PDF</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.15.349/pdf.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: right; margin: 20px; direction: rtl; background-color: #f4f7fa; }
+    h1 { color: #007bff; font-size: 24px; margin-bottom: 10px; }
+    p { font-size: 16px; line-height: 1.6; }
+
+    .controls { margin-bottom: 20px; display: flex; flex-direction: column; gap: 10px; }
+    .controls input[type="file"] { padding: 10px; background-color: #fff; border-radius: 5px; border: 1px solid #ddd; }
+    .controls input[type="number"], .controls button {
+      padding: 8px 12px;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+      font-size: 14px;
+    }
+    .controls button { background-color: #007bff; color: white; cursor: pointer; }
+    .controls button:hover { background-color: #0056b3; }
+
+    #pdf-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      padding: 10px;
+      margin-top: 20px;
+    }
+
+    .pdf-page {
+      border: 2px solid #ccc;
+      cursor: pointer;
+      width: 160px;
+      height: auto;
+      background-color: white;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s, box-shadow 0.2s;
+      position: relative;
+    }
+
+    .pdf-page:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .pdf-page.selected {
+      border: 2px solid #007bff;
+      box-shadow: 0 4px 6px rgba(0, 123, 255, 0.5);
+    }
+
+    .pdf-page img { width: 100%; height: auto; }
+    .pdf-page.selected img { opacity: 0.8; }
+
+    .pdf-page .page-number {
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      background-color: rgba(0, 123, 255, 0.8);
+      color: white;
+      font-size: 12px;
+      padding: 3px 6px;
+      border-radius: 5px;
+    }
+
+    .pdf-page .new-page-number {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background-color: rgba(255, 99, 71, 0.8);
+      color: white;
+      font-size: 12px;
+      padding: 3px 6px;
+      border-radius: 5px;
+    }
+
+    .controls input[type="number"] {
+      width: 150px;
+      margin-bottom: 10px;
+    }
+
+  </style>
+</head>
+<body>
+
+  <h1>منظم PDF</h1>
+  <p>يسمح لك منظم PDF هذا بتحريك الصفحات فقط.</p>
+  <p>لتعديل ترتيب الصفحات حدد الصفحة بالضغط عليها، ثم أدخل الرقم الجديد للصفحة في الأعلى عند المستطيل النصي (انتقل إلى الصفحة #) ثم اضغط تحريك الصفحة.</p>
+
+  <div class="controls">
+    <input type="file" id="file-input" accept="application/pdf">
+    <input type="number" id="new-page-number" placeholder="انتقل إلى الصفحة #">
+    <button onclick="moveSelectedPage()">تحريك الصفحة</button>
+    <button onclick="downloadEditedPDF()">تنزيل PDF المعدل</button>
+  </div>
+
+  <div id="pdf-container"></div>
+
+  <script>
+    let pdfDoc = null;
+    let pdfBytes = null;
+    let selectedPageIndex = null;
+    let pageMoveHistory = {};  // To track moved pages
+
+    // Event listener for uploading a PDF file
+    document.getElementById('file-input').addEventListener('change', async (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const fileReader = new FileReader();
+        fileReader.onload = async (e) => {
+          pdfBytes = new Uint8Array(e.target.result);
+          pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
+          await renderPdf();
+        };
+        fileReader.readAsArrayBuffer(file);
+      }
+    });
+
+    // Function to render the uploaded PDF pages as images
+    async function renderPdf() {
+      if (!pdfBytes) return;
+      const loadingTask = pdfjsLib.getDocument({ data: pdfBytes });
+      const pdf = await loadingTask.promise;
+      const pdfContainer = document.getElementById('pdf-container');
+      pdfContainer.innerHTML = ''; // Clear the existing pages
+
+      // Create an array of page elements to preserve their new order
+      const pageElements = [];
+
+      for (let i = 0; i < pdf.numPages; i++) {
+        const page = await pdf.getPage(i + 1);
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        const viewport = page.getViewport({ scale: 1.5 });
+
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        await page.render({ canvasContext: context, viewport }).promise;
+
+        const img = document.createElement('img');
+        img.src = canvas.toDataURL();
+        img.onload = () => URL.revokeObjectURL(img.src);
+
+        const pageElement = document.createElement('div');
+        pageElement.classList.add('pdf-page');
+        pageElement.dataset.index = i;
+        pageElement.appendChild(img);
+
+        // Display the current page number
+        const pageNumberLabel = document.createElement('div');
+        pageNumberLabel.classList.add('page-number');
+        pageNumberLabel.textContent = `الصفحة ${i + 1}`;
+        pageElement.appendChild(pageNumberLabel);
+
+        // If the page has been moved, display the new page number
+        if (pageMoveHistory[i] !== undefined) {
+          const newPageNumberLabel = document.createElement('div');
+          newPageNumberLabel.classList.add('new-page-number');
+          newPageNumberLabel.textContent = `الصفحة الجديدة ${pageMoveHistory[i] + 1}`;
+          pageElement.appendChild(newPageNumberLabel);
+        }
+
+        pageElement.addEventListener('click', () => selectPage(i, pageElement));
+
+        pageElements.push(pageElement);
+      }
+
+      // Append the page elements in the new order
+      pageElements.forEach(page => pdfContainer.appendChild(page));
+    }
+
+    // Function to handle page selection
+    function selectPage(index, pageElement) {
+      document.querySelectorAll('.pdf-page').forEach(page => page.classList.remove('selected'));
+      selectedPageIndex = index;
+      pageElement.classList.add('selected');
+    }
+
+    // Move the selected page to a new position
+    async function moveSelectedPage() {
+      if (selectedPageIndex === null) {
+        alert("حدد صفحة للتحريك.");
+        return;
+      }
+
+      const newPosition = parseInt(document.getElementById('new-page-number').value);
+      if (isNaN(newPosition) || newPosition < 1 || newPosition > pdfDoc.getPageCount()) {
+        alert("رقم الصفحة غير صالح.");
+        return;
+      }
+
+      if (newPosition - 1 === selectedPageIndex) {
+        alert("الصفحة في هذا الموقع بالفعل.");
+        return;
+      }
+
+      const pages = pdfDoc.getPages();
+      const movedPage = await pdfDoc.copyPages(pdfDoc, [selectedPageIndex]);
+
+      // Move the page to the new position
+      pdfDoc.insertPage(newPosition - 1, movedPage[0]);
+
+      // Remove the old page (based on its original position)
+      pdfDoc.removePage(selectedPageIndex < newPosition ? selectedPageIndex : selectedPageIndex + 1);
+
+      // Update move history to track the new position
+      pageMoveHistory[selectedPageIndex] = newPosition - 1;
+
+      pdfBytes = await pdfDoc.save();
+
+      // Re-render the PDF after the move action
+      await renderPdf();
+    }
+
+    // Function to download the edited PDF
+    async function downloadEditedPDF() {
+      if (!pdfDoc) {
+        alert("لا يوجد PDF محمل.");
+        return;
+      }
+      const editedPdfBytes = await pdfDoc.save();
+      const blob = new Blob([editedPdfBytes], { type: "application/pdf" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "معدل.pdf";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  </script>
+</body>
+</html>
