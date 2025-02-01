@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF Organizer</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.15.349/pdf.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 20px;
+    }
+    .controls {
+      margin-bottom: 10px;
+    }
+    #pdf-container {
+      width: 100%;
+      height: 500px;
+      overflow: auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      border: 1px solid #ddd;
+      padding: 10px;
+    }
+    .pdf-page {
+      border: 1px solid #ccc;
+      margin: 5px;
+      cursor: pointer;
+      width: 150px;
+      height: 200px;
+      position: relative;
+      display: inline-block;
+      background: white;
+    }
+    .pdf-page img {
+      max-width: 100%;
+      max-height: 100%;
+    }
+    .pdf-page.selected {
+      border-color: red;
+      box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+    }
+    .delete-icon {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background-color: red;
+      color: white;
+      font-size: 16px;
+      padding: 3px;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    button {
+      margin: 5px;
+      padding: 8px 12px;
+      border: none;
+      background: #007bff;
+      color: white;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    input {
+      margin: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>PDF Organizer</h1>
+  
+  <!-- Controls (Placed at the Top) -->
+  <div class="controls">
+    <input type="file" id="file-input" accept="application/pdf">
+    <input type="file" id="upload-pages" accept="application/pdf" multiple>
+    <button onclick="deleteSelectedPage()">Delete Selected Page</button>
+    <button onclick="addUploadedPages()">Add Uploaded Pages</button>
+  </div>
+
+  <!-- PDF Container -->
+  <div id="pdf-container"></div>
+  
+  <script>
+    let pdfDoc = null;
+    let pdfBytes = null;
+    let pageElements = [];
+    let selectedPage = null;
+
+    // Handle file upload (initial PDF)
+    document.getElementById('file-input').addEventListener('change', async (event) => {
+      const file = event.target.files[0];
+      if (file && file.type === 'application/pdf') {
+        const fileReader = new FileReader();
+        fileReader.onload = async (e) => {
+          pdfBytes = new Uint8Array(e.target.result);
+          pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
+          renderPdf();
+        };
+        fileReader.readAsArrayBuffer(file);
+      }
+    });
+
+    // Handle uploaded pages (additional PDF pages to add)
+    document.getElementById('upload-pages').addEventListener('change', async (event) => {
+      const files = event.target.files;
+      for (const file of files) {
+        if (file.type === 'application/pdf') {
+          const fileReader = new FileReader();
+          fileReader.onload = async (e) => {
+            const uploadedPdfBytes = new Uint8Array(e.target.result);
+            const uploadedPdfDoc = await PDFLib.PDFDocument.load(uploadedPdfBytes);
+            const uploadedPages = await pdfDoc.copyPages(uploadedPdfDoc, uploadedPdfDoc.getPages().map((_, index) => index));
+            uploadedPages.forEach(page => pdfDoc.addPage(page));
+            pdfBytes = await pdfDoc.save();
+            renderPdf();
+          };
+          fileReader.readAsArrayBuffer(file);
+        }
+      }
+    });
+
+    // Render PDF pages as images
+    async function renderPdf() {
+      const loadingTask = pdfjsLib.getDocument({data: pdfBytes});
+      loadingTask.promise.then(pdf => {
+        const totalPages = pdf.numPages;
+        const pdfContainer = document.getElementById('pdf-container');
+        pdfContainer.innerHTML = ''; // Clear the container
+        pageElements = [];
+
+        for (let i = 1; i <= totalPages; i++) {
+          pdf.getPage(i).then(page => {
+            const canvas = document.createElement('canvas');
+            canvas.classList.add('pdf-page');
+            const pageElement = document.createElement('div');
+            pageElement.classList.add('pdf-page');
+            pdfContainer.appendChild(pageElement);
+
+            const context = canvas.getContext('2d');
+            const scale = 1.5;
+            const viewport = page.getViewport({ scale });
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+            page.render({ canvasContext: context, viewport }).promise.then(() => {
+              pageElement.appendChild(canvas);
+              pageElements.push({ element: pageElement, pageIndex: i - 1 });
+
+              // Add delete icon to the page
+              const deleteIcon = document.createElement('div');
+              deleteIcon.classList.add('delete-icon');
+              deleteIcon.textContent = 'X';
+              pageElement.appendChild(deleteIcon);
+              
+              // Click event to select page
+              pageElement.addEventListener('click', () => togglePageSelection(pageElement));
+
+              // Delete icon click event
+              deleteIcon.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent triggering page selection on delete icon click
+                deletePage(i - 1);
+              });
+
+              // Make pages draggable
+              pageElement.setAttribute('draggable', 'true');
+              pageElement.addEventListener('dragstart', handleDragStart);
+              pageElement.addEventListener('dragover', handleDragOver);
+              pageElement.addEventListener('drop', handleDrop);
+            });
+          });
+        }
+      });
+    }
+
+    // Toggle page selection (highlight the selected page)
+    function togglePageSelection(pageElement) {
+      if (selectedPage) {
+        selectedPage.classList.remove('selected');
+      }
+      selectedPage = pageElement;
+      selectedPage.classList.add('selected');
+    }
+
+    // Delete specific page by index
+    async function deletePage(pageIndex) {
+      if (pdfDoc) {
+        pdfDoc.removePage(pageIndex);
+        pdfBytes = await pdfDoc.save();
+        renderPdf();
+      }
+    }
+
+    // Drag and drop event handlers for reordering
+    let draggedElement = null;
+
+    function handleDragStart(event) {
+      draggedElement = event.target;
+    }
+
+    function handleDragOver(event) {
+      event.preventDefault();
+    }
+
+    function handleDrop(event) {
+      event.preventDefault();
+      if (draggedElement !== event.target) {
+        const draggedIndex = pageElements.findIndex(e => e.element === draggedElement);
+        const targetIndex = pageElements.findIndex(e => e.element === event.target);
+        [pageElements[draggedIndex], pageElements[targetIndex]] = [pageElements[targetIndex], pageElements[draggedIndex]];
+        renderPdf();
+      }
+    }
+
+    // Delete selected page
+    function deleteSelectedPage() {
+      if (selectedPage) {
+        const pageIndex = pageElements.findIndex(e => e.element === selectedPage);
+        deletePage(pageIndex);
+        selectedPage = null;
+      } else {
+        alert("Please select a page to delete.");
+      }
+    }
+
+    // Add uploaded pages to the PDF
+    async function addUploadedPages() {
+      const fileInput = document.getElementById('upload-pages');
+      if (fileInput.files.length > 0) {
+        await handleUploadedPages(fileInput.files);
+      } else {
+        alert("Please upload pages to add.");
+      }
+    }
+  </script>
+</body>
+</html>
