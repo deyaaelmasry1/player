@@ -29,10 +29,12 @@
             padding: 10px;
             height: 100vh;
             overflow-y: auto;
-            transition: transform 0.3s ease-in-out;
+            transition: width 0.3s ease-in-out;
         }
         .sidebar.collapsed {
-            transform: translateX(-100%);
+            width: 0;
+            padding: 0;
+            overflow: hidden;
         }
         .sidebar a {
             display: block;
@@ -74,7 +76,7 @@
         /* Mobile adjustments */
         @media (max-width: 768px) {
             .sidebar {
-                width: 200px;
+                width: 250px;
             }
             .player-content {
                 width: 100%;
@@ -85,7 +87,9 @@
                 max-height: 80vh;
             }
             .sidebar.collapsed {
-                transform: translateX(-100%);
+                width: 0;
+                padding: 0;
+                overflow: hidden;
             }
             .sidebar-btn {
                 display: block;
