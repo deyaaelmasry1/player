@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>دمج ملفات PDF</title>
+  <style>
+    /* Reset and basic layout */
+    body, html {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      height: 100%;
+      background-color: #f4f7f6;
+      color: #333;
+      direction: rtl; /* Right-to-left layout */
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+      font-size: 30px;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      font-size: 24px;
+      color: #007bff;
+      margin-bottom: 10px;
+    }
+
+    p {
+      font-size: 16px;
+      color: #555;
+      margin-bottom: 15px;
+    }
+
+    .file-upload {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .file-upload p {
+      font-size: 16px;
+      color: #555;
+      margin: 10px 0;
+    }
+
+    .file-preview {
+      margin-top: 20px;
+      margin-bottom: 30px;
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 4px;
+    }
+
+    .file-preview ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .file-preview li {
+      background-color: #f9f9f9;
+      padding: 8px;
+      margin-bottom: 8px;
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .file-preview li span {
+      font-size: 14px;
+      color: #555;
+    }
+
+    .file-preview li .remove-btn {
+      background-color: #e0a800;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      padding: 4px 10px;
+      font-size: 14px;
+      margin-left: 10px;
+      transition: background-color 0.3s ease;
+    }
+
+    .file-preview li .remove-btn:hover {
+      background-color: #c69500;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    label {
+      display: inline-block;
+      background-color: #007bff;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-bottom: 20px;
+      transition: background-color 0.3s ease;
+    }
+
+    label:hover {
+      background-color: #0056b3;
+    }
+
+    button {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 18px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #218838;
+    }
+
+    #downloadLink {
+      display: block;
+      margin-top: 20px;
+      text-align: center;
+      padding: 12px 20px;
+      background-color: #ffc107;
+      color: #333;
+      font-size: 16px;
+      border-radius: 4px;
+      text-decoration: none;
+      transition: background-color 0.3s ease;
+    }
+
+    #downloadLink:hover {
+      background-color: #e0a800;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>أداة دمج ملفات PDF</h1>
+    
+    <h2>كيفية الاستخدام:</h2>
+    <p>اتبع الخطوات التالية لدمج ملفات PDF الخاصة بك:</p>
+    <ul>
+      <li>انقر على زر "اختر ملفات PDF" لاختيار ملفات PDF التي تريد دمجها.</li>
+      <li>يمكنك اختيار أي عدد من ملفات PDF كما تريد—لا يوجد حد لعدد الملفات!</li>
+      <li>بمجرد اختيار الملفات، يمكنك ترتيب الملفات كما تشاء باستخدام السحب والإفلات.</li>
+      <li>عند الانتهاء، انقر على زر "دمج ملفات PDF" لدمج الملفات.</li>
+      <li>بعد اكتمال الدمج، انقر على رابط "تحميل PDF المدمج" لتحميل المستند النهائي.</li>
+    </ul>
+
+    <h2>الخطوة 1: اختر ملفات PDF</h2>
+    <div class="file-upload">
+      <label for="pdfInput">اختر ملفات PDF</label>
+      <input type="file" id="pdfInput" multiple accept=".pdf">
+      <p>اختر أي عدد من ملفات PDF التي تريد دمجها. يمكنك أيضًا سحب وإفلات الملفات هنا.</p>
+    </div>
+
+    <h2>الخطوة 2: ترتيب الملفات</h2>
+<p>قم بسحب و افلات الملف في الترتيب الذي تريدة او اترهم بنفس الترتيب </p>
+    <div class="file-preview">
+      <ul id="fileList"></ul>
+    </div>
+    
+    <h2>الخطوة 3: دمج ملفات PDF</h2>
+    <button id="mergeButton">دمج ملفات PDF</button>
+
+    <h2>الخطوة 4: تحميل PDF المدمج</h2>
+    <a id="downloadLink" style="display:none;">تحميل PDF المدمج</a>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+
+  <script>
+    const pdfInput = document.getElementById('pdfInput');
+    const fileList = document.getElementById('fileList');
+    const mergeButton = document.getElementById('mergeButton');
+    const downloadLink = document.getElementById('downloadLink');
+    let filesArray = [];
+
+    pdfInput.addEventListener('change', function(event) {
+      fileList.innerHTML = ''; // Clear the list
+      filesArray = Array.from(event.target.files);
+      displayFiles();
+    });
+
+    function displayFiles() {
+      filesArray.forEach((file, index) => {
+        const listItem = document.createElement('li');
+        listItem.innerHTML = `
+          <span>${file.name}</span>
+          <button class="remove-btn" data-index="${index}">حذف</button>
+        `;
+        listItem.querySelector('.remove-btn').addEventListener('click', (e) => {
+          const indexToRemove = e.target.getAttribute('data-index');
+          filesArray.splice(indexToRemove, 1); // Remove the file
+          displayFiles(); // Re-render the file list
+        });
+        fileList.appendChild(listItem);
+      });
+      new Sortable(fileList, { /* Make the list sortable */ });
+    }
+
+    mergeButton.addEventListener('click', async () => {
+      if (filesArray.length === 0) {
+        alert('الرجاء اختيار ملفات PDF');
+        return;
+      }
+
+      const mergedPdf = await PDFLib.PDFDocument.create();
+
+      for (let file of filesArray) {
+        const arrayBuffer = await file.arrayBuffer();
+        const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+        const copiedPages = await mergedPdf.copyPages(pdfDoc, pdfDoc.getPages().map((_, index) => index));
+        copiedPages.forEach(page => mergedPdf.addPage(page));
+      }
+
+      const mergedPdfBytes = await mergedPdf.save();
+
+      const blob = new Blob([mergedPdfBytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      downloadLink.href = url;
+      downloadLink.download = 'merged.pdf';
+      downloadLink.style.display = 'inline';
+      downloadLink.textContent = 'تحميل PDF المدمج';
+    });
+  </script>
+</body>
+</html>
