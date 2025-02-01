@@ -7,33 +7,121 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.15.349/pdf.min.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; text-align: right; margin: 20px; direction: rtl; }
-    .controls { margin-bottom: 10px; }
-    #pdf-container { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; padding: 10px; }
-    .pdf-page { border: 1px solid #ccc; cursor: pointer; width: 150px; position: relative; background: white; }
-    .pdf-page img { width: 100%; height: auto; background: white; }
-    .pdf-page.selected { border: 2px solid red; }
-    .delete-icon { position: absolute; top: 5px; left: 5px; background: red; color: white; padding: 3px; cursor: pointer; }
-    button { margin: 5px; padding: 8px 12px; background: #007bff; color: white; border: none; cursor: pointer; }
-    button:hover { background: #0056b3; }
+    body {
+      font-family: 'Arial', sans-serif;
+      text-align: right;
+      margin: 20px;
+      direction: rtl;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+    
+    h1, h2 {
+      color: #007bff;
+    }
+
+    .controls {
+      background-color: #ffffff;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .controls button {
+      padding: 10px 15px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+    }
+
+    .controls button:hover {
+      background-color: #0056b3;
+    }
+
+    .controls input[type="file"] {
+      padding: 10px;
+      background-color: #ffffff;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+
+    #pdf-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 30px;
+    }
+
+    .pdf-page {
+      width: 180px;
+      border: 1px solid #ccc;
+      cursor: pointer;
+      position: relative;
+      background-color: #fff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+    }
+
+    .pdf-page img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
+
+    .pdf-page.selected {
+      border-color: #ff6347;
+    }
+
+    .delete-icon {
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      background-color: red;
+      color: white;
+      padding: 5px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .instructions {
+      margin: 20px 0;
+      padding: 15px;
+      background-color: #e7f1ff;
+      border: 1px solid #007bff;
+      border-radius: 8px;
+      color: #333;
+    }
   </style>
 </head>
 <body>
 
   <h1>منظم PDF</h1>
-  <p>يسمح لك منظم PDF هذا بتحميل، عرض، تعديل، وتنزيل مستندات PDF الخاصة بك. يمكنك حذف الصفحات، تحريك الصفحات إلى مواقع مختلفة، وإضافة صفحات جديدة من ملفات PDF أخرى.</p>
-  <p>لتعديل ترتيب الصفحات حدد الصفحة بالضغط عليها بعد ذالك ادخل الرقم الجديد للصفحة في اعلي الصفحة عند المستطيل النصي (انتقل إلى الصفحة # )ثم اضغط تحريك الصفحة </p>
+  <div class="instructions">
+    <h2>تعليمات الاستخدام</h2>
+    <p>من خلال هذا المنظم يمكنك تحميل، عرض، تعديل، وتنزيل مستندات PDF الخاصة بك بسهولة. يمكنك حذف الصفحات المحددة من مستند PDF الحالي بنقرة واحدة.</p>
+    <p>لتحديد الصفحات، اضغط على الصور المعروضة للصفحات. بمجرد تحديد الصفحات التي ترغب في حذفها، اضغط على الزر <strong>حذف الصفحات المحددة</strong>.</p>
+  </div>
 
   <div class="controls">
-    <!-- File input for uploading a PDF -->
+    <h2>إعدادات الملف</h2>
     <input type="file" id="file-input" accept="application/pdf">
     <button onclick="document.getElementById('upload-pages').click()">إضافة الصفحات المحملة</button>
     <input type="file" id="upload-pages" accept="application/pdf" style="display: none">
-    
-    <!-- Buttons for page deletion and movement -->
-    <button onclick="deleteSelectedPage()">حذف الصفحة المحددة</button>
-    <input type="number" id="new-page-number" placeholder="انتقل إلى الصفحة #">
-    <button onclick="moveSelectedPage()">تحريك الصفحة</button>
+    <button onclick="deleteSelectedPages()">حذف الصفحات المحددة</button>
     <button onclick="downloadEditedPDF()">تنزيل PDF المعدل</button>
   </div>
 
@@ -42,7 +130,7 @@
   <script>
     let pdfDoc = null;
     let pdfBytes = null;
-    let selectedPageIndex = null;
+    let selectedPages = new Set(); // To track selected pages
 
     // Event listener for uploading a PDF file
     document.getElementById('file-input').addEventListener('change', async (event) => {
@@ -84,7 +172,7 @@
         pageElement.classList.add('pdf-page');
         pageElement.dataset.index = i;
         pageElement.appendChild(img);
-        pageElement.addEventListener('click', () => selectPage(i, pageElement));
+        pageElement.addEventListener('click', () => togglePageSelection(i, pageElement));
 
         const deleteIcon = document.createElement('div');
         deleteIcon.classList.add('delete-icon');
@@ -99,11 +187,15 @@
       }
     }
 
-    // Function to handle page selection. Highlights the selected page with a red border.
-    function selectPage(index, pageElement) {
-      document.querySelectorAll('.pdf-page').forEach(page => page.classList.remove('selected'));
-      selectedPageIndex = index;
-      pageElement.classList.add('selected');
+    // Toggle page selection when clicked
+    function togglePageSelection(index, pageElement) {
+      if (selectedPages.has(index)) {
+        selectedPages.delete(index);
+        pageElement.classList.remove('selected');
+      } else {
+        selectedPages.add(index);
+        pageElement.classList.add('selected');
+      }
     }
 
     // Function to delete a selected page from the document and update the UI.
@@ -116,47 +208,19 @@
       document.querySelector(`[data-index="${index}"]`).remove();
     }
 
-    // Delete the selected page when the "Delete Selected Page" button is clicked.
-    async function deleteSelectedPage() {
-      if (selectedPageIndex !== null) {
-        await deletePage(selectedPageIndex);
-        selectedPageIndex = null;
-      } else {
-        alert("يرجى تحديد صفحة للحذف.");
-      }
-    }
-
-    // Move the selected page to a new position specified by the user.
-    async function moveSelectedPage() {
-      if (selectedPageIndex === null) {
-        alert("حدد صفحة للتحريك.");
+    // Delete the selected pages when the "Delete Selected Pages" button is clicked.
+    async function deleteSelectedPages() {
+      if (selectedPages.size === 0) {
+        alert("يرجى تحديد صفحات للحذف.");
         return;
       }
 
-      const newPosition = parseInt(document.getElementById('new-page-number').value);
-      if (isNaN(newPosition) || newPosition < 1 || newPosition > pdfDoc.getPageCount()) {
-        alert("رقم الصفحة غير صالح.");
-        return;
+      const sortedPages = [...selectedPages].sort((a, b) => b - a); // Delete from last to first
+      for (let index of sortedPages) {
+        await deletePage(index);
       }
 
-      if (newPosition - 1 === selectedPageIndex) {
-        alert("الصفحة في هذا الموقع بالفعل.");
-        return;
-      }
-
-      const pages = pdfDoc.getPages();
-      const movedPage = await pdfDoc.copyPages(pdfDoc, [selectedPageIndex]);
-
-      pdfDoc.insertPage(newPosition - 1, movedPage[0]);
-      pdfDoc.removePage(selectedPageIndex < newPosition ? selectedPageIndex : selectedPageIndex + 1);
-      pdfBytes = await pdfDoc.save();
-
-      // Update the UI to reflect the new position of the moved page
-      const pdfContainer = document.getElementById('pdf-container');
-      const movedElement = document.querySelector(`[data-index="${selectedPageIndex}"]`);
-      movedElement.dataset.index = newPosition - 1;
-
-      pdfContainer.insertBefore(movedElement, pdfContainer.children[newPosition - 1] || null);
+      selectedPages.clear(); // Clear selected pages
     }
 
     // Event listener for uploading additional pages to be added to the existing PDF
