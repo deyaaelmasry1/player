@@ -130,7 +130,22 @@
 
         function extractTitleFromUrl(url) {
             let name = url.split('/').pop(); // Get the last part after the last slash
-            name = name.substring(0, name.lastIndexOf('.')); // Remove everything after the last dot
+            const domainExtensions = ['.com', '.org', '.net', '.tv', '.co', '.io']; // Add more as needed
+            let lastIndex = -1;
+
+            // Find the position of the last domain extension
+            domainExtensions.forEach(extension => {
+                const index = name.lastIndexOf(extension);
+                if (index !== -1 && index > lastIndex) {
+                    lastIndex = index;
+                }
+            });
+
+            if (lastIndex !== -1) {
+                name = name.substring(lastIndex + 1); // Remove everything before the domain extension
+            }
+
+            name = name.substring(0, name.lastIndexOf('.')); // Remove everything after the last dot (file extension)
             return name;
         }
 
