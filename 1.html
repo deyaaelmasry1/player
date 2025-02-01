@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Range Splitter</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.15.349/pdf.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            font-size: 2rem;
+            color: #007BFF;
+            margin-bottom: 20px;
+        }
+
+        input[type="file"], input[type="number"], button {
+            padding: 10px;
+            margin: 10px;
+            font-size: 1rem;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .split-section {
+            margin-top: 20px;
+        }
+
+        #output {
+            margin-top: 20px;
+        }
+
+        a {
+            color: #007BFF;
+            text-decoration: none;
+            font-size: 1rem;
+            display: block;
+            margin-top: 10px;
+        }
+
+        a:hover {
+            color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>PDF Range Splitter</h1>
+    <input type="file" id="pdfFile" accept="application/pdf">
+    <div class="split-section">
+        <label for="fromPage">From page:</label>
+        <input type="number" id="fromPage" min="1">
+        <label for="toPage">To page:</label>
+        <input type="number" id="toPage" min="1">
+    </div>
+    <button id="downloadBtn" onclick="downloadPDF()" disabled>Download Selected Range</button>
+
+    <div id="output"></div>
+
+    <script>
+        let pdfDoc = null;
+        let totalPages = 0;
+
+        // Enable the 'Download Selected Range' button once a file is selected
+        document.getElementById('pdfFile').addEventListener('change', function(event) {
+            if (event.target.files.length > 0) {
+                document.getElementById('downloadBtn').disabled = false;
+            }
+        });
+
+        // Download the selected page range as a new PDF
+        async function downloadPDF() {
+            const fileInput = document.getElementById("pdfFile");
+            const fromPageInput = document.getElementById("fromPage");
+            const toPageInput = document.getElementById("toPage");
+
+            const file = fileInput.files[0];
+            const fromPage = parseInt(fromPageInput.value);
+            const toPage = parseInt(toPageInput.value);
+
+            if (!file || fromPage < 1 || toPage < 1 || fromPage > toPage) {
+                alert("Please select a valid PDF file and page range.");
+                return;
+            }
+
+            const fileReader = new FileReader();
+            fileReader.onload = async function() {
+                const pdfData = new Uint8Array(fileReader.result);
+                const loadingTask = pdfjsLib.getDocument(pdfData);
+                pdfDoc = await loadingTask.promise;
+                totalPages = pdfDoc.numPages;
+
+                // Ensure the page range is valid
+                if (fromPage < 1 || toPage > totalPages || fromPage > toPage) {
+                    alert("Invalid page range.");
+                    return;
+                }
+
+                // Create a new PDF document using pdf-lib
+                const pdfDocLib = await PDFLib.PDFDocument.create();
+
+                // Copy the selected pages to the new PDF
+                for (let i = fromPage; i <= toPage; i++) {
+                    const page = await pdfDoc.getPage(i);
+                    const copiedPage = await pdfDocLib.copyPages(pdfDoc, [i - 1]);
+                    pdfDocLib.addPage(copiedPage[0]);
+                }
+
+                // Save the new PDF
+                const pdfBytes = await pdfDocLib.save();
+
+                // Create a Blob from the PDF bytes
+                const pdfBlob = new Blob([pdfBytes], { type: 'application/pdf' });
+
+                // Create a URL for the Blob object (new PDF file)
+                const pdfUrl = URL.createObjectURL(pdfBlob);
+
+                // Create the download link
+                const outputDiv = document.getElementById("output");
+                const downloadLink = document.createElement('a');
+                downloadLink.href = pdfUrl;
+                downloadLink.download = `split_${fromPage}-${toPage}.pdf`;
+                downloadLink.textContent = `Download split PDF (${fromPage} - ${toPage})`;
+                downloadLink.style.display = 'inline-block';  // Ensure it's visible and clickable
+                outputDiv.innerHTML = ''; // Clear previous output
+                outputDiv.appendChild(downloadLink);
+            };
+            fileReader.readAsArrayBuffer(file);
+        }
+    </script>
+</body>
+</html>
