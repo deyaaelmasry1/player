@@ -3,6 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="" id="meta-description">
+    <meta name="keywords" content="" id="meta-keywords">
+    <meta property="og:title" content="" id="og-title">
+    <meta property="og:description" content="" id="og-description">
+    <meta property="og:image" content="https://www.iblog.pp.ua/noon.png" id="og-image">
     <title>ابحث الآن</title>
     <style>
         /* General styles for the page */
@@ -167,8 +172,11 @@
                     url.searchParams.set('q', searchInput);
                     history.pushState({}, '', url);
 
-                    // Update the page title to the search query
+                    // Dynamically update the page title
                     document.title = searchInput;
+
+                    // Dynamically update meta description and keywords
+                    updateMetaTags(searchInput, result.length);
                 })
                 .catch(error => console.error('Error fetching the file:', error));
         }
@@ -247,6 +255,19 @@
                 resultDiv.textContent = 'لم يتم العثور على نتائج تحتوي على كلمة البحث.';
                 metadataDiv.innerHTML = ''; // Clear metadata if no results
             }
+        }
+
+        // Dynamically update meta tags
+        function updateMetaTags(searchInput, resultsCount) {
+            var description = `نتائج البحث لـ: ${searchInput}. تم العثور على ${resultsCount} نتائج.`;
+            var keywords = `${searchInput}, بحث, نتائج`;
+            var ogDescription = `نتائج البحث لـ: ${searchInput} - ${resultsCount} نتيجة`;
+
+            // Update meta description, keywords, and og tags
+            document.getElementById('meta-description').setAttribute('content', description);
+            document.getElementById('meta-keywords').setAttribute('content', keywords);
+            document.getElementById('og-title').setAttribute('content', searchInput);
+            document.getElementById('og-description').setAttribute('content', ogDescription);
         }
     </script>
 </body>
