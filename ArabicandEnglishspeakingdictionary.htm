@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A free English-Arabic and Arabic-English dictionary with translations, meanings, and pronunciation.">
+    <meta name="keywords" content="English Arabic dictionary, Arabic English translation, free dictionary, pronunciation, meaning">
+    <meta name="author" content="Your Name">
+    <title>English-Arabic Dictionary | Translate & Define Words</title>
+    
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        .container {
+            max-width: 600px;
+            background: #fff;
+            margin: 40px auto;
+            padding: 20px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        h1 {
+            color: #007BFF;
+        }
+        p {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        input {
+            width: 80%;
+            padding: 10px;
+            margin: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        .error {
+            color: red;
+        }
+        .audio-btn {
+            margin-top: 10px;
+            display: none;
+            background-color: #28a745;
+        }
+        .audio-btn:hover {
+            background-color: #218838;
+        }
+        footer {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>English-Arabic Dictionary</h1>
+        <p>Enter a word in English or Arabic to get its translation, meaning, and pronunciation.</p>
+        
+        <input type="text" id="wordInput" placeholder="Type a word..." autofocus>
+        <button onclick="fetchTranslation()">Translate</button>
+
+        <div class="result">
+            <h3>Translation:</h3>
+            <p id="translation"></p>
+            
+            <h3>English Definition:</h3>
+            <p id="definition"></p>
+            
+            <h3>Pronunciation:</h3>
+            <p id="pronunciation"></p>
+            <button id="audioBtn" class="audio-btn" onclick="playAudio()">🔊 Play Pronunciation</button>
+        </div>
+    </div>
+
+    <footer>
+        <p>Powered by <a href="https://mymemory.translated.net/" target="_blank">MyMemory API</a> & <a href="https://dictionaryapi.dev/" target="_blank">Free Dictionary API</a></p>
+        <p>&copy; 2025 Your Name. All rights reserved.</p>
+    </footer>
+
+    <script>
+        let audioUrl = "";
+
+        async function fetchTranslation() {
+            const word = document.getElementById("wordInput").value.trim();
+            if (!word) return;
+
+            const isEnglish = /^[A-Za-z\s]+$/.test(word); // Detect language
+            const translationAPI = `https://api.mymemory.translated.net/get?q=${word}&langpair=${isEnglish ? 'en|ar' : 'ar|en'}`;
+            const dictionaryAPI = `https://api.dictionaryapi.dev/api/v2/entries/en/${word}`;
+
+            document.getElementById("translation").textContent = "Loading...";
+            document.getElementById("definition").textContent = "";
+            document.getElementById("pronunciation").textContent = "";
+            document.getElementById("audioBtn").style.display = "none"; 
+
+            try {
+                // Fetch Translation
+                const transRes = await fetch(translationAPI);
+                const transData = await transRes.json();
+                const translatedText = transData.responseData.translatedText;
+                document.getElementById("translation").textContent = translatedText;
+
+                // Fetch Definition & Pronunciation if English
+                if (isEnglish) {
+                    const dictRes = await fetch(dictionaryAPI);
+                    if (!dictRes.ok) throw new Error("Word not found in dictionary.");
+                    const dictData = await dictRes.json();
+
+                    document.getElementById("definition").textContent = dictData[0].meanings[0].definitions[0].definition;
+
+                    // Pronunciation
+                    const phonetic = dictData[0].phonetics.find(p => p.text);
+                    document.getElementById("pronunciation").textContent = phonetic ? phonetic.text : "Not available";
+
+                    // Audio
+                    const audio = dictData[0].phonetics.find(p => p.audio);
+                    if (audio && audio.audio) {
+                        audioUrl = audio.audio;
+                        document.getElementById("audioBtn").style.display = "inline-block";
+                    }
+                }
+            } catch (error) {
+                document.getElementById("translation").textContent = "Translation failed.";
+                document.getElementById("definition").textContent = isEnglish ? "Definition not found." : "";
+                document.getElementById("pronunciation").textContent = "";
+                document.getElementById("audioBtn").style.display = "none";
+            }
+        }
+
+        function playAudio() {
+            if (audioUrl) {
+                const audio = new Audio(audioUrl);
+                audio.play();
+            }
+        }
+    </script>
+
+</body>
+</html>
