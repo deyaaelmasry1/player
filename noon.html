@@ -105,6 +105,21 @@
             margin-left: auto;
             margin-right: auto;
         }
+
+        /* Metadata section */
+        #metadata {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #e74c3c;
+            color: white;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        #metadata p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -118,6 +133,7 @@
         </form>
 
         <div id="result"></div>
+        <div id="metadata"></div> <!-- Metadata section -->
     </div>
 
     <script>
@@ -190,7 +206,9 @@
 
         function displayResult(result, fullText) {
             var resultDiv = document.getElementById('result');
+            var metadataDiv = document.getElementById('metadata');
             resultDiv.innerHTML = '';  // Clear previous results
+            metadataDiv.innerHTML = ''; // Clear previous metadata
 
             if (result.length > 0) {
                 // Display the search query as the h1 heading for results
@@ -216,8 +234,18 @@
                 var pre = document.createElement('pre');
                 pre.innerHTML = highlightedText;  // Render the full file content
                 resultDiv.appendChild(pre);
+
+                // Add metadata
+                var currentDate = new Date().toLocaleString();
+                var metadataContent = `
+                    <p><strong>بحثت عن:</strong> ${document.getElementById('searchInput').value}</p>
+                    <p><strong>تاريخ البحث:</strong> ${currentDate}</p>
+                    <p><strong>عدد النتائج:</strong> ${result.length}</p>
+                `;
+                metadataDiv.innerHTML = metadataContent;
             } else {
                 resultDiv.textContent = 'لم يتم العثور على نتائج تحتوي على كلمة البحث.';
+                metadataDiv.innerHTML = ''; // Clear metadata if no results
             }
         }
     </script>
