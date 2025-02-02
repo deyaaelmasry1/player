@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>كوبون نون مصر - ابحث الآن</title>
+    <title>ابحث الآن</title>
     <style>
         /* General styles for the page */
         body {
@@ -13,14 +13,14 @@
             padding: 0;
             display: flex;
             justify-content: center;
-            align-items: center;
-            height: 100vh;
+            align-items: flex-start;
+            min-height: 100vh;
             color: #333;
         }
 
         .container {
             width: 90%;
-            max-width: 800px;
+            max-width: 900px;
             text-align: center;
             background-color: white;
             padding: 20px;
@@ -30,6 +30,7 @@
 
         h1 {
             color: #2c3e50;
+            margin-top: 20px;
         }
 
         h2 {
@@ -77,14 +78,14 @@
             background-color: #ecf0f1;
             border-radius: 8px;
             text-align: left;
-            max-height: 500px;
-            overflow-y: auto;
             word-wrap: break-word;
+            white-space: pre-wrap;
         }
 
         pre {
             white-space: pre-wrap;
             word-wrap: break-word;
+            margin: 0;
         }
 
         .highlight {
@@ -102,15 +103,14 @@
 </head>
 <body>
     <div class="container">
-        <h1>كوبون نون مصر</h1>
-        
+        <h1>ابحث الآن</h1>
+
         <!-- Search Form -->
         <form onsubmit="event.preventDefault(); searchText();">
             <input type="text" id="searchInput" placeholder="ابحث عن آية أو كلمة" />
             <button type="submit">بحث</button>
         </form>
 
-        <h2>نتائج البحث</h2>
         <div id="result"></div>
     </div>
 
@@ -144,7 +144,9 @@
                     var url = new URL(window.location.href);
                     url.searchParams.set('q', searchInput);
                     history.pushState({}, '', url);
-                    document.title = `كوبون نون مصر - نتائج البحث: ${searchInput}`;
+
+                    // Update the page title to the search query
+                    document.title = searchInput;
                 })
                 .catch(error => console.error('Error fetching the file:', error));
         }
@@ -185,6 +187,11 @@
             resultDiv.innerHTML = '';  // Clear previous results
 
             if (result.length > 0) {
+                // Display the search query as the h1 heading for results
+                var searchQueryHeading = document.createElement('h1');
+                searchQueryHeading.textContent = document.getElementById('searchInput').value;
+                resultDiv.appendChild(searchQueryHeading);
+
                 // Highlight the matching terms in the full file content
                 var highlightedText = fullText;
 
