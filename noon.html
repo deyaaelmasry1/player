@@ -172,10 +172,8 @@
                     url.searchParams.set('q', searchInput);
                     history.pushState({}, '', url);
 
-                    // Dynamically update the page title
+                    // Dynamically update the page title and meta tags
                     document.title = searchInput;
-
-                    // Dynamically update meta description and keywords
                     updateMetaTags(searchInput, result.length);
                 })
                 .catch(error => console.error('Error fetching the file:', error));
