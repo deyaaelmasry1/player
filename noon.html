@@ -3,11 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta id="meta-description" name="description" content="">
-    <meta id="meta-keywords" name="keywords" content="">
-    <meta id="og-title" property="og:title" content="">
-    <meta id="og-description" property="og:description" content="">
-    <title>نتائج البحث</title>
+    <title>ابحث الآن</title>
     <style>
         /* General styles for the page */
         body {
@@ -109,36 +105,20 @@
             margin-left: auto;
             margin-right: auto;
         }
-
-        /* Metadata section */
-        #metadata {
-            margin-top: 30px;
-            padding: 20px;
-            background-color: #e74c3c;
-            color: white;
-            border-radius: 8px;
-            text-align: center;
-        }
-
-        #metadata p {
-            margin: 5px 0;
-            font-size: 14px;
-        }
     </style>
 </head>
 <body>
+    <div class="container">
+        <h1>ابحث الآن</h1>
 
-    <h1>نتائج البحث</h1>
+        <!-- Search Form -->
+        <form onsubmit="event.preventDefault(); searchText();">
+            <input type="text" id="searchInput" placeholder="ابحث عن آية أو كلمة" />
+            <button type="submit">بحث</button>
+        </form>
 
-    <!-- Search Form -->
-    <form onsubmit="event.preventDefault(); searchText();">
-        <input type="text" id="searchInput" placeholder="Search for a verse or word" />
-        <button type="submit">Search</button>
-    </form>
-
-    <h2 id="search-query-heading"></h2> <!-- Search query will be displayed here -->
-
-    <div id="result"></div> <!-- Displaying results here -->
+        <div id="result"></div>
+    </div>
 
     <script>
         var textFileURL = '/noon.txt'; // Path to your text file on the server
@@ -171,8 +151,8 @@
                     url.searchParams.set('q', searchInput);
                     history.pushState({}, '', url);
 
-                    // Update the meta tags with the search query
-                    updateMetaTags(searchInput);
+                    // Update the page title to the search query
+                    document.title = searchInput;
                 })
                 .catch(error => console.error('Error fetching the file:', error));
         }
@@ -191,13 +171,17 @@
         function parseText(text, searchQuery) {
             var result = [];
             var lines = text.split('\n');
-            var searchRegex = new RegExp(`(${searchQuery})`, 'gi');  // Highlight search matches
+            var searchWords = searchQuery.split(/\s+/); // Split the search query into words
 
             // Check for matches and add the matching lines to the result array
             for (var i = 0; i < lines.length; i++) {
                 var line = lines[i];
-                if (searchRegex.test(normalizeText(line))) {
-                    result.push({ match: line });
+                var normalizedLine = normalizeText(line);
+                for (var word of searchWords) {
+                    if (normalizedLine.includes(word)) {
+                        result.push({ match: line });
+                        break; // Stop after the first match in the line
+                    }
                 }
             }
 
@@ -206,34 +190,35 @@
 
         function displayResult(result, fullText) {
             var resultDiv = document.getElementById('result');
-            var queryHeading = document.getElementById('search-query-heading');
             resultDiv.innerHTML = '';  // Clear previous results
 
             if (result.length > 0) {
-                // Highlight the matching terms in the full file content
-                var highlightedText = fullText.replace(new RegExp(`(${document.getElementById('searchInput').value})`, 'gi'), '<span style="background-color: yellow; font-weight: bold;">$1</span>');
+                // Display the search query as the h1 heading for results
+                var searchQueryHeading = document.createElement('h1');
+                searchQueryHeading.textContent = document.getElementById('searchInput').value;
+                resultDiv.appendChild(searchQueryHeading);
 
-                // Display the full file content with highlights
+                // Highlight the matching terms in the full file content
+                var highlightedText = fullText;
+
+                // For each word in the search query, highlight its occurrence in the text
+                var searchWords = document.getElementById('searchInput').value.split(/\s+/);
+                for (var word of searchWords) {
+                    var regex = new RegExp(`(${word})`, 'gi');
+                    highlightedText = highlightedText.replace(regex, '<span class="highlight">$1</span>');
+                }
+
+                // Replace image tags and display the full content with highlights
+                highlightedText = highlightedText.replace(/<img src="([^"]+)" alt="([^"]+)" \/>/g, function(match, src, alt) {
+                    return `<img src="${src}" alt="${alt}" />`;
+                });
+
                 var pre = document.createElement('pre');
                 pre.innerHTML = highlightedText;  // Render the full file content
                 resultDiv.appendChild(pre);
-                
-                // Display the search query in the heading
-                queryHeading.textContent = `نتائج البحث لـ: ${document.getElementById('searchInput').value}`;
             } else {
                 resultDiv.textContent = 'لم يتم العثور على نتائج تحتوي على كلمة البحث.';
             }
-        }
-
-        function updateMetaTags(searchInput) {
-            // Update meta tags dynamically with the search query (searchInput)
-            document.getElementById('meta-description').setAttribute('content', searchInput);
-            document.getElementById('meta-keywords').setAttribute('content', searchInput);
-            document.getElementById('og-title').setAttribute('content', searchInput);
-            document.getElementById('og-description').setAttribute('content', searchInput);
-
-            // Also update the page title dynamically
-            document.title = `${searchInput} - نتائج البحث`;
         }
     </script>
 </body>
