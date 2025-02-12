@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="آلة حاسبة علمية متقدمة مع دعم للكسور، المعادلات، الدوال المثلثية، اللوغاريتمات، والمزيد.">
-  <meta name="keywords" content="آلة حاسبة رياضية, آلة حاسبة علمية, كسور, معادلات, دوال مثلثية, لوغاريتمات, آلة حاسبة متقدمة">
+  <meta name="description" content="آلة حاسبة علمية متقدمة مع دعم للكسور، الدوال المثلثية، اللوغاريتمات، والمزيد.">
+  <meta name="keywords" content="آلة حاسبة رياضية, آلة حاسبة علمية, كسور, دوال مثلثية, لوغاريتمات, آلة حاسبة متقدمة">
   <meta name="author" content="اسمك">
-  <title>آلة حاسبة رياضية وعلمية متقدمة مع دعم للمعادلات</title>
+  <title>آلة حاسبة رياضية وعلمية متقدمة مع دعم للكسور</title>
   <style>
     /* General Styles */
     body {
@@ -184,15 +184,14 @@
         <button onclick="appendToDisplay('%')">%</button>
         <button onclick="appendToDisplay('abs(')">abs</button>
         <button onclick="appendToDisplay('rand(')">rand</button>
-        <button onclick="solveEquation()">حل معادلة</button>
       </div>
     </div>
 
     <!-- منطقة النص -->
     <div class="text-area">
-      <h1>آلة حاسبة رياضية وعلمية متقدمة مع دعم للمعادلات</h1>
+      <h1>آلة حاسبة رياضية وعلمية متقدمة مع دعم للكسور</h1>
       <p>
-        مرحبًا بكم في آلتنا الحاسبة العلمية المتقدمة! هذه الأداة القوية تتيح لك إجراء مجموعة واسعة من العمليات الحسابية، بما في ذلك الكسور، المعادلات، الدوال المثلثية، اللوغاريتمات، والمزيد. سواء كنت طالبًا، مهندسًا، أو من محبي الرياضيات، هذه الآلة الحاسبة مصممة لتلبية احتياجاتك.
+        مرحبًا بكم في آلتنا الحاسبة العلمية المتقدمة! هذه الأداة القوية تتيح لك إجراء مجموعة واسعة من العمليات الحسابية، بما في ذلك الكسور، الدوال المثلثية، اللوغاريتمات، والمزيد. سواء كنت طالبًا، مهندسًا، أو من محبي الرياضيات، هذه الآلة الحاسبة مصممة لتلبية احتياجاتك.
       </p>
 
       <h2>كيفية استخدام الآلة الحاسبة</h2>
@@ -200,7 +199,6 @@
         - استخدم أزرار الأرقام (<code>0-9</code>) لإدخال الأرقام.<br>
         - استخدم أزرار العمليات (<code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>) لإجراء العمليات الحسابية الأساسية.<br>
         - لإدخال الكسور، استخدم رمز <code>/</code> (مثل <code>3/4</code> لثلاثة أرباع).<br>
-        - لحل المعادلات، اضغط على زر <code>حل معادلة</code> وأدخل المعادلة.<br>
         - للدوال المتقدمة، استخدم الأزرار مثل <code>√</code> (الجذر التربيعي)، <code>^</code> (الأس)، <code>sin</code>, <code>cos</code>, <code>tan</code>, <code>log10</code>, <code>ln</code>, وغيرها.<br>
         - استخدم الأقواس <code>( )</code> لتجميع التعبيرات.<br>
         - اضغط على <code>=</code> لحساب النتيجة.
@@ -210,7 +208,6 @@
       <p>
         - <strong>العمليات الحسابية الأساسية</strong>: الجمع، الطرح، الضرب، والقسمة.<br>
         - <strong>الكسور</strong>: أدخل الكسور باستخدام <code>/</code> (مثل <code>3/4</code>).<br>
-        - <strong>حل المعادلات</strong>: حل المعادلات الخطية والتربيعية.<br>
         - <strong>الدوال المثلثية</strong>: sin, cos, tan, asin, acos, atan.<br>
         - <strong>الدوال الزائدية</strong>: sinh, cosh, tanh.<br>
         - <strong>اللوغاريتمات</strong>: log10, ln.<br>
@@ -254,37 +251,6 @@
         display.value = result;
       } catch (error) {
         display.value = 'خطأ';
-      }
-    }
-
-    // دالة لحل المعادلات
-    function solveEquation() {
-      const display = document.getElementById('display');
-      const equation = display.value;
-
-      try {
-        // حل المعادلة الخطية (ax + b = 0)
-        if (equation.includes('x')) {
-          const [a, b] = equation.split('x');
-          const x = -parseFloat(b) / parseFloat(a);
-          display.value = `x = ${x}`;
-        }
-        // حل المعادلة التربيعية (ax^2 + bx + c = 0)
-        else if (equation.includes('x^2')) {
-          const [a, b, c] = equation.split('x');
-          const discriminant = b * b - 4 * a * c;
-          if (discriminant < 0) {
-            display.value = 'لا يوجد حل حقيقي';
-          } else {
-            const x1 = (-b + Math.sqrt(discriminant)) / (2 * a);
-            const x2 = (-b - Math.sqrt(discriminant)) / (2 * a);
-            display.value = `x1 = ${x1}, x2 = ${x2}`;
-          }
-        } else {
-          display.value = 'معادلة غير مدعومة';
-        }
-      } catch (error) {
-        display.value = 'خطأ في حل المعادلة';
       }
     }
   </script>
