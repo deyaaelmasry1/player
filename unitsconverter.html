@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>محول الوحدات</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      text-align: right;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background-color: #fff;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    .tabs {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 20px;
+    }
+
+    .tablink {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    .tablink:hover {
+      background-color: #0056b3;
+    }
+
+    .tabcontent {
+      display: none;
+      padding: 20px;
+      border-top: 1px solid #ddd;
+    }
+
+    .tabcontent h2 {
+      margin-top: 0;
+    }
+
+    input, select, button {
+      margin: 5px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    button {
+      background-color: #28a745;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #218838;
+    }
+
+    p {
+      font-size: 1.2em;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>محول الوحدات</h1>
+    <p>مرحبًا بك في محول الوحدات! يمكنك استخدام هذه الأداة لتحويل الوحدات بين الأنواع المختلفة مثل الطول، الوزن، درجة الحرارة، والحجم. اختر النوع المطلوب من التبويبات أدناه، ثم أدخل القيمة وحدد الوحدات المناسبة.</p>
+
+    <div class="tabs">
+      <button class="tablink" onclick="openTab(event, 'Length')">الطول</button>
+      <button class="tablink" onclick="openTab(event, 'Weight')">الوزن</button>
+      <button class="tablink" onclick="openTab(event, 'Temperature')">درجة الحرارة</button>
+      <button class="tablink" onclick="openTab(event, 'Volume')">الحجم</button>
+    </div>
+
+    <div id="Length" class="tabcontent">
+      <h2>محول الطول</h2>
+      <p>أدخل القيمة التي تريد تحويلها وحدد الوحدات المناسبة للتحويل.</p>
+      <input type="number" id="lengthInput" placeholder="أدخل القيمة">
+      <select id="lengthFrom">
+        <option value="mm">مليمتر (مم)</option>
+        <option value="cm">سنتيمتر (سم)</option>
+        <option value="m">متر (م)</option>
+        <option value="km">كيلومتر (كم)</option>
+        <option value="in">بوصة (إنش)</option>
+        <option value="ft">قدم (قدم)</option>
+        <option value="yd">ياردة (ياردة)</option>
+        <option value="mi">ميل (ميل)</option>
+      </select>
+      <span>إلى</span>
+      <select id="lengthTo">
+        <option value="mm">مليمتر (مم)</option>
+        <option value="cm">سنتيمتر (سم)</option>
+        <option value="m">متر (م)</option>
+        <option value="km">كيلومتر (كم)</option>
+        <option value="in">بوصة (إنش)</option>
+        <option value="ft">قدم (قدم)</option>
+        <option value="yd">ياردة (ياردة)</option>
+        <option value="mi">ميل (ميل)</option>
+      </select>
+      <button onclick="convertLength()">تحويل</button>
+      <p id="lengthResult"></p>
+    </div>
+
+    <div id="Weight" class="tabcontent">
+      <h2>محول الوزن</h2>
+      <p>أدخل القيمة التي تريد تحويلها وحدد الوحدات المناسبة للتحويل.</p>
+      <input type="number" id="weightInput" placeholder="أدخل القيمة">
+      <select id="weightFrom">
+        <option value="mg">مليغرام (ملغم)</option>
+        <option value="g">غرام (غم)</option>
+        <option value="kg">كيلوغرام (كغم)</option>
+        <option value="oz">أونصة (أوقية)</option>
+        <option value="lb">رطل (رطل)</option>
+      </select>
+      <span>إلى</span>
+      <select id="weightTo">
+        <option value="mg">مليغرام (ملغم)</option>
+        <option value="g">غرام (غم)</option>
+        <option value="kg">كيلوغرام (كغم)</option>
+        <option value="oz">أونصة (أوقية)</option>
+        <option value="lb">رطل (رطل)</option>
+      </select>
+      <button onclick="convertWeight()">تحويل</button>
+      <p id="weightResult"></p>
+    </div>
+
+    <div id="Temperature" class="tabcontent">
+      <h2>محول درجة الحرارة</h2>
+      <p>أدخل القيمة التي تريد تحويلها وحدد الوحدات المناسبة للتحويل.</p>
+      <input type="number" id="tempInput" placeholder="أدخل القيمة">
+      <select id="tempFrom">
+        <option value="C">مئوية (°C)</option>
+        <option value="F">فهرنهايت (°F)</option>
+        <option value="K">كلفن (K)</option>
+      </select>
+      <span>إلى</span>
+      <select id="tempTo">
+        <option value="C">مئوية (°C)</option>
+        <option value="F">فهرنهايت (°F)</option>
+        <option value="K">كلفن (K)</option>
+      </select>
+      <button onclick="convertTemperature()">تحويل</button>
+      <p id="tempResult"></p>
+    </div>
+
+    <div id="Volume" class="tabcontent">
+      <h2>محول الحجم</h2>
+      <p>أدخل القيمة التي تريد تحويلها وحدد الوحدات المناسبة للتحويل.</p>
+      <input type="number" id="volumeInput" placeholder="أدخل القيمة">
+      <select id="volumeFrom">
+        <option value="ml">مليلتر (مل)</option>
+        <option value="l">لتر (ل)</option>
+        <option value="m3">متر مكعب (م³)</option>
+        <option value="fl-oz">أونصة سائلة (أونصة)</option>
+        <option value="gal">غالون (غالون)</option>
+      </select>
+      <span>إلى</span>
+      <select id="volumeTo">
+        <option value="ml">مليلتر (مل)</option>
+        <option value="l">لتر (ل)</option>
+        <option value="m3">متر مكعب (م³)</option>
+        <option value="fl-oz">أونصة سائلة (أونصة)</option>
+        <option value="gal">غالون (غالون)</option>
+      </select>
+      <button onclick="convertVolume()">تحويل</button>
+      <p id="volumeResult"></p>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/convert-units@2.3.4/lib/index.min.js"></script>
+  <script>
+    // Function to open tabs
+    function openTab(evt, tabName) {
+      const tabcontent = document.getElementsByClassName("tabcontent");
+      for (let i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+      }
+      const tablinks = document.getElementsByClassName("tablink");
+      for (let i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+      }
+      document.getElementById(tabName).style.display = "block";
+      evt.currentTarget.className += " active";
+    }
+
+    // Default open the first tab
+    document.getElementById("Length").style.display = "block";
+
+    // Length conversion
+    function convertLength() {
+      const input = parseFloat(document.getElementById("lengthInput").value);
+      const fromUnit = document.getElementById("lengthFrom").value;
+      const toUnit = document.getElementById("lengthTo").value;
+      const result = convert(input).from(fromUnit).to(toUnit);
+      document.getElementById("lengthResult").innerText = `النتيجة: ${result.toFixed(2)} ${toUnit}`;
+    }
+
+    // Weight conversion
+    function convertWeight() {
+      const input = parseFloat(document.getElementById("weightInput").value);
+      const fromUnit = document.getElementById("weightFrom").value;
+      const toUnit = document.getElementById("weightTo").value;
+      const result = convert(input).from(fromUnit).to(toUnit);
+      document.getElementById("weightResult").innerText = `النتيجة: ${result.toFixed(2)} ${toUnit}`;
+    }
+
+    // Temperature conversion
+    function convertTemperature() {
+      const input = parseFloat(document.getElementById("tempInput").value);
+      const fromUnit = document.getElementById("tempFrom").value;
+      const toUnit = document.getElementById("tempTo").value;
+      const result = convert(input).from(fromUnit).to(toUnit);
+      document.getElementById("tempResult").innerText = `النتيجة: ${result.toFixed(2)} ${toUnit}`;
+    }
+
+    // Volume conversion
+    function convertVolume() {
+      const input = parseFloat(document.getElementById("volumeInput").value);
+      const fromUnit = document.getElementById("volumeFrom").value;
+      const toUnit = document.getElementById("volumeTo").value;
+      const result = convert(input).from(fromUnit).to(toUnit);
+      document.getElementById("volumeResult").innerText = `النتيجة: ${result.toFixed(2)} ${toUnit}`;
+    }
+  </script>
+</body>
+</html>
