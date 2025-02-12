@@ -59,7 +59,6 @@
 
     // Generate a short, fixed ID from a username
     function generateShortId(username) {
-      // Use a simple hash function to generate a short ID
       let hash = 0;
       for (let i = 0; i < username.length; i++) {
         hash = (hash << 5) - hash + username.charCodeAt(i);
@@ -93,14 +92,16 @@
           updateStatus('Connected to peer: ' + conn.peer);
         });
         conn.on('data', (data) => {
-          const file = new Blob([data], { type: 'application/octet-stream' });
+          // Handle received file with metadata
+          const { fileName, fileType, fileData } = data;
+          const file = new Blob([fileData], { type: fileType });
           const url = URL.createObjectURL(file);
           const a = document.createElement('a');
           a.href = url;
-          a.download = 'received_file';
+          a.download = fileName; // Use the original file name
           a.click();
           URL.revokeObjectURL(url);
-          updateStatus('File received');
+          updateStatus(`File received: ${fileName}`);
         });
       });
     }
@@ -113,14 +114,16 @@
         updateStatus('Connected to peer: ' + remotePeerId);
       });
       conn.on('data', (data) => {
-        const file = new Blob([data], { type: 'application/octet-stream' });
+        // Handle received file with metadata
+        const { fileName, fileType, fileData } = data;
+        const file = new Blob([fileData], { type: fileType });
         const url = URL.createObjectURL(file);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'received_file';
+        a.download = fileName; // Use the original file name
         a.click();
         URL.revokeObjectURL(url);
-        updateStatus('File received');
+        updateStatus(`File received: ${fileName}`);
       });
     }
 
@@ -131,8 +134,14 @@
         const file = fileInput.files[0];
         const reader = new FileReader();
         reader.onload = () => {
-          conn.send(reader.result);
-          updateStatus('File sent');
+          // Include file metadata (name and type) with the file data
+          const fileData = {
+            fileName: file.name,
+            fileType: file.type,
+            fileData: reader.result,
+          };
+          conn.send(fileData);
+          updateStatus(`File sent: ${file.name}`);
         };
         reader.readAsArrayBuffer(file);
       } else {
