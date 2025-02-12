@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
@@ -115,6 +115,7 @@
         <option value="yd">ياردة (ياردة)</option>
         <option value="mi">ميل (ميل)</option>
       </select>
+      <button onclick="convertLength()">تحويل</button>
       <p id="lengthResult"></p>
     </div>
 
@@ -137,6 +138,7 @@
         <option value="oz">أونصة (أوقية)</option>
         <option value="lb">رطل (رطل)</option>
       </select>
+      <button onclick="convertWeight()">تحويل</button>
       <p id="weightResult"></p>
     </div>
 
@@ -155,6 +157,7 @@
         <option value="F">فهرنهايت (°F)</option>
         <option value="K">كلفن (K)</option>
       </select>
+      <button onclick="convertTemperature()">تحويل</button>
       <p id="tempResult"></p>
     </div>
 
@@ -177,6 +180,7 @@
         <option value="fl-oz">أونصة سائلة (أونصة)</option>
         <option value="gal">غالون (غالون)</option>
       </select>
+      <button onclick="convertVolume()">تحويل</button>
       <p id="volumeResult"></p>
     </div>
   </div>
@@ -203,12 +207,12 @@
     // Length conversion
     function convertLength() {
       const input = parseFloat(document.getElementById("lengthInput").value);
-      if (isNaN(input)) {
-        document.getElementById("lengthResult").innerText = "الرجاء إدخال قيمة صحيحة";
-        return;
-      }
       const fromUnit = document.getElementById("lengthFrom").value;
       const toUnit = document.getElementById("lengthTo").value;
+      if (isNaN(input)) {
+        document.getElementById("lengthResult").innerText = "الرجاء إدخال قيمة صحيحة.";
+        return;
+      }
       const result = convert(input).from(fromUnit).to(toUnit);
       document.getElementById("lengthResult").innerText = `النتيجة: ${result.toFixed(2)} ${toUnit}`;
     }
@@ -216,12 +220,12 @@
     // Weight conversion
     function convertWeight() {
       const input = parseFloat(document.getElementById("weightInput").value);
-      if (isNaN(input)) {
-        document.getElementById("weightResult").innerText = "الرجاء إدخال قيمة صحيحة";
-        return;
-      }
       const fromUnit = document.getElementById("weightFrom").value;
       const toUnit = document.getElementById("weightTo").value;
+      if (isNaN(input)) {
+        document.getElementById("weightResult").innerText = "الرجاء إدخال قيمة صحيحة.";
+        return;
+      }
       const result = convert(input).from(fromUnit).to(toUnit);
       document.getElementById("weightResult").innerText = `النتيجة: ${result.toFixed(2)} ${toUnit}`;
     }
@@ -229,12 +233,12 @@
     // Temperature conversion
     function convertTemperature() {
       const input = parseFloat(document.getElementById("tempInput").value);
-      if (isNaN(input)) {
-        document.getElementById("tempResult").innerText = "الرجاء إدخال قيمة صحيحة";
-        return;
-      }
       const fromUnit = document.getElementById("tempFrom").value;
       const toUnit = document.getElementById("tempTo").value;
+      if (isNaN(input)) {
+        document.getElementById("tempResult").innerText = "الرجاء إدخال قيمة صحيحة.";
+        return;
+      }
       const result = convert(input).from(fromUnit).to(toUnit);
       document.getElementById("tempResult").innerText = `النتيجة: ${result.toFixed(2)} ${toUnit}`;
     }
@@ -242,32 +246,15 @@
     // Volume conversion
     function convertVolume() {
       const input = parseFloat(document.getElementById("volumeInput").value);
-      if (isNaN(input)) {
-        document.getElementById("volumeResult").innerText = "الرجاء إدخال قيمة صحيحة";
-        return;
-      }
       const fromUnit = document.getElementById("volumeFrom").value;
       const toUnit = document.getElementById("volumeTo").value;
+      if (isNaN(input)) {
+        document.getElementById("volumeResult").innerText = "الرجاء إدخال قيمة صحيحة.";
+        return;
+      }
       const result = convert(input).from(fromUnit).to(toUnit);
       document.getElementById("volumeResult").innerText = `النتيجة: ${result.toFixed(2)} ${toUnit}`;
     }
-
-    // Add event listeners to automatically trigger conversion on input change
-    document.getElementById("lengthInput").addEventListener("input", convertLength);
-    document.getElementById("lengthFrom").addEventListener("change", convertLength);
-    document.getElementById("lengthTo").addEventListener("change", convertLength);
-
-    document.getElementById("weightInput").addEventListener("input", convertWeight);
-    document.getElementById("weightFrom").addEventListener("change", convertWeight);
-    document.getElementById("weightTo").addEventListener("change", convertWeight);
-
-    document.getElementById("tempInput").addEventListener("input", convertTemperature);
-    document.getElementById("tempFrom").addEventListener("change", convertTemperature);
-    document.getElementById("tempTo").addEventListener("change", convertTemperature);
-
-    document.getElementById("volumeInput").addEventListener("input", convertVolume);
-    document.getElementById("volumeFrom").addEventListener("change", convertVolume);
-    document.getElementById("volumeTo").addEventListener("change", convertVolume);
   </script>
 </body>
 </html>
