@@ -1,16 +1,15 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>محول الوحدات</title>
+  <title>Units Converter</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       background-color: #f4f4f4;
       margin: 0;
       padding: 0;
-      text-align: right;
     }
 
     .container {
@@ -80,107 +79,101 @@
 </head>
 <body>
   <div class="container">
-    <h1>محول الوحدات</h1>
-    <p>مرحبًا بك في محول الوحدات! يمكنك استخدام هذه الأداة لتحويل الوحدات بين الأنواع المختلفة مثل الطول، الوزن، درجة الحرارة، والحجم. اختر النوع المطلوب من التبويبات أدناه، ثم أدخل القيمة وحدد الوحدات المناسبة.</p>
-
+    <h1>Units Converter</h1>
     <div class="tabs">
-      <button class="tablink" onclick="openTab(event, 'Length')">الطول</button>
-      <button class="tablink" onclick="openTab(event, 'Weight')">الوزن</button>
-      <button class="tablink" onclick="openTab(event, 'Temperature')">درجة الحرارة</button>
-      <button class="tablink" onclick="openTab(event, 'Volume')">الحجم</button>
+      <button class="tablink" onclick="openTab(event, 'Length')">Length</button>
+      <button class="tablink" onclick="openTab(event, 'Weight')">Weight</button>
+      <button class="tablink" onclick="openTab(event, 'Temperature')">Temperature</button>
+      <button class="tablink" onclick="openTab(event, 'Volume')">Volume</button>
     </div>
 
     <div id="Length" class="tabcontent">
-      <h2>محول الطول</h2>
-      <p>أدخل القيمة التي تريد تحويلها وحدد الوحدات المناسبة للتحويل.</p>
-      <input type="number" id="lengthInput" placeholder="أدخل القيمة">
+      <h2>Length Converter</h2>
+      <input type="number" id="lengthInput" placeholder="Enter value">
       <select id="lengthFrom">
-        <option value="mm">مليمتر (مم)</option>
-        <option value="cm">سنتيمتر (سم)</option>
-        <option value="m">متر (م)</option>
-        <option value="km">كيلومتر (كم)</option>
-        <option value="in">بوصة (إنش)</option>
-        <option value="ft">قدم (قدم)</option>
-        <option value="yd">ياردة (ياردة)</option>
-        <option value="mi">ميل (ميل)</option>
+        <option value="mm">Millimeter (mm)</option>
+        <option value="cm">Centimeter (cm)</option>
+        <option value="m">Meter (m)</option>
+        <option value="km">Kilometer (km)</option>
+        <option value="in">Inch (in)</option>
+        <option value="ft">Foot (ft)</option>
+        <option value="yd">Yard (yd)</option>
+        <option value="mi">Mile (mi)</option>
       </select>
-      <span>إلى</span>
+      <span>to</span>
       <select id="lengthTo">
-        <option value="mm">مليمتر (مم)</option>
-        <option value="cm">سنتيمتر (سم)</option>
-        <option value="m">متر (م)</option>
-        <option value="km">كيلومتر (كم)</option>
-        <option value="in">بوصة (إنش)</option>
-        <option value="ft">قدم (قدم)</option>
-        <option value="yd">ياردة (ياردة)</option>
-        <option value="mi">ميل (ميل)</option>
+        <option value="mm">Millimeter (mm)</option>
+        <option value="cm">Centimeter (cm)</option>
+        <option value="m">Meter (m)</option>
+        <option value="km">Kilometer (km)</option>
+        <option value="in">Inch (in)</option>
+        <option value="ft">Foot (ft)</option>
+        <option value="yd">Yard (yd)</option>
+        <option value="mi">Mile (mi)</option>
       </select>
-      <button onclick="convertLength()">تحويل</button>
+      <button onclick="convertLength()">Convert</button>
       <p id="lengthResult"></p>
     </div>
 
     <div id="Weight" class="tabcontent">
-      <h2>محول الوزن</h2>
-      <p>أدخل القيمة التي تريد تحويلها وحدد الوحدات المناسبة للتحويل.</p>
-      <input type="number" id="weightInput" placeholder="أدخل القيمة">
+      <h2>Weight Converter</h2>
+      <input type="number" id="weightInput" placeholder="Enter value">
       <select id="weightFrom">
-        <option value="mg">مليغرام (ملغم)</option>
-        <option value="g">غرام (غم)</option>
-        <option value="kg">كيلوغرام (كغم)</option>
-        <option value="oz">أونصة (أوقية)</option>
-        <option value="lb">رطل (رطل)</option>
+        <option value="mg">Milligram (mg)</option>
+        <option value="g">Gram (g)</option>
+        <option value="kg">Kilogram (kg)</option>
+        <option value="oz">Ounce (oz)</option>
+        <option value="lb">Pound (lb)</option>
       </select>
-      <span>إلى</span>
+      <span>to</span>
       <select id="weightTo">
-        <option value="mg">مليغرام (ملغم)</option>
-        <option value="g">غرام (غم)</option>
-        <option value="kg">كيلوغرام (كغم)</option>
-        <option value="oz">أونصة (أوقية)</option>
-        <option value="lb">رطل (رطل)</option>
+        <option value="mg">Milligram (mg)</option>
+        <option value="g">Gram (g)</option>
+        <option value="kg">Kilogram (kg)</option>
+        <option value="oz">Ounce (oz)</option>
+        <option value="lb">Pound (lb)</option>
       </select>
-      <button onclick="convertWeight()">تحويل</button>
+      <button onclick="convertWeight()">Convert</button>
       <p id="weightResult"></p>
     </div>
 
     <div id="Temperature" class="tabcontent">
-      <h2>محول درجة الحرارة</h2>
-      <p>أدخل القيمة التي تريد تحويلها وحدد الوحدات المناسبة للتحويل.</p>
-      <input type="number" id="tempInput" placeholder="أدخل القيمة">
+      <h2>Temperature Converter</h2>
+      <input type="number" id="tempInput" placeholder="Enter value">
       <select id="tempFrom">
-        <option value="C">مئوية (°C)</option>
-        <option value="F">فهرنهايت (°F)</option>
-        <option value="K">كلفن (K)</option>
+        <option value="C">Celsius (°C)</option>
+        <option value="F">Fahrenheit (°F)</option>
+        <option value="K">Kelvin (K)</option>
       </select>
-      <span>إلى</span>
+      <span>to</span>
       <select id="tempTo">
-        <option value="C">مئوية (°C)</option>
-        <option value="F">فهرنهايت (°F)</option>
-        <option value="K">كلفن (K)</option>
+        <option value="C">Celsius (°C)</option>
+        <option value="F">Fahrenheit (°F)</option>
+        <option value="K">Kelvin (K)</option>
       </select>
-      <button onclick="convertTemperature()">تحويل</button>
+      <button onclick="convertTemperature()">Convert</button>
       <p id="tempResult"></p>
     </div>
 
     <div id="Volume" class="tabcontent">
-      <h2>محول الحجم</h2>
-      <p>أدخل القيمة التي تريد تحويلها وحدد الوحدات المناسبة للتحويل.</p>
-      <input type="number" id="volumeInput" placeholder="أدخل القيمة">
+      <h2>Volume Converter</h2>
+      <input type="number" id="volumeInput" placeholder="Enter value">
       <select id="volumeFrom">
-        <option value="ml">مليلتر (مل)</option>
-        <option value="l">لتر (ل)</option>
-        <option value="m3">متر مكعب (م³)</option>
-        <option value="fl-oz">أونصة سائلة (أونصة)</option>
-        <option value="gal">غالون (غالون)</option>
+        <option value="ml">Milliliter (ml)</option>
+        <option value="l">Liter (l)</option>
+        <option value="m3">Cubic Meter (m³)</option>
+        <option value="fl-oz">Fluid Ounce (fl oz)</option>
+        <option value="gal">Gallon (gal)</option>
       </select>
-      <span>إلى</span>
+      <span>to</span>
       <select id="volumeTo">
-        <option value="ml">مليلتر (مل)</option>
-        <option value="l">لتر (ل)</option>
-        <option value="m3">متر مكعب (م³)</option>
-        <option value="fl-oz">أونصة سائلة (أونصة)</option>
-        <option value="gal">غالون (غالون)</option>
+        <option value="ml">Milliliter (ml)</option>
+        <option value="l">Liter (l)</option>
+        <option value="m3">Cubic Meter (m³)</option>
+        <option value="fl-oz">Fluid Ounce (fl oz)</option>
+        <option value="gal">Gallon (gal)</option>
       </select>
-      <button onclick="convertVolume()">تحويل</button>
+      <button onclick="convertVolume()">Convert</button>
       <p id="volumeResult"></p>
     </div>
   </div>
@@ -209,12 +202,8 @@
       const input = parseFloat(document.getElementById("lengthInput").value);
       const fromUnit = document.getElementById("lengthFrom").value;
       const toUnit = document.getElementById("lengthTo").value;
-      if (isNaN(input)) {
-        document.getElementById("lengthResult").innerText = "الرجاء إدخال قيمة صحيحة.";
-        return;
-      }
       const result = convert(input).from(fromUnit).to(toUnit);
-      document.getElementById("lengthResult").innerText = `النتيجة: ${result.toFixed(2)} ${toUnit}`;
+      document.getElementById("lengthResult").innerText = `Result: ${result.toFixed(2)} ${toUnit}`;
     }
 
     // Weight conversion
@@ -222,12 +211,8 @@
       const input = parseFloat(document.getElementById("weightInput").value);
       const fromUnit = document.getElementById("weightFrom").value;
       const toUnit = document.getElementById("weightTo").value;
-      if (isNaN(input)) {
-        document.getElementById("weightResult").innerText = "الرجاء إدخال قيمة صحيحة.";
-        return;
-      }
       const result = convert(input).from(fromUnit).to(toUnit);
-      document.getElementById("weightResult").innerText = `النتيجة: ${result.toFixed(2)} ${toUnit}`;
+      document.getElementById("weightResult").innerText = `Result: ${result.toFixed(2)} ${toUnit}`;
     }
 
     // Temperature conversion
@@ -235,12 +220,8 @@
       const input = parseFloat(document.getElementById("tempInput").value);
       const fromUnit = document.getElementById("tempFrom").value;
       const toUnit = document.getElementById("tempTo").value;
-      if (isNaN(input)) {
-        document.getElementById("tempResult").innerText = "الرجاء إدخال قيمة صحيحة.";
-        return;
-      }
       const result = convert(input).from(fromUnit).to(toUnit);
-      document.getElementById("tempResult").innerText = `النتيجة: ${result.toFixed(2)} ${toUnit}`;
+      document.getElementById("tempResult").innerText = `Result: ${result.toFixed(2)} ${toUnit}`;
     }
 
     // Volume conversion
@@ -248,12 +229,8 @@
       const input = parseFloat(document.getElementById("volumeInput").value);
       const fromUnit = document.getElementById("volumeFrom").value;
       const toUnit = document.getElementById("volumeTo").value;
-      if (isNaN(input)) {
-        document.getElementById("volumeResult").innerText = "الرجاء إدخال قيمة صحيحة.";
-        return;
-      }
       const result = convert(input).from(fromUnit).to(toUnit);
-      document.getElementById("volumeResult").innerText = `النتيجة: ${result.toFixed(2)} ${toUnit}`;
+      document.getElementById("volumeResult").innerText = `Result: ${result.toFixed(2)} ${toUnit}`;
     }
   </script>
 </body>
