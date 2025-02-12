@@ -1,52 +1,99 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>P2P File Transfer</title>
+  <title>نقل الملفات من نظير إلى نظير</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       margin: 20px;
+      background-color: #f4f4f9;
+      color: #333;
+      text-align: right;
     }
     .container {
       max-width: 600px;
       margin: 0 auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #4a90e2;
+    }
+    h2 {
+      color: #333;
+      margin-top: 20px;
+    }
+    p {
+      line-height: 1.6;
     }
     input, button {
       margin: 10px 0;
       padding: 10px;
       width: 100%;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    button {
+      background-color: #4a90e2;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #357abd;
     }
     #status {
       margin-top: 20px;
       font-weight: bold;
+      color: #4a90e2;
+    }
+    .instructions {
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 4px;
+      margin: 20px 0;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>P2P File Transfer</h1>
-    <div>
-      <label for="username">Enter Your Username:</label>
-      <input type="text" id="username">
-      <button onclick="generatePeerId()">Generate Peer ID</button>
+    <h1>نقل الملفات من نظير إلى نظير</h1>
+    <p>قم بنقل الملفات مباشرة بين الأجهزة باستخدام معرف نظير فريد وثابت. لا حاجة لخوادم أو وسيط—فقط مشاركة سريعة وآمنة!</p>
+
+    <div class="instructions">
+      <h2>كيف يعمل:</h2>
+      <ol>
+        <li>أدخل اسم مستخدم لإنشاء معرف النظير الخاص بك.</li>
+        <li>شارك معرف النظير الخاص بك مع الشخص الذي تريد إرسال الملفات إليه.</li>
+        <li>أدخل معرف النظير الخاص به للاتصال.</li>
+        <li>اختر ملفًا وأرسله مباشرة إلى جهازه.</li>
+      </ol>
     </div>
-    <div>
-      <label for="peerId">Your Peer ID:</label>
-      <input type="text" id="peerId" readonly>
-    </div>
-    <div>
-      <label for="remotePeerId">Enter Peer's ID:</label>
-      <input type="text" id="remotePeerId">
-      <button onclick="connectToPeer()">Connect to Peer</button>
-    </div>
-    <div>
-      <label for="fileInput">Select File to Send:</label>
-      <input type="file" id="fileInput">
-      <button onclick="sendFile()">Send File</button>
-    </div>
-    <div id="status">Status: Not connected</div>
+
+    <h2>الخطوة 1: إنشاء معرف النظير الخاص بك</h2>
+    <p>أدخل اسم مستخدم لإنشاء معرف النظير الفريد الخاص بك. سيبقى هذا المعرف كما هو في كل مرة تستخدم فيها نفس اسم المستخدم.</p>
+    <input type="text" id="username" placeholder="أدخل اسم المستخدم">
+    <button onclick="generatePeerId()">إنشاء معرف النظير</button>
+    <input type="text" id="peerId" placeholder="سوف يظهر معرف النظير هنا" readonly>
+
+    <h2>الخطوة 2: الاتصال بنظير</h2>
+    <p>أدخل معرف النظير الخاص بالشخص الذي تريد الاتصال به واضغط على "الاتصال بالنظير."</p>
+    <input type="text" id="remotePeerId" placeholder="أدخل معرف النظير">
+    <button onclick="connectToPeer()">الاتصال بالنظير</button>
+
+    <h2>الخطوة 3: إرسال ملف</h2>
+    <p>اختر ملفًا من جهازك وأرسله مباشرة إلى النظير المتصل.</p>
+    <input type="file" id="fileInput">
+    <button onclick="sendFile()">إرسال الملف</button>
+
+    <h2>حالة الاتصال</h2>
+    <div id="status">الحالة: غير متصل</div>
   </div>
 
   <!-- Include PeerJS library -->
@@ -71,7 +118,7 @@
     function generatePeerId() {
       const username = document.getElementById('username').value.trim();
       if (!username) {
-        alert('Please enter a username.');
+        alert('الرجاء إدخال اسم مستخدم.');
         return;
       }
 
@@ -82,14 +129,14 @@
       peer = new Peer(localPeerId);
 
       peer.on('open', () => {
-        updateStatus('Your Peer ID: ' + localPeerId);
+        updateStatus('معرف النظير الخاص بك: ' + localPeerId);
       });
 
       // Handle incoming connections
       peer.on('connection', (connection) => {
         conn = connection;
         conn.on('open', () => {
-          updateStatus('Connected to peer: ' + conn.peer);
+          updateStatus('تم الاتصال بالنظير: ' + conn.peer);
         });
         conn.on('data', (data) => {
           // Handle received file with metadata
@@ -101,7 +148,7 @@
           a.download = fileName; // Use the original file name
           a.click();
           URL.revokeObjectURL(url);
-          updateStatus(`File received: ${fileName}`);
+          updateStatus(`تم استلام الملف: ${fileName}`);
         });
       });
     }
@@ -111,7 +158,7 @@
       remotePeerId = document.getElementById('remotePeerId').value;
       conn = peer.connect(remotePeerId);
       conn.on('open', () => {
-        updateStatus('Connected to peer: ' + remotePeerId);
+        updateStatus('تم الاتصال بالنظير: ' + remotePeerId);
       });
       conn.on('data', (data) => {
         // Handle received file with metadata
@@ -123,7 +170,7 @@
         a.download = fileName; // Use the original file name
         a.click();
         URL.revokeObjectURL(url);
-        updateStatus(`File received: ${fileName}`);
+        updateStatus(`تم استلام الملف: ${fileName}`);
       });
     }
 
@@ -141,17 +188,17 @@
             fileData: reader.result,
           };
           conn.send(fileData);
-          updateStatus(`File sent: ${file.name}`);
+          updateStatus(`تم إرسال الملف: ${file.name}`);
         };
         reader.readAsArrayBuffer(file);
       } else {
-        alert('Please select a file and ensure you are connected to a peer.');
+        alert('الرجاء اختيار ملف والتأكد من الاتصال بالنظير.');
       }
     }
 
     // Update connection status
     function updateStatus(status) {
-      document.getElementById('status').innerText = `Status: ${status}`;
+      document.getElementById('status').innerText = `الحالة: ${status}`;
     }
   </script>
 </body>
