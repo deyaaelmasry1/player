@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="آلة حاسبة علمية متقدمة مع دعم للرسوم البيانية، النخنيات، المعادلات، المصفوفات، الإحصاء، وحل المعادلات التفاضلية.">
-  <meta name="keywords" content="آلة حاسبة رياضية, آلة حاسبة علمية, رسوم بيانية, نخنيات, معادلات تفاضلية, مصفوفات, إحصاء">
+  <meta name="description" content="آلة حاسبة علمية متقدمة مع دعم للرسوم البيانية، النخنيات، المعادلات، المصفوفات، والإحصاء.">
+  <meta name="keywords" content="آلة حاسبة رياضية, آلة حاسبة علمية, رسوم بيانية, نخنيات, معادلات, مصفوفات, إحصاء">
   <meta name="author" content="اسمك">
   <title>آلة حاسبة رياضية وعلمية متطورة</title>
   <style>
@@ -31,7 +31,7 @@
       box-sizing: border-box;
     }
 
-    .calculator-section, .graph-section, .stats-section, .matrix-section, .diffeq-section {
+    .calculator-section, .graph-section, .stats-section {
       background-color: #fff;
       padding: 20px;
       border-radius: 10px;
@@ -176,22 +176,6 @@
       <button onclick="calculateStats()">حساب</button>
       <p id="statsResult"></p>
     </div>
-
-    <!-- المصفوفات -->
-    <div class="matrix-section">
-      <h2>المصفوفات</h2>
-      <textarea id="matrixInput" placeholder="أدخل المصفوفة (مثال: [1, 2; 3, 4])"></textarea>
-      <button onclick="calculateMatrix()">حساب</button>
-      <p id="matrixResult"></p>
-    </div>
-
-    <!-- المعادلات التفاضلية -->
-    <div class="diffeq-section">
-      <h2>حل المعادلات التفاضلية</h2>
-      <input type="text" id="diffeqInput" placeholder="أدخل المعادلة (مثال: dy/dx = x^2)">
-      <button onclick="solveDiffEq()">حل</button>
-      <p id="diffeqResult"></p>
-    </div>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.7.0/math.min.js"></script>
@@ -319,38 +303,6 @@
         `;
       } catch (error) {
         statsResult.innerHTML = 'خطأ في البيانات المدخلة';
-      }
-    }
-
-    // دالة لحساب المصفوفات
-    function calculateMatrix() {
-      const matrixInput = document.getElementById('matrixInput').value;
-      const matrixResult = document.getElementById('matrixResult');
-
-      try {
-        const matrix = math.matrix(math.evaluate(matrixInput));
-        const det = math.det(matrix);
-        const inv = math.inv(matrix);
-        matrixResult.innerHTML = `
-          محدد المصفوفة: ${det}<br>
-          معكوس المصفوفة: ${inv}
-        `;
-      } catch (error) {
-        matrixResult.innerHTML = 'خطأ في المصفوفة المدخلة';
-      }
-    }
-
-    // دالة لحل المعادلات التفاضلية
-    function solveDiffEq() {
-      const diffeqInput = document.getElementById('diffeqInput').value;
-      const diffeqResult = document.getElementById('diffeqResult');
-
-      try {
-        // حل المعادلة التفاضلية البسيطة (مثال: dy/dx = x^2)
-        const solution = math.integrate(diffeqInput.split('=')[1].trim(), 'x');
-        diffeqResult.innerHTML = `الحل: y = ${solution} + C`;
-      } catch (error) {
-        diffeqResult.innerHTML = 'خطأ في حل المعادلة التفاضلية';
       }
     }
   </script>
