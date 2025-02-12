@@ -92,8 +92,13 @@
 
     // Initialize IPFS
     async function initIPFS() {
-      ipfs = await Ipfs.create();
-      console.log('IPFS node initialized');
+      try {
+        ipfs = await Ipfs.create();
+        console.log('IPFS node initialized');
+      } catch (error) {
+        console.error('Failed to initialize IPFS:', error);
+        alert('Failed to initialize IPFS. Please check the console for details.');
+      }
     }
 
     // Upload a file to IPFS
@@ -103,10 +108,15 @@
         const file = fileInput.files[0];
         const reader = new FileReader();
         reader.onload = async () => {
-          const fileBuffer = new Uint8Array(reader.result);
-          const { cid } = await ipfs.add(fileBuffer);
-          const ipfsLink = `https://ipfs.io/ipfs/${cid.toString()}`;
-          document.getElementById('ipfsLink').innerHTML = `<a href="${ipfsLink}" target="_blank">${ipfsLink}</a>`;
+          try {
+            const fileBuffer = new Uint8Array(reader.result);
+            const { cid } = await ipfs.add(fileBuffer);
+            const ipfsLink = `https://ipfs.io/ipfs/${cid.toString()}`;
+            document.getElementById('ipfsLink').innerHTML = `<a href="${ipfsLink}" target="_blank">${ipfsLink}</a>`;
+          } catch (error) {
+            console.error('Failed to upload file to IPFS:', error);
+            alert('Failed to upload file to IPFS. Please check the console for details.');
+          }
         };
         reader.readAsArrayBuffer(file);
       } else {
@@ -117,5 +127,6 @@
     // Initialize IPFS when the page loads
     initIPFS();
   </script>
+  diaa
 </body>
 </html>
