@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Direct File Sharing</title>
+  <title>IPFS File Sharing</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -47,7 +47,7 @@
     button:hover {
       background-color: #357abd;
     }
-    #fileLink {
+    #ipfsLink {
       margin-top: 20px;
       word-break: break-all;
     }
@@ -61,15 +61,15 @@
 </head>
 <body>
   <div class="container">
-    <h1>Direct File Sharing</h1>
-    <p>Generate a direct download link for your file and share it with others.</p>
+    <h1>IPFS File Sharing</h1>
+    <p>Upload a file to IPFS and generate a persistent link to share with others.</p>
 
     <div class="instructions">
       <h2>How It Works:</h2>
       <ol>
         <li>Select a file from your device.</li>
-        <li>Generate a direct download link for the file.</li>
-        <li>Share the link with others to allow them to download the file.</li>
+        <li>Upload the file to IPFS.</li>
+        <li>Share the IPFS link with others to allow them to download the file.</li>
       </ol>
     </div>
 
@@ -77,29 +77,45 @@
     <p>Choose the file you want to share from your device.</p>
     <input type="file" id="fileInput">
 
-    <h2>Step 2: Generate Direct Link</h2>
-    <p>Click the button below to generate a direct download link for the selected file.</p>
-    <button onclick="generateFileLink()">Generate Direct Link</button>
+    <h2>Step 2: Upload to IPFS</h2>
+    <p>Click the button below to upload the file to IPFS and generate a link.</p>
+    <button onclick="uploadToIPFS()">Upload to IPFS</button>
 
-    <h2>Direct Download Link</h2>
-    <div id="fileLink">No link generated yet.</div>
+    <h2>IPFS Link</h2>
+    <div id="ipfsLink">No link generated yet.</div>
   </div>
 
+  <!-- Include js-ipfs library -->
+  <script src="https://cdn.jsdelivr.net/npm/ipfs-core/dist/index.min.js"></script>
   <script>
-    let fileBlob;
+    let ipfs;
 
-    // Generate a direct download link for the file
-    function generateFileLink() {
+    // Initialize IPFS
+    async function initIPFS() {
+      ipfs = await Ipfs.create();
+      console.log('IPFS node initialized');
+    }
+
+    // Upload a file to IPFS
+    async function uploadToIPFS() {
       const fileInput = document.getElementById('fileInput');
       if (fileInput.files.length > 0) {
         const file = fileInput.files[0];
-        fileBlob = new Blob([file], { type: file.type });
-        const url = URL.createObjectURL(fileBlob);
-        document.getElementById('fileLink').innerHTML = `<a href="${url}" download="${file.name}">Download ${file.name}</a>`;
+        const reader = new FileReader();
+        reader.onload = async () => {
+          const fileBuffer = new Uint8Array(reader.result);
+          const { cid } = await ipfs.add(fileBuffer);
+          const ipfsLink = `https://ipfs.io/ipfs/${cid.toString()}`;
+          document.getElementById('ipfsLink').innerHTML = `<a href="${ipfsLink}" target="_blank">${ipfsLink}</a>`;
+        };
+        reader.readAsArrayBuffer(file);
       } else {
         alert('Please select a file first.');
       }
     }
+
+    // Initialize IPFS when the page loads
+    initIPFS();
   </script>
 </body>
 </html>
