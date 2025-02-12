@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>P2P File Transfer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    input, button {
+      margin: 10px 0;
+      padding: 10px;
+      width: 100%;
+    }
+    #status {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>P2P File Transfer</h1>
+    <div>
+      <label for="peerId">Your Peer ID:</label>
+      <input type="text" id="peerId" readonly>
+      <button onclick="generatePeerId()">Generate Peer ID</button>
+    </div>
+    <div>
+      <label for="remotePeerId">Enter Peer's ID:</label>
+      <input type="text" id="remotePeerId">
+      <button onclick="connectToPeer()">Connect to Peer</button>
+    </div>
+    <div>
+      <label for="fileInput">Select File to Send:</label>
+      <input type="file" id="fileInput">
+      <button onclick="sendFile()">Send File</button>
+    </div>
+    <div id="status">Status: Not connected</div>
+  </div>
+
+  <!-- Include PeerJS library -->
+  <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+  <script>
+    let peer;
+    let conn;
+    let localPeerId = '';
+    let remotePeerId = '';
+
+    // Initialize PeerJS and generate a Peer ID
+    function generatePeerId() {
+      peer = new Peer(); // Create a new Peer object
+      peer.on('open', (id) => {
+        localPeerId = id;
+        document.getElementById('peerId').value = localPeerId;
+        updateStatus('Your Peer ID: ' + localPeerId);
+      });
+
+      // Handle incoming connections
+      peer.on('connection', (connection) => {
+        conn = connection;
+        conn.on('open', () => {
+          updateStatus('Connected to peer: ' + conn.peer);
+        });
+        conn.on('data', (data) => {
+          const file = new Blob([data], { type: 'application/octet-stream' });
+          const url = URL.createObjectURL(file);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'received_file';
+          a.click();
+          URL.revokeObjectURL(url);
+          updateStatus('File received');
+        });
+      });
+    }
+
+    // Connect to a remote peer
+    function connectToPeer() {
+      remotePeerId = document.getElementById('remotePeerId').value;
+      conn = peer.connect(remotePeerId);
+      conn.on('open', () => {
+        updateStatus('Connected to peer: ' + remotePeerId);
+      });
+      conn.on('data', (data) => {
+        const file = new Blob([data], { type: 'application/octet-stream' });
+        const url = URL.createObjectURL(file);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'received_file';
+        a.click();
+        URL.revokeObjectURL(url);
+        updateStatus('File received');
+      });
+    }
+
+    // Send a file to the connected peer
+    function sendFile() {
+      const fileInput = document.getElementById('fileInput');
+      if (fileInput.files.length > 0 && conn) {
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+        reader.onload = () => {
+          conn.send(reader.result);
+          updateStatus('File sent');
+        };
+        reader.readAsArrayBuffer(file);
+      } else {
+        alert('Please select a file and ensure you are connected to a peer.');
+      }
+    }
+
+    // Update connection status
+    function updateStatus(status) {
+      document.getElementById('status').innerText = `Status: ${status}`;
+    }
+  </script>
+</body>
+</html>
