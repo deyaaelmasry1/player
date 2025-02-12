@@ -33,6 +33,11 @@
             border-radius: 5px;
             margin-bottom: 20px;
         }
+        .instructions {
+            margin-top: 20px;
+            font-size: 16px;
+            line-height: 1.6;
+        }
     </style>
 </head>
 <body>
@@ -117,12 +122,24 @@
             <button data-key=">">></button>
             <button data-key="،">،</button>
             <button data-key="؛">؛</button>
-            <!-- Space and Enter -->
+            <!-- Space, Enter, and Backspace -->
             <button data-key=" " style="grid-column: span 4;">Space</button>
             <button data-key="Enter" style="grid-column: span 4;">Enter</button>
+            <button data-key="Backspace" style="grid-column: span 4; background-color: #ff6b6b; color: white;">Backspace</button>
         </div>
         <div class="text-center mt-3">
             <button class="btn btn-primary" onclick="copyText()">نسخ النص</button>
+        </div>
+
+        <!-- User-Friendly Instructions -->
+        <div class="instructions">
+            <h2>كيفية الاستخدام:</h2>
+            <p>1. استخدم لوحة المفاتيح الظاهرة على الشاشة للكتابة في مربع النص.</p>
+            <p>2. اضغط على الأزرار لإدخال الحروف والأرقام والرموز.</p>
+            <p>3. استخدم زر <strong>Backspace</strong> لحذف الأحرف الأخيرة.</p>
+            <p>4. استخدم زر <strong>Space</strong> لإدخال مسافة.</p>
+            <p>5. استخدم زر <strong>Enter</strong> لإدخال سطر جديد.</p>
+            <p>6. بعد الانتهاء من الكتابة، اضغط على زر <strong>نسخ النص</strong> لنسخ النص إلى الحافظة.</p>
         </div>
     </div>
 
@@ -136,6 +153,8 @@
                 const currentText = textArea.val();
                 if (key === 'Enter') {
                     textArea.val(currentText + '\n');
+                } else if (key === 'Backspace') {
+                    textArea.val(currentText.slice(0, -1)); // Remove last character
                 } else if (key === ' ') {
                     textArea.val(currentText + ' ');
                 } else {
