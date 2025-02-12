@@ -1,45 +1,51 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="An advanced math and scientific calculator for solving complex equations, trigonometry, logarithms, and more. Easy to use and fully functional.">
-  <meta name="keywords" content="math calculator, scientific calculator, trigonometry, logarithms, advanced calculator, online calculator">
-  <meta name="author" content="Your Name">
-  <title>Advanced Math and Scientific Calculator</title>
+  <meta name="description" content="آلة حاسبة علمية متقدمة لحل المعادلات المعقدة، علم المثلثات، اللوغاريتمات، والمزيد. سهلة الاستخدام وكاملة الوظائف.">
+  <meta name="keywords" content="آلة حاسبة رياضية, آلة حاسبة علمية, علم المثلثات, لوغاريتمات, آلة حاسبة متقدمة, آلة حاسبة أونلاين">
+  <meta name="author" content="اسمك">
+  <title>آلة حاسبة رياضية وعلمية متقدمة</title>
   <style>
+    /* General Styles */
     body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      background-color: #f4f4f4;
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 20px;
+      min-height: 100vh;
       box-sizing: border-box;
     }
 
     .container {
       display: flex;
+      flex-direction: row;
       gap: 20px;
-      max-width: 1000px;
       width: 100%;
+      max-width: 1200px;
+      padding: 20px;
+      box-sizing: border-box;
     }
 
+    /* Calculator Styles */
     .calculator {
       background-color: #333;
       padding: 20px;
       border-radius: 10px;
       box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
       flex: 1;
+      min-width: 300px;
     }
 
     #display {
       width: 100%;
       height: 50px;
       font-size: 24px;
-      text-align: right;
+      text-align: left; /* Input text is left-aligned for numbers */
       padding: 10px;
       margin-bottom: 10px;
       border: none;
@@ -72,12 +78,16 @@
       background-color: #777;
     }
 
+    /* Text Area Styles */
     .text-area {
       flex: 1;
       background-color: #fff;
       padding: 20px;
       border-radius: 10px;
       box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+      text-align: right; /* RTL text alignment */
+      overflow-y: auto; /* Enable scrolling if content overflows */
+      max-height: 80vh; /* Limit height to 80% of viewport height */
     }
 
     .text-area h1 {
@@ -99,20 +109,38 @@
       color: #555;
     }
 
+    /* Responsive Design */
     @media (max-width: 768px) {
       .container {
         flex-direction: column;
+        padding: 10px;
       }
 
       .calculator, .text-area {
         width: 100%;
+        max-width: 100%;
+      }
+
+      .text-area {
+        max-height: none; /* Remove height limit on small screens */
+      }
+    }
+
+    @media (max-width: 480px) {
+      .buttons {
+        grid-template-columns: repeat(3, 1fr); /* Adjust buttons for very small screens */
+      }
+
+      button {
+        padding: 15px;
+        font-size: 16px;
       }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- Calculator -->
+    <!-- الآلة الحاسبة -->
     <div class="calculator">
       <input type="text" id="display" disabled>
       <div class="buttons">
@@ -146,64 +174,64 @@
       </div>
     </div>
 
-    <!-- Text Area -->
+    <!-- منطقة النص -->
     <div class="text-area">
-      <h1>Advanced Math and Scientific Calculator</h1>
+      <h1>آلة حاسبة رياضية وعلمية متقدمة</h1>
       <p>
-        Welcome to our advanced math and scientific calculator! This powerful tool allows you to perform a wide range of calculations, from basic arithmetic to complex trigonometric functions, logarithms, and more. Whether you're a student, engineer, or math enthusiast, this calculator is designed to meet your needs.
+        مرحبًا بكم في آلتنا الحاسبة العلمية المتقدمة! هذه الأداة القوية تتيح لك إجراء مجموعة واسعة من العمليات الحسابية، من العمليات الأساسية إلى الدوال المثلثية المعقدة، اللوغاريتمات، والمزيد. سواء كنت طالبًا، مهندسًا، أو من محبي الرياضيات، هذه الآلة الحاسبة مصممة لتلبية احتياجاتك.
       </p>
 
-      <h2>How to Use the Calculator</h2>
+      <h2>كيفية استخدام الآلة الحاسبة</h2>
       <p>
-        - Use the number buttons (<code>0-9</code>) to input numbers.<br>
-        - Use the operator buttons (<code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>) for basic arithmetic.<br>
-        - For advanced functions, use the buttons like <code>√</code> (square root), <code>^</code> (exponentiation), <code>sin</code>, <code>cos</code>, <code>tan</code>, and <code>log</code>.<br>
-        - Use parentheses <code>( )</code> to group expressions.<br>
-        - Press <code>=</code> to calculate the result.
+        - استخدم أزرار الأرقام (<code>0-9</code>) لإدخال الأرقام.<br>
+        - استخدم أزرار العمليات (<code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>) لإجراء العمليات الحسابية الأساسية.<br>
+        - للدوال المتقدمة، استخدم الأزرار مثل <code>√</code> (الجذر التربيعي)، <code>^</code> (الأس)، <code>sin</code>, <code>cos</code>, <code>tan</code>, و <code>log</code>.<br>
+        - استخدم الأقواس <code>( )</code> لتجميع التعبيرات.<br>
+        - اضغط على <code>=</code> لحساب النتيجة.
       </p>
 
-      <h2>Supported Operations</h2>
+      <h2>العمليات المدعومة</h2>
       <p>
-        - <strong>Basic Arithmetic</strong>: Addition, subtraction, multiplication, and division.<br>
-        - <strong>Advanced Functions</strong>: Square root, exponents, trigonometric functions (sin, cos, tan), and logarithms.<br>
-        - <strong>Constants</strong>: Use <code>pi</code> for the value of π (3.14159...).
+        - <strong>العمليات الحسابية الأساسية</strong>: الجمع، الطرح، الضرب، والقسمة.<br>
+        - <strong>الدوال المتقدمة</strong>: الجذر التربيعي، الأسس، الدوال المثلثية (sin, cos, tan)، واللوغاريتمات.<br>
+        - <strong>الثوابت</strong>: استخدم <code>pi</code> لقيمة π (3.14159...).
       </p>
 
-      <h2>Why Use This Calculator?</h2>
+      <h2>لماذا تستخدم هذه الآلة الحاسبة؟</h2>
       <p>
-        Our calculator is designed to be user-friendly and efficient. It uses the powerful <strong>Math.js</strong> library to ensure accurate results for even the most complex calculations. Whether you're solving equations, working on homework, or performing scientific research, this tool is here to help.
+        تم تصميم آلتنا الحاسبة لتكون سهلة الاستخدام وفعالة. تستخدم مكتبة <strong>Math.js</strong> القوية لضمان نتائج دقيقة حتى لأكثر العمليات الحسابية تعقيدًا. سواء كنت تحل المعادلات، تعمل على الواجبات المنزلية، أو تقوم بأبحاث علمية، هذه الأداة هنا لمساعدتك.
       </p>
     </div>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.7.0/math.min.js"></script>
   <script>
-    // Function to append input to the display
+    // دالة لإضافة القيمة إلى الشاشة
     function appendToDisplay(value) {
       const display = document.getElementById('display');
       display.value += value;
     }
 
-    // Function to clear the display
+    // دالة لمسح الشاشة
     function clearDisplay() {
       const display = document.getElementById('display');
       display.value = '';
     }
 
-    // Function to delete the last character
+    // دالة لحذف آخر حرف
     function deleteLast() {
       const display = document.getElementById('display');
       display.value = display.value.slice(0, -1);
     }
 
-    // Function to calculate the result using Math.js
+    // دالة لحساب النتيجة باستخدام Math.js
     function calculateResult() {
       const display = document.getElementById('display');
       try {
         const result = math.evaluate(display.value);
         display.value = result;
       } catch (error) {
-        display.value = 'Error';
+        display.value = 'خطأ';
       }
     }
   </script>
