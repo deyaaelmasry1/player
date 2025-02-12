@@ -28,9 +28,13 @@
   <div class="container">
     <h1>P2P File Transfer</h1>
     <div>
+      <label for="username">Enter Your Username:</label>
+      <input type="text" id="username">
+      <button onclick="generatePeerId()">Generate Peer ID</button>
+    </div>
+    <div>
       <label for="peerId">Your Peer ID:</label>
       <input type="text" id="peerId" readonly>
-      <button onclick="generatePeerId()">Generate Peer ID</button>
     </div>
     <div>
       <label for="remotePeerId">Enter Peer's ID:</label>
@@ -53,12 +57,32 @@
     let localPeerId = '';
     let remotePeerId = '';
 
-    // Initialize PeerJS and generate a Peer ID
+    // Generate a short, fixed ID from a username
+    function generateShortId(username) {
+      // Use a simple hash function to generate a short ID
+      let hash = 0;
+      for (let i = 0; i < username.length; i++) {
+        hash = (hash << 5) - hash + username.charCodeAt(i);
+        hash |= 0; // Convert to 32-bit integer
+      }
+      return Math.abs(hash).toString(36).substring(0, 6).toUpperCase(); // 6-character ID
+    }
+
+    // Initialize PeerJS and generate a fixed Peer ID
     function generatePeerId() {
-      peer = new Peer(); // Create a new Peer object
-      peer.on('open', (id) => {
-        localPeerId = id;
-        document.getElementById('peerId').value = localPeerId;
+      const username = document.getElementById('username').value.trim();
+      if (!username) {
+        alert('Please enter a username.');
+        return;
+      }
+
+      localPeerId = generateShortId(username); // Generate fixed ID
+      document.getElementById('peerId').value = localPeerId;
+
+      // Initialize PeerJS with the fixed ID
+      peer = new Peer(localPeerId);
+
+      peer.on('open', () => {
         updateStatus('Your Peer ID: ' + localPeerId);
       });
 
