@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Direct File Sharing</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #f4f4f9;
+      color: #333;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #4a90e2;
+    }
+    h2 {
+      color: #333;
+      margin-top: 20px;
+    }
+    p {
+      line-height: 1.6;
+    }
+    input, button {
+      margin: 10px 0;
+      padding: 10px;
+      width: 100%;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    button {
+      background-color: #4a90e2;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #357abd;
+    }
+    #fileLink {
+      margin-top: 20px;
+      word-break: break-all;
+    }
+    .instructions {
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 4px;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Direct File Sharing</h1>
+    <p>Generate a direct download link for your file and share it with others.</p>
+
+    <div class="instructions">
+      <h2>How It Works:</h2>
+      <ol>
+        <li>Select a file from your device.</li>
+        <li>Generate a direct download link for the file.</li>
+        <li>Share the link with others to allow them to download the file.</li>
+      </ol>
+    </div>
+
+    <h2>Step 1: Select a File</h2>
+    <p>Choose the file you want to share from your device.</p>
+    <input type="file" id="fileInput">
+
+    <h2>Step 2: Generate Direct Link</h2>
+    <p>Click the button below to generate a direct download link for the selected file.</p>
+    <button onclick="generateFileLink()">Generate Direct Link</button>
+
+    <h2>Direct Download Link</h2>
+    <div id="fileLink">No link generated yet.</div>
+  </div>
+
+  <script>
+    let fileBlob;
+
+    // Generate a direct download link for the file
+    function generateFileLink() {
+      const fileInput = document.getElementById('fileInput');
+      if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        fileBlob = new Blob([file], { type: file.type });
+        const url = URL.createObjectURL(fileBlob);
+        document.getElementById('fileLink').innerHTML = `<a href="${url}" download="${file.name}">Download ${file.name}</a>`;
+      } else {
+        alert('Please select a file first.');
+      }
+    }
+  </script>
+</body>
+</html>
