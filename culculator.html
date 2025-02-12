@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="An advanced math and scientific calculator for solving complex equations, trigonometry, logarithms, and more. Easy to use and fully functional.">
+  <meta name="keywords" content="math calculator, scientific calculator, trigonometry, logarithms, advanced calculator, online calculator">
+  <meta name="author" content="Your Name">
   <title>Advanced Math and Scientific Calculator</title>
   <style>
     body {
@@ -12,6 +15,16 @@
       height: 100vh;
       background-color: #f4f4f4;
       font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .container {
+      display: flex;
+      gap: 20px;
+      max-width: 1000px;
+      width: 100%;
     }
 
     .calculator {
@@ -19,6 +32,7 @@
       padding: 20px;
       border-radius: 10px;
       box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+      flex: 1;
     }
 
     #display {
@@ -57,39 +71,108 @@
     button:active {
       background-color: #777;
     }
+
+    .text-area {
+      flex: 1;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .text-area h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    .text-area h2 {
+      font-size: 22px;
+      margin-top: 20px;
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    .text-area p {
+      font-size: 16px;
+      line-height: 1.6;
+      color: #555;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+
+      .calculator, .text-area {
+        width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="calculator">
-    <input type="text" id="display" disabled>
-    <div class="buttons">
-      <button onclick="clearDisplay()">C</button>
-      <button onclick="deleteLast()">DEL</button>
-      <button onclick="appendToDisplay('(')">(</button>
-      <button onclick="appendToDisplay(')')">)</button>
-      <button onclick="appendToDisplay('/')">/</button>
-      <button onclick="appendToDisplay('7')">7</button>
-      <button onclick="appendToDisplay('8')">8</button>
-      <button onclick="appendToDisplay('9')">9</button>
-      <button onclick="appendToDisplay('*')">*</button>
-      <button onclick="appendToDisplay('4')">4</button>
-      <button onclick="appendToDisplay('5')">5</button>
-      <button onclick="appendToDisplay('6')">6</button>
-      <button onclick="appendToDisplay('-')">-</button>
-      <button onclick="appendToDisplay('1')">1</button>
-      <button onclick="appendToDisplay('2')">2</button>
-      <button onclick="appendToDisplay('3')">3</button>
-      <button onclick="appendToDisplay('+')">+</button>
-      <button onclick="appendToDisplay('0')">0</button>
-      <button onclick="appendToDisplay('.')">.</button>
-      <button onclick="calculateResult()">=</button>
-      <button onclick="appendToDisplay('sqrt(')">√</button>
-      <button onclick="appendToDisplay('^')">^</button>
-      <button onclick="appendToDisplay('sin(')">sin</button>
-      <button onclick="appendToDisplay('cos(')">cos</button>
-      <button onclick="appendToDisplay('tan(')">tan</button>
-      <button onclick="appendToDisplay('log(')">log</button>
-      <button onclick="appendToDisplay('pi')">π</button>
+  <div class="container">
+    <!-- Calculator -->
+    <div class="calculator">
+      <input type="text" id="display" disabled>
+      <div class="buttons">
+        <button onclick="clearDisplay()">C</button>
+        <button onclick="deleteLast()">DEL</button>
+        <button onclick="appendToDisplay('(')">(</button>
+        <button onclick="appendToDisplay(')')">)</button>
+        <button onclick="appendToDisplay('/')">/</button>
+        <button onclick="appendToDisplay('7')">7</button>
+        <button onclick="appendToDisplay('8')">8</button>
+        <button onclick="appendToDisplay('9')">9</button>
+        <button onclick="appendToDisplay('*')">*</button>
+        <button onclick="appendToDisplay('4')">4</button>
+        <button onclick="appendToDisplay('5')">5</button>
+        <button onclick="appendToDisplay('6')">6</button>
+        <button onclick="appendToDisplay('-')">-</button>
+        <button onclick="appendToDisplay('1')">1</button>
+        <button onclick="appendToDisplay('2')">2</button>
+        <button onclick="appendToDisplay('3')">3</button>
+        <button onclick="appendToDisplay('+')">+</button>
+        <button onclick="appendToDisplay('0')">0</button>
+        <button onclick="appendToDisplay('.')">.</button>
+        <button onclick="calculateResult()">=</button>
+        <button onclick="appendToDisplay('sqrt(')">√</button>
+        <button onclick="appendToDisplay('^')">^</button>
+        <button onclick="appendToDisplay('sin(')">sin</button>
+        <button onclick="appendToDisplay('cos(')">cos</button>
+        <button onclick="appendToDisplay('tan(')">tan</button>
+        <button onclick="appendToDisplay('log(')">log</button>
+        <button onclick="appendToDisplay('pi')">π</button>
+      </div>
+    </div>
+
+    <!-- Text Area -->
+    <div class="text-area">
+      <h1>Advanced Math and Scientific Calculator</h1>
+      <p>
+        Welcome to our advanced math and scientific calculator! This powerful tool allows you to perform a wide range of calculations, from basic arithmetic to complex trigonometric functions, logarithms, and more. Whether you're a student, engineer, or math enthusiast, this calculator is designed to meet your needs.
+      </p>
+
+      <h2>How to Use the Calculator</h2>
+      <p>
+        - Use the number buttons (<code>0-9</code>) to input numbers.<br>
+        - Use the operator buttons (<code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>) for basic arithmetic.<br>
+        - For advanced functions, use the buttons like <code>√</code> (square root), <code>^</code> (exponentiation), <code>sin</code>, <code>cos</code>, <code>tan</code>, and <code>log</code>.<br>
+        - Use parentheses <code>( )</code> to group expressions.<br>
+        - Press <code>=</code> to calculate the result.
+      </p>
+
+      <h2>Supported Operations</h2>
+      <p>
+        - <strong>Basic Arithmetic</strong>: Addition, subtraction, multiplication, and division.<br>
+        - <strong>Advanced Functions</strong>: Square root, exponents, trigonometric functions (sin, cos, tan), and logarithms.<br>
+        - <strong>Constants</strong>: Use <code>pi</code> for the value of π (3.14159...).
+      </p>
+
+      <h2>Why Use This Calculator?</h2>
+      <p>
+        Our calculator is designed to be user-friendly and efficient. It uses the powerful <strong>Math.js</strong> library to ensure accurate results for even the most complex calculations. Whether you're solving equations, working on homework, or performing scientific research, this tool is here to help.
+      </p>
     </div>
   </div>
 
