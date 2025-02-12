@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="آلة حاسبة علمية متقدمة مع دعم للكسور، الدوال المثلثية، اللوغاريتمات، والمزيد.">
-  <meta name="keywords" content="آلة حاسبة رياضية, آلة حاسبة علمية, كسور, دوال مثلثية, لوغاريتمات, آلة حاسبة متقدمة">
+  <meta name="description" content="آلة حاسبة علمية متقدمة مع دعم للرسوم البيانية، النخنيات، المعادلات، المصفوفات، الإحصاء، وحل المعادلات التفاضلية.">
+  <meta name="keywords" content="آلة حاسبة رياضية, آلة حاسبة علمية, رسوم بيانية, نخنيات, معادلات تفاضلية, مصفوفات, إحصاء">
   <meta name="author" content="اسمك">
-  <title>آلة حاسبة رياضية وعلمية متقدمة مع دعم للكسور</title>
+  <title>آلة حاسبة رياضية وعلمية متطورة</title>
   <style>
     /* General Styles */
     body {
@@ -23,12 +23,23 @@
 
     .container {
       display: flex;
-      flex-direction: row;
+      flex-direction: column;
       gap: 20px;
       width: 100%;
       max-width: 1200px;
       padding: 20px;
       box-sizing: border-box;
+    }
+
+    .calculator-section, .graph-section, .stats-section, .matrix-section, .diffeq-section {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1, h2 {
+      color: #333;
     }
 
     /* Calculator Styles */
@@ -37,15 +48,13 @@
       padding: 20px;
       border-radius: 10px;
       box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
-      flex: 1;
-      min-width: 300px;
     }
 
     #display {
       width: 100%;
       height: 50px;
       font-size: 24px;
-      text-align: left; /* Input text is left-aligned for numbers */
+      text-align: left;
       padding: 10px;
       margin-bottom: 10px;
       border: none;
@@ -56,7 +65,7 @@
 
     .buttons {
       display: grid;
-      grid-template-columns: repeat(5, 1fr); /* 5 columns for more buttons */
+      grid-template-columns: repeat(5, 1fr);
       gap: 10px;
     }
 
@@ -78,57 +87,16 @@
       background-color: #777;
     }
 
-    /* Text Area Styles */
-    .text-area {
-      flex: 1;
-      background-color: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-      text-align: right; /* RTL text alignment */
-      overflow-y: auto; /* Enable scrolling if content overflows */
-      max-height: 80vh; /* Limit height to 80% of viewport height */
-    }
-
-    .text-area h1 {
-      font-size: 28px;
-      margin-bottom: 10px;
-      color: #333;
-    }
-
-    .text-area h2 {
-      font-size: 22px;
-      margin-top: 20px;
-      margin-bottom: 10px;
-      color: #333;
-    }
-
-    .text-area p {
-      font-size: 16px;
-      line-height: 1.6;
-      color: #555;
+    /* Graph Styles */
+    .graph-section canvas {
+      width: 100%;
+      height: 300px;
     }
 
     /* Responsive Design */
     @media (max-width: 768px) {
-      .container {
-        flex-direction: column;
-        padding: 10px;
-      }
-
-      .calculator, .text-area {
-        width: 100%;
-        max-width: 100%;
-      }
-
-      .text-area {
-        max-height: none; /* Remove height limit on small screens */
-      }
-    }
-
-    @media (max-width: 480px) {
       .buttons {
-        grid-template-columns: repeat(4, 1fr); /* Adjust buttons for very small screens */
+        grid-template-columns: repeat(4, 1fr);
       }
 
       button {
@@ -141,89 +109,93 @@
 <body>
   <div class="container">
     <!-- الآلة الحاسبة -->
-    <div class="calculator">
-      <input type="text" id="display" disabled>
-      <div class="buttons">
-        <button onclick="clearDisplay()">C</button>
-        <button onclick="deleteLast()">DEL</button>
-        <button onclick="appendToDisplay('(')">(</button>
-        <button onclick="appendToDisplay(')')">)</button>
-        <button onclick="appendToDisplay('/')">/</button>
-        <button onclick="appendToDisplay('7')">7</button>
-        <button onclick="appendToDisplay('8')">8</button>
-        <button onclick="appendToDisplay('9')">9</button>
-        <button onclick="appendToDisplay('*')">*</button>
-        <button onclick="appendToDisplay('4')">4</button>
-        <button onclick="appendToDisplay('5')">5</button>
-        <button onclick="appendToDisplay('6')">6</button>
-        <button onclick="appendToDisplay('-')">-</button>
-        <button onclick="appendToDisplay('1')">1</button>
-        <button onclick="appendToDisplay('2')">2</button>
-        <button onclick="appendToDisplay('3')">3</button>
-        <button onclick="appendToDisplay('+')">+</button>
-        <button onclick="appendToDisplay('0')">0</button>
-        <button onclick="appendToDisplay('.')">.</button>
-        <button onclick="calculateResult()">=</button>
-        <button onclick="appendToDisplay('sqrt(')">√</button>
-        <button onclick="appendToDisplay('^')">^</button>
-        <button onclick="appendToDisplay('sin(')">sin</button>
-        <button onclick="appendToDisplay('cos(')">cos</button>
-        <button onclick="appendToDisplay('tan(')">tan</button>
-        <button onclick="appendToDisplay('asin(')">asin</button>
-        <button onclick="appendToDisplay('acos(')">acos</button>
-        <button onclick="appendToDisplay('atan(')">atan</button>
-        <button onclick="appendToDisplay('sinh(')">sinh</button>
-        <button onclick="appendToDisplay('cosh(')">cosh</button>
-        <button onclick="appendToDisplay('tanh(')">tanh</button>
-        <button onclick="appendToDisplay('log10(')">log10</button>
-        <button onclick="appendToDisplay('ln(')">ln</button>
-        <button onclick="appendToDisplay('exp(')">exp</button>
-        <button onclick="appendToDisplay('pi')">π</button>
-        <button onclick="appendToDisplay('e')">e</button>
-        <button onclick="appendToDisplay('!')">!</button>
-        <button onclick="appendToDisplay('%')">%</button>
-        <button onclick="appendToDisplay('abs(')">abs</button>
-        <button onclick="appendToDisplay('rand(')">rand</button>
+    <div class="calculator-section">
+      <h1>آلة حاسبة رياضية وعلمية متطورة</h1>
+      <div class="calculator">
+        <input type="text" id="display" disabled>
+        <div class="buttons">
+          <button onclick="clearDisplay()">C</button>
+          <button onclick="deleteLast()">DEL</button>
+          <button onclick="appendToDisplay('(')">(</button>
+          <button onclick="appendToDisplay(')')">)</button>
+          <button onclick="appendToDisplay('/')">/</button>
+          <button onclick="appendToDisplay('7')">7</button>
+          <button onclick="appendToDisplay('8')">8</button>
+          <button onclick="appendToDisplay('9')">9</button>
+          <button onclick="appendToDisplay('*')">*</button>
+          <button onclick="appendToDisplay('4')">4</button>
+          <button onclick="appendToDisplay('5')">5</button>
+          <button onclick="appendToDisplay('6')">6</button>
+          <button onclick="appendToDisplay('-')">-</button>
+          <button onclick="appendToDisplay('1')">1</button>
+          <button onclick="appendToDisplay('2')">2</button>
+          <button onclick="appendToDisplay('3')">3</button>
+          <button onclick="appendToDisplay('+')">+</button>
+          <button onclick="appendToDisplay('0')">0</button>
+          <button onclick="appendToDisplay('.')">.</button>
+          <button onclick="calculateResult()">=</button>
+          <button onclick="appendToDisplay('sqrt(')">√</button>
+          <button onclick="appendToDisplay('^')">^</button>
+          <button onclick="appendToDisplay('sin(')">sin</button>
+          <button onclick="appendToDisplay('cos(')">cos</button>
+          <button onclick="appendToDisplay('tan(')">tan</button>
+          <button onclick="appendToDisplay('asin(')">asin</button>
+          <button onclick="appendToDisplay('acos(')">acos</button>
+          <button onclick="appendToDisplay('atan(')">atan</button>
+          <button onclick="appendToDisplay('sinh(')">sinh</button>
+          <button onclick="appendToDisplay('cosh(')">cosh</button>
+          <button onclick="appendToDisplay('tanh(')">tanh</button>
+          <button onclick="appendToDisplay('log10(')">log10</button>
+          <button onclick="appendToDisplay('ln(')">ln</button>
+          <button onclick="appendToDisplay('exp(')">exp</button>
+          <button onclick="appendToDisplay('pi')">π</button>
+          <button onclick="appendToDisplay('e')">e</button>
+          <button onclick="appendToDisplay('!')">!</button>
+          <button onclick="appendToDisplay('%')">%</button>
+          <button onclick="appendToDisplay('abs(')">abs</button>
+          <button onclick="appendToDisplay('rand(')">rand</button>
+          <button onclick="solveEquation()">حل معادلة</button>
+          <button onclick="calculateDerivative()">تفاضل</button>
+          <button onclick="calculateIntegral()">تكامل</button>
+        </div>
       </div>
     </div>
 
-    <!-- منطقة النص -->
-    <div class="text-area">
-      <h1>آلة حاسبة رياضية وعلمية متقدمة مع دعم للكسور</h1>
-      <p>
-        مرحبًا بكم في آلتنا الحاسبة العلمية المتقدمة! هذه الأداة القوية تتيح لك إجراء مجموعة واسعة من العمليات الحسابية، بما في ذلك الكسور، الدوال المثلثية، اللوغاريتمات، والمزيد. سواء كنت طالبًا، مهندسًا، أو من محبي الرياضيات، هذه الآلة الحاسبة مصممة لتلبية احتياجاتك.
-      </p>
+    <!-- الرسوم البيانية -->
+    <div class="graph-section">
+      <h2>الرسوم البيانية</h2>
+      <input type="text" id="graphFunction" placeholder="أدخل الدالة (مثال: x^2)">
+      <button onclick="plotGraph()">رسم</button>
+      <canvas id="graphCanvas"></canvas>
+    </div>
 
-      <h2>كيفية استخدام الآلة الحاسبة</h2>
-      <p>
-        - استخدم أزرار الأرقام (<code>0-9</code>) لإدخال الأرقام.<br>
-        - استخدم أزرار العمليات (<code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>) لإجراء العمليات الحسابية الأساسية.<br>
-        - لإدخال الكسور، استخدم رمز <code>/</code> (مثل <code>3/4</code> لثلاثة أرباع).<br>
-        - للدوال المتقدمة، استخدم الأزرار مثل <code>√</code> (الجذر التربيعي)، <code>^</code> (الأس)، <code>sin</code>, <code>cos</code>, <code>tan</code>, <code>log10</code>, <code>ln</code>, وغيرها.<br>
-        - استخدم الأقواس <code>( )</code> لتجميع التعبيرات.<br>
-        - اضغط على <code>=</code> لحساب النتيجة.
-      </p>
+    <!-- الإحصاء -->
+    <div class="stats-section">
+      <h2>الإحصاء</h2>
+      <input type="text" id="dataInput" placeholder="أدخل البيانات (مثال: 1, 2, 3, 4)">
+      <button onclick="calculateStats()">حساب</button>
+      <p id="statsResult"></p>
+    </div>
 
-      <h2>العمليات المدعومة</h2>
-      <p>
-        - <strong>العمليات الحسابية الأساسية</strong>: الجمع، الطرح، الضرب، والقسمة.<br>
-        - <strong>الكسور</strong>: أدخل الكسور باستخدام <code>/</code> (مثل <code>3/4</code>).<br>
-        - <strong>الدوال المثلثية</strong>: sin, cos, tan, asin, acos, atan.<br>
-        - <strong>الدوال الزائدية</strong>: sinh, cosh, tanh.<br>
-        - <strong>اللوغاريتمات</strong>: log10, ln.<br>
-        - <strong>الدوال الأسية</strong>: exp.<br>
-        - <strong>الثوابت</strong>: π (pi), e.<br>
-        - <strong>عمليات أخرى</strong>: ! (عاملي), % (نسبة مئوية), abs (قيمة مطلقة), rand (رقم عشوائي).
-      </p>
+    <!-- المصفوفات -->
+    <div class="matrix-section">
+      <h2>المصفوفات</h2>
+      <textarea id="matrixInput" placeholder="أدخل المصفوفة (مثال: [1, 2; 3, 4])"></textarea>
+      <button onclick="calculateMatrix()">حساب</button>
+      <p id="matrixResult"></p>
+    </div>
 
-      <h2>لماذا تستخدم هذه الآلة الحاسبة؟</h2>
-      <p>
-        تم تصميم آلتنا الحاسبة لتكون سهلة الاستخدام وفعالة. تستخدم مكتبة <strong>Math.js</strong> القوية لضمان نتائج دقيقة حتى لأكثر العمليات الحسابية تعقيدًا. سواء كنت تحل المعادلات، تعمل على الواجبات المنزلية، أو تقوم بأبحاث علمية، هذه الأداة هنا لمساعدتك.
-      </p>
+    <!-- المعادلات التفاضلية -->
+    <div class="diffeq-section">
+      <h2>حل المعادلات التفاضلية</h2>
+      <input type="text" id="diffeqInput" placeholder="أدخل المعادلة (مثال: dy/dx = x^2)">
+      <button onclick="solveDiffEq()">حل</button>
+      <p id="diffeqResult"></p>
     </div>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.7.0/math.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
     // دالة لإضافة القيمة إلى الشاشة
     function appendToDisplay(value) {
@@ -251,6 +223,134 @@
         display.value = result;
       } catch (error) {
         display.value = 'خطأ';
+      }
+    }
+
+    // دالة لحل المعادلات
+    function solveEquation() {
+      const display = document.getElementById('display');
+      const equation = display.value;
+
+      try {
+        if (equation.includes('x')) {
+          const [a, b] = equation.split('x');
+          const x = -parseFloat(b) / parseFloat(a);
+          display.value = `x = ${x}`;
+        } else {
+          display.value = 'معادلة غير مدعومة';
+        }
+      } catch (error) {
+        display.value = 'خطأ في حل المعادلة';
+      }
+    }
+
+    // دالة لحساب المشتقة
+    function calculateDerivative() {
+      const display = document.getElementById('display');
+      try {
+        const derivative = math.derivative(display.value, 'x').toString();
+        display.value = `مشتقة: ${derivative}`;
+      } catch (error) {
+        display.value = 'خطأ في حساب المشتقة';
+      }
+    }
+
+    // دالة لحساب التكامل
+    function calculateIntegral() {
+      const display = document.getElementById('display');
+      try {
+        const integral = math.integrate(display.value, 'x').toString();
+        display.value = `تكامل: ${integral}`;
+      } catch (error) {
+        display.value = 'خطأ في حساب التكامل';
+      }
+    }
+
+    // دالة لرسم الرسوم البيانية
+    function plotGraph() {
+      const functionInput = document.getElementById('graphFunction').value;
+      const ctx = document.getElementById('graphCanvas').getContext('2d');
+
+      const labels = [];
+      const data = [];
+      for (let x = -10; x <= 10; x += 0.1) {
+        labels.push(x);
+        try {
+          const y = math.evaluate(functionInput, { x });
+          data.push(y);
+        } catch (error) {
+          alert('خطأ في الدالة المدخلة');
+          return;
+        }
+      }
+
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: `y = ${functionInput}`,
+            data: data,
+            borderColor: 'blue',
+            fill: false,
+          }]
+        },
+        options: {
+          scales: {
+            x: { title: { display: true, text: 'x' } },
+            y: { title: { display: true, text: 'y' } }
+          }
+        }
+      });
+    }
+
+    // دالة لحساب الإحصاء
+    function calculateStats() {
+      const dataInput = document.getElementById('dataInput').value;
+      const statsResult = document.getElementById('statsResult');
+
+      try {
+        const data = dataInput.split(',').map(Number);
+        const mean = math.mean(data);
+        const stdDev = math.std(data);
+        statsResult.innerHTML = `
+          المتوسط: ${mean}<br>
+          الانحراف المعياري: ${stdDev}
+        `;
+      } catch (error) {
+        statsResult.innerHTML = 'خطأ في البيانات المدخلة';
+      }
+    }
+
+    // دالة لحساب المصفوفات
+    function calculateMatrix() {
+      const matrixInput = document.getElementById('matrixInput').value;
+      const matrixResult = document.getElementById('matrixResult');
+
+      try {
+        const matrix = math.matrix(math.evaluate(matrixInput));
+        const det = math.det(matrix);
+        const inv = math.inv(matrix);
+        matrixResult.innerHTML = `
+          محدد المصفوفة: ${det}<br>
+          معكوس المصفوفة: ${inv}
+        `;
+      } catch (error) {
+        matrixResult.innerHTML = 'خطأ في المصفوفة المدخلة';
+      }
+    }
+
+    // دالة لحل المعادلات التفاضلية
+    function solveDiffEq() {
+      const diffeqInput = document.getElementById('diffeqInput').value;
+      const diffeqResult = document.getElementById('diffeqResult');
+
+      try {
+        // حل المعادلة التفاضلية البسيطة (مثال: dy/dx = x^2)
+        const solution = math.integrate(diffeqInput.split('=')[1].trim(), 'x');
+        diffeqResult.innerHTML = `الحل: y = ${solution} + C`;
+      } catch (error) {
+        diffeqResult.innerHTML = 'خطأ في حل المعادلة التفاضلية';
       }
     }
   </script>
