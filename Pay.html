@@ -3,18 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premium Coffee Maker | BrewMaster Pro</title>
+    <title>Premium Wireless Headphones | SonicWave Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* Modern CSS Styles */
-        :root {
-            --primary: #6F4E37;
-            --secondary: #C0A080;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
         }
 
         body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            background: #F5F5F5;
+            background-color: #f5f5f5;
+            line-height: 1.6;
         }
 
         .container {
@@ -24,59 +25,75 @@
         }
 
         header {
-            background: var(--primary);
+            background-color: #1a1a1a;
             color: white;
-            padding: 2rem;
+            padding: 20px 0;
             text-align: center;
         }
 
-        .product-section {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+        .product-hero {
+            display: flex;
             gap: 40px;
-            padding: 50px 20px;
+            align-items: center;
+            padding: 50px 0;
+            flex-wrap: wrap;
+        }
+
+        .product-image {
+            flex: 1;
+            min-width: 300px;
         }
 
         .product-image img {
             width: 100%;
+            max-width: 500px;
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
         .product-info {
-            padding: 20px;
+            flex: 1;
+            min-width: 300px;
         }
 
         .price {
-            font-size: 2.5rem;
-            color: var(--primary);
+            font-size: 2.5em;
+            color: #2c3e50;
             margin: 20px 0;
         }
 
         .features {
             margin: 30px 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
         }
 
         .feature-item {
-            display: flex;
-            align-items: center;
-            margin: 15px 0;
-            padding: 15px;
-            background: white;
-            border-radius: 8px;
-        }
-
-        /* PayPal Button Styling */
-        #paypal-button-container {
-            margin: 40px 0;
-            border: 2px dashed var(--primary);
+            text-align: center;
             padding: 20px;
+            background: white;
             border-radius: 10px;
         }
 
+        .paypal-button-container {
+            margin: 40px 0;
+            text-align: center;
+        }
+
+        /* PayPal button custom styling */
+        #paypal-button-container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
         @media (max-width: 768px) {
-            .product-section {
-                grid-template-columns: 1fr;
+            .product-hero {
+                flex-direction: column;
+            }
+            
+            .product-image img {
+                max-width: 100%;
             }
         }
     </style>
@@ -84,68 +101,61 @@
 <body>
     <header>
         <div class="container">
-            <h1>BrewMaster Pro Coffee Maker</h1>
-            <p>Professional-Grade Home Brewing System</p>
+            <h1>SonicWave Pro Wireless Headphones</h1>
         </div>
     </header>
 
     <main class="container">
-        <section class="product-section">
+        <section class="product-hero">
             <div class="product-image">
-                <img src="https://images.unsplash.com/photo-1556910096-6f5e72db6803?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="Premium Coffee Maker">
+                <img src="https://via.placeholder.com/500x400" alt="SonicWave Pro Headphones">
             </div>
-            
             <div class="product-info">
-                <h2>Barista-Quality Coffee at Home</h2>
-                <div class="price">$189.99</div>
+                <h2>Premium Noise-Canceling Wireless Headphones</h2>
+                <div class="price">$299.99</div>
                 
                 <div class="features">
                     <div class="feature-item">
-                        <span style="font-size: 24px; margin-right: 15px;">☕</span>
-                        <div>
-                            <h3>15-Bar Pressure System</h3>
-                            <p>Professional espresso extraction</p>
-                        </div>
+                        <i class="fas fa-bluetooth"></i>
+                        <h3>Wireless Freedom</h3>
+                        <p>Bluetooth 5.0 with 30m range</p>
                     </div>
                     <div class="feature-item">
-                        <span style="font-size: 24px; margin-right: 15px;">⏱️</span>
-                        <div>
-                            <h3>Fast Heating</h3>
-                            <p>Ready in 30 seconds</p>
-                        </div>
+                        <i class="fas fa-volume-up"></i>
+                        <h3>Active Noise Cancel</h3>
+                        <p>Professional-grade ANC</p>
                     </div>
                     <div class="feature-item">
-                        <span style="font-size: 24px; margin-right: 15px;">💧</span>
-                        <div>
-                            <h3>Self-Cleaning</h3>
-                            <p>Automatic maintenance cycle</p>
-                        </div>
+                        <i class="fas fa-battery-full"></i>
+                        <h3>40h Playtime</h3>
+                        <p>Fast USB-C charging</p>
                     </div>
                 </div>
 
-                <!-- Visible PayPal Button -->
-                <div id="paypal-button-container"></div>
+                <div class="paypal-button-container">
+                    <div id="paypal-button-container"></div>
+                </div>
             </div>
         </section>
     </main>
 
-    <!-- PayPal SDK with TEST CREDENTIALS -->
-    <script src="https://www.paypal.com/sdk/js?client-id=AQYw4q8j5QyB7hL0Z2jZ2wqyH6X6X9Z7Z4Kj7qJ6vJ6vJ6vJ6vJ6vJ6v&currency=USD"></script>
-
+    <!-- PayPal SDK -->
+    <script src="https://www.paypal.com/sdk/js?client-id=AZJcUOq7lhXTzY23a3PfRx6G9EakJvNN5qqW3e2Tnx5HmvM5p2S72Q3F4bYTnEo3n3zR7zo-IJfOHIxx&currency=USD"></script>
+    
     <script>
         paypal.Buttons({
             style: {
                 color: 'gold',
                 shape: 'pill',
                 label: 'pay',
-                height: 45
+                height: 40
             },
 
             createOrder: function(data, actions) {
                 return actions.order.create({
                     purchase_units: [{
                         amount: {
-                            value: '189.99'
+                            value: '299.99' // Set your product price
                         }
                     }]
                 });
@@ -153,9 +163,15 @@
 
             onApprove: function(data, actions) {
                 return actions.order.capture().then(function(details) {
-                    alert('Payment successful for ' + details.payer.name.given_name);
+                    alert('Transaction completed by ' + details.payer.name.given_name);
+                    // Redirect to thank you page
                     window.location.href = 'thank-you.html';
                 });
+            },
+
+            onError: function(err) {
+                console.error(err);
+                alert('Payment failed. Please try again.');
             }
         }).render('#paypal-button-container');
     </script>
