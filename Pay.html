@@ -3,97 +3,174 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premium Wireless Headphones | SonicWave Pro</title>
+    <title>SonicWave Pro Premium Wireless Headphones</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
+            font-family: 'Segoe UI', system-ui, sans-serif;
         }
 
         body {
-            background-color: #f5f5f5;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
             line-height: 1.6;
+            min-height: 100vh;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
         }
 
         header {
-            background-color: #1a1a1a;
+            background: var(--primary);
             color: white;
-            padding: 20px 0;
-            text-align: center;
+            padding: 1.5rem 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
         .product-hero {
-            display: flex;
-            gap: 40px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            padding: 4rem 0;
             align-items: center;
-            padding: 50px 0;
-            flex-wrap: wrap;
         }
 
         .product-image {
-            flex: 1;
-            min-width: 300px;
+            position: relative;
+            perspective: 1500px;
         }
 
         .product-image img {
             width: 100%;
-            max-width: 500px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            max-width: 600px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            transform: rotateY(-5deg);
+            transition: transform 0.3s ease;
+        }
+
+        .product-image:hover img {
+            transform: rotateY(5deg);
         }
 
         .product-info {
-            flex: 1;
-            min-width: 300px;
+            padding: 2rem;
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
         }
 
         .price {
-            font-size: 2.5em;
-            color: #2c3e50;
-            margin: 20px 0;
+            font-size: 2.8rem;
+            color: var(--accent);
+            margin: 1.5rem 0;
+            font-weight: 700;
+            position: relative;
+            display: inline-block;
+        }
+
+        .price::after {
+            content: "";
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 60%;
+            height: 3px;
+            background: var(--secondary);
         }
 
         .features {
-            margin: 30px 0;
+            margin: 2.5rem 0;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
         }
 
         .feature-item {
             text-align: center;
-            padding: 20px;
+            padding: 1.5rem;
             background: white;
-            border-radius: 10px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .feature-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            border-color: var(--secondary);
+        }
+
+        .feature-item i {
+            font-size: 2rem;
+            color: var(--secondary);
+            margin-bottom: 1rem;
+            transition: transform 0.3s ease;
+        }
+
+        .feature-item:hover i {
+            transform: scale(1.2);
         }
 
         .paypal-button-container {
-            margin: 40px 0;
-            text-align: center;
+            margin: 3rem 0;
+            padding: 2rem;
+            background: rgba(255,255,255,0.9);
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
         }
 
-        /* PayPal button custom styling */
         #paypal-button-container {
             max-width: 500px;
             margin: 0 auto;
+            transition: opacity 0.3s ease;
         }
 
-        @media (max-width: 768px) {
+        .guarantee-badge {
+            text-align: center;
+            margin: 2rem 0;
+            padding: 1rem;
+            background: var(--secondary);
+            color: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        @media (max-width: 992px) {
             .product-hero {
-                flex-direction: column;
+                grid-template-columns: 1fr;
+                gap: 2rem;
             }
             
             .product-image img {
                 max-width: 100%;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .price {
+                font-size: 2.2rem;
+            }
+            
+            .features {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -108,32 +185,42 @@
     <main class="container">
         <section class="product-hero">
             <div class="product-image">
-                <img src="https://via.placeholder.com/500x400" alt="SonicWave Pro Headphones">
+                <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" 
+                     alt="Premium Wireless Headphones">
             </div>
+            
             <div class="product-info">
-                <h2>Premium Noise-Canceling Wireless Headphones</h2>
+                <h2 style="font-size: 2.2rem; margin-bottom: 1rem;">Premium Noise-Canceling Wireless Experience</h2>
                 <div class="price">$299.99</div>
                 
+                <div class="guarantee-badge">
+                    <i class="fas fa-shield-alt"></i>
+                    30-Day Money Back Guarantee | 2-Year Warranty
+                </div>
+
                 <div class="features">
                     <div class="feature-item">
                         <i class="fas fa-bluetooth"></i>
                         <h3>Wireless Freedom</h3>
-                        <p>Bluetooth 5.0 with 30m range</p>
+                        <p>Bluetooth 5.2 with 50m stable range</p>
                     </div>
                     <div class="feature-item">
                         <i class="fas fa-volume-up"></i>
-                        <h3>Active Noise Cancel</h3>
-                        <p>Professional-grade ANC</p>
+                        <h3>Smart Noise Cancel</h3>
+                        <p>Adaptive ANC with 4 microphones</p>
                     </div>
                     <div class="feature-item">
                         <i class="fas fa-battery-full"></i>
-                        <h3>40h Playtime</h3>
-                        <p>Fast USB-C charging</p>
+                        <h3>50h Playtime</h3>
+                        <p>Fast USB-C charging (5h play in 10min)</p>
                     </div>
                 </div>
 
                 <div class="paypal-button-container">
                     <div id="paypal-button-container"></div>
+                    <p style="text-align: center; margin-top: 1rem; color: #666;">
+                        <i class="fas fa-lock"></i> Secure checkout powered by PayPal
+                    </p>
                 </div>
             </div>
         </section>
@@ -145,33 +232,52 @@
     <script>
         paypal.Buttons({
             style: {
-                color: 'gold',
+                color: 'blue',
                 shape: 'pill',
-                label: 'pay',
-                height: 40
+                label: 'checkout',
+                height: 48,
+                layout: 'vertical'
             },
 
             createOrder: function(data, actions) {
                 return actions.order.create({
                     purchase_units: [{
+                        description: 'SonicWave Pro Wireless Headphones',
                         amount: {
-                            value: '299.99' // Set your product price
-                        }
+                            value: '299.99',
+                            breakdown: {
+                                item_total: {
+                                    value: '299.99',
+                                    currency_code: 'USD'
+                                }
+                            }
+                        },
+                        items: [{
+                            name: 'SonicWave Pro',
+                            description: 'Premium Wireless Headphones',
+                            quantity: '1',
+                            unit_amount: {
+                                value: '299.99',
+                                currency_code: 'USD'
+                            }
+                        }]
                     }]
                 });
             },
 
             onApprove: function(data, actions) {
                 return actions.order.capture().then(function(details) {
-                    alert('Transaction completed by ' + details.payer.name.given_name);
-                    // Redirect to thank you page
-                    window.location.href = 'thank-you.html';
+                    // Show success animation
+                    document.querySelector('#paypal-button-container').style.opacity = '0.5';
+                    setTimeout(() => {
+                        window.location.href = 'thank-you.html?transaction_id=' + details.id;
+                    }, 1500);
                 });
             },
 
             onError: function(err) {
-                console.error(err);
-                alert('Payment failed. Please try again.');
+                console.error('Payment Error:', err);
+                alert('Payment failed. Please try again or contact support.');
             }
         }).render('#paypal-button-container');
     </script>
