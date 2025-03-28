@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Coffee Maker | BrewMaster Pro</title>
+    <style>
+        /* Modern CSS Styles */
+        :root {
+            --primary: #6F4E37;
+            --secondary: #C0A080;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            background: #F5F5F5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .product-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            padding: 50px 20px;
+        }
+
+        .product-image img {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .product-info {
+            padding: 20px;
+        }
+
+        .price {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin: 20px 0;
+        }
+
+        .features {
+            margin: 30px 0;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+        }
+
+        /* PayPal Button Styling */
+        #paypal-button-container {
+            margin: 40px 0;
+            border: 2px dashed var(--primary);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .product-section {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>BrewMaster Pro Coffee Maker</h1>
+            <p>Professional-Grade Home Brewing System</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="product-section">
+            <div class="product-image">
+                <img src="https://images.unsplash.com/photo-1556910096-6f5e72db6803?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="Premium Coffee Maker">
+            </div>
+            
+            <div class="product-info">
+                <h2>Barista-Quality Coffee at Home</h2>
+                <div class="price">$189.99</div>
+                
+                <div class="features">
+                    <div class="feature-item">
+                        <span style="font-size: 24px; margin-right: 15px;">☕</span>
+                        <div>
+                            <h3>15-Bar Pressure System</h3>
+                            <p>Professional espresso extraction</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <span style="font-size: 24px; margin-right: 15px;">⏱️</span>
+                        <div>
+                            <h3>Fast Heating</h3>
+                            <p>Ready in 30 seconds</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <span style="font-size: 24px; margin-right: 15px;">💧</span>
+                        <div>
+                            <h3>Self-Cleaning</h3>
+                            <p>Automatic maintenance cycle</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Visible PayPal Button -->
+                <div id="paypal-button-container"></div>
+            </div>
+        </section>
+    </main>
+
+    <!-- PayPal SDK with TEST CREDENTIALS -->
+    <script src="https://www.paypal.com/sdk/js?client-id=AQYw4q8j5QyB7hL0Z2jZ2wqyH6X6X9Z7Z4Kj7qJ6vJ6vJ6vJ6vJ6vJ6v&currency=USD"></script>
+
+    <script>
+        paypal.Buttons({
+            style: {
+                color: 'gold',
+                shape: 'pill',
+                label: 'pay',
+                height: 45
+            },
+
+            createOrder: function(data, actions) {
+                return actions.order.create({
+                    purchase_units: [{
+                        amount: {
+                            value: '189.99'
+                        }
+                    }]
+                });
+            },
+
+            onApprove: function(data, actions) {
+                return actions.order.capture().then(function(details) {
+                    alert('Payment successful for ' + details.payer.name.given_name);
+                    window.location.href = 'thank-you.html';
+                });
+            }
+        }).render('#paypal-button-container');
+    </script>
+</body>
+</html>
