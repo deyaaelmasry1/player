@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مكالمات فيديو من نظير إلى نظير</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #f4f4f9;
+      color: #333;
+      text-align: right;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #4a90e2;
+    }
+    h2 {
+      color: #333;
+      margin-top: 20px;
+    }
+    p {
+      line-height: 1.6;
+    }
+    input, button {
+      margin: 10px 0;
+      padding: 10px;
+      width: 100%;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    button {
+      background-color: #4a90e2;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #357abd;
+    }
+    button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+    #status {
+      margin-top: 20px;
+      font-weight: bold;
+      color: #4a90e2;
+    }
+    .instructions {
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 4px;
+      margin: 20px 0;
+    }
+    .video-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-top: 20px;
+    }
+    .video-box {
+      flex: 1;
+      min-width: 300px;
+      background: #000;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    video {
+      width: 100%;
+      height: auto;
+      background: #000;
+    }
+    .controls {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+    }
+    .controls button {
+      flex: 1;
+    }
+    .end-call {
+      background-color: #e74c3c;
+    }
+    .end-call:hover {
+      background-color: #c0392b;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>مكالمات فيديو من نظير إلى نظير</h1>
+    <p>قم بإجراء مكالمات فيديو مباشرة بين الأجهزة باستخدام معرف نظير فريد وثابت. لا حاجة لخوادم أو وسيط—فقط اتصال مباشر!</p>
+
+    <div class="instructions">
+      <h2>كيف يعمل:</h2>
+      <ol>
+        <li>أدخل اسم مستخدم لإنشاء معرف النظير الخاص بك.</li>
+        <li>شارك معرف النظير الخاص بك مع الشخص الذي تريد الاتصال به.</li>
+        <li>أدخل معرف النظير الخاص به للاتصال.</li>
+        <li>ابدأ المكالمة واستمتع بالمحادثة المرئية.</li>
+      </ol>
+    </div>
+
+    <h2>الخطوة 1: إنشاء معرف النظير الخاص بك</h2>
+    <p>أدخل اسم مستخدم لإنشاء معرف النظير الفريد الخاص بك. سيبقى هذا المعرف كما هو في كل مرة تستخدم فيها نفس اسم المستخدم.</p>
+    <input type="text" id="username" placeholder="أدخل اسم المستخدم">
+    <button onclick="generatePeerId()">إنشاء معرف النظير</button>
+    <input type="text" id="peerId" placeholder="سوف يظهر معرف النظير هنا" readonly>
+
+    <h2>الخطوة 2: الاتصال بنظير</h2>
+    <p>أدخل معرف النظير الخاص بالشخص الذي تريد الاتصال به واضغط على "الاتصال بالنظير."</p>
+    <input type="text" id="remotePeerId" placeholder="أدخل معرف النظير">
+    <button id="connectBtn" onclick="connectToPeer()" disabled>الاتصال بالنظير</button>
+
+    <h2>الخطوة 3: بدء المكالمة</h2>
+    <div class="controls">
+      <button id="startCallBtn" onclick="startVideoCall()" disabled>بدء مكالمة الفيديو</button>
+      <button id="endCallBtn" onclick="endVideoCall()" disabled class="end-call">إنهاء المكالمة</button>
+    </div>
+
+    <div class="video-container">
+      <div class="video-box">
+        <h3>كاميرتك</h3>
+        <video id="localVideo" autoplay muted playsinline></video>
+      </div>
+      <div class="video-box">
+        <h3>النظير المتصل</h3>
+        <video id="remoteVideo" autoplay playsinline></video>
+      </div>
+    </div>
+
+    <h2>حالة الاتصال</h2>
+    <div id="status">الحالة: غير متصل</div>
+  </div>
+
+  <!-- Include PeerJS library -->
+  <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+  <script>
+    let peer;
+    let call;
+    let localPeerId = '';
+    let remotePeerId = '';
+    let localStream;
+    let remoteStream;
+
+    // Generate a short, fixed ID from a username
+    function generateShortId(username) {
+      let hash = 0;
+      for (let i = 0; i < username.length; i++) {
+        hash = (hash << 5) - hash + username.charCodeAt(i);
+        hash |= 0; // Convert to 32-bit integer
+      }
+      return Math.abs(hash).toString(36).substring(0, 6).toUpperCase(); // 6-character ID
+    }
+
+    // Initialize PeerJS and generate a fixed Peer ID
+    function generatePeerId() {
+      const username = document.getElementById('username').value.trim();
+      if (!username) {
+        alert('الرجاء إدخال اسم مستخدم.');
+        return;
+      }
+
+      localPeerId = generateShortId(username); // Generate fixed ID
+      document.getElementById('peerId').value = localPeerId;
+      document.getElementById('connectBtn').disabled = false;
+
+      // Initialize PeerJS with the fixed ID
+      peer = new Peer(localPeerId);
+
+      peer.on('open', () => {
+        updateStatus('معرف النظير الخاص بك: ' + localPeerId + ' - جاهز للاتصال');
+      });
+
+      peer.on('error', (err) => {
+        console.error('PeerJS error:', err);
+        updateStatus('خطأ: ' + err.message);
+      });
+
+      // Handle incoming calls
+      peer.on('call', (incomingCall) => {
+        updateStatus('مكالمة واردة من: ' + incomingCall.peer);
+        
+        // Answer the call with our local stream
+        navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+          .then((stream) => {
+            localStream = stream;
+            document.getElementById('localVideo').srcObject = stream;
+            
+            incomingCall.answer(stream); // Answer the call with our stream
+            call = incomingCall;
+            
+            call.on('stream', (remoteStream) => {
+              document.getElementById('remoteVideo').srcObject = remoteStream;
+              updateStatus('في مكالمة مع: ' + call.peer);
+              document.getElementById('endCallBtn').disabled = false;
+              document.getElementById('startCallBtn').disabled = true;
+            });
+            
+            call.on('close', () => {
+              endVideoCall();
+              updateStatus('تم إنهاء المكالمة');
+            });
+            
+            call.on('error', (err) => {
+              console.error('Call error:', err);
+              updateStatus('خطأ في المكالمة: ' + err.message);
+            });
+          })
+          .catch((err) => {
+            console.error('Failed to get local stream', err);
+            updateStatus('خطأ: لا يمكن الوصول إلى الكاميرا/الميكروفون');
+          });
+      });
+    }
+
+    // Connect to a remote peer
+    function connectToPeer() {
+      remotePeerId = document.getElementById('remotePeerId').value;
+      if (!remotePeerId) {
+        alert('الرجاء إدخال معرف النظير للاتصال به.');
+        return;
+      }
+      
+      updateStatus('جاري الاتصال بـ: ' + remotePeerId);
+      document.getElementById('startCallBtn').disabled = false;
+    }
+
+    // Start a video call
+    function startVideoCall() {
+      if (!peer || !remotePeerId) {
+        alert('الرجاء الاتصال بالنظير أولاً.');
+        return;
+      }
+      
+      // Get local video/audio stream
+      navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+        .then((stream) => {
+          localStream = stream;
+          document.getElementById('localVideo').srcObject = stream;
+          
+          // Call the remote peer
+          call = peer.call(remotePeerId, stream);
+          
+          call.on('stream', (remoteStream) => {
+            document.getElementById('remoteVideo').srcObject = remoteStream;
+            updateStatus('في مكالمة مع: ' + remotePeerId);
+            document.getElementById('endCallBtn').disabled = false;
+            document.getElementById('startCallBtn').disabled = true;
+          });
+          
+          call.on('close', () => {
+            endVideoCall();
+            updateStatus('تم إنهاء المكالمة');
+          });
+          
+          call.on('error', (err) => {
+            console.error('Call error:', err);
+            updateStatus('خطأ في المكالمة: ' + err.message);
+          });
+        })
+        .catch((err) => {
+          console.error('Failed to get local stream', err);
+          updateStatus('خطأ: لا يمكن الوصول إلى الكاميرا/الميكروفون');
+        });
+    }
+
+    // End the current video call
+    function endVideoCall() {
+      if (call) {
+        call.close();
+      }
+      
+      if (localStream) {
+        localStream.getTracks().forEach(track => track.stop());
+        document.getElementById('localVideo').srcObject = null;
+      }
+      
+      document.getElementById('remoteVideo').srcObject = null;
+      document.getElementById('endCallBtn').disabled = true;
+      document.getElementById('startCallBtn').disabled = false;
+      
+      updateStatus('جاهز للاتصال');
+    }
+
+    // Update connection status
+    function updateStatus(status) {
+      document.getElementById('status').innerText = `الحالة: ${status}`;
+    }
+  </script>
+</body>
+</html>
