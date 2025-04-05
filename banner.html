@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>بنر ترويجي</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .banner {
+      width: 100%;
+      height: 600px;
+      background-image: url('https://via.placeholder.com/1920x600'); /* ضع رابط الصورة */
+      background-size: cover;
+      background-position: center;
+      position: relative;
+      color: white;
+    }
+
+    .banner-overlay {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5); /* طبقة شفافة */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .banner h1 {
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+
+    .banner p {
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+
+    .banner button {
+      padding: 12px 30px;
+      font-size: 18px;
+      background-color: #ff6600;
+      border: none;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .banner button:hover {
+      background-color: #e65c00;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="banner">
+    <div class="banner-overlay">
+      <h1>عرض خاص اليوم فقط!</h1>
+      <p>احصل على خصم حتى 50% على أفضل المنتجات</p>
+      <button>تسوق الآن</button>
+    </div>
+  </div>
+
+</body>
+</html>
