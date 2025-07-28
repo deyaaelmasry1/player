@@ -1,75 +1,83 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <title>تحويل الصوت إلى نص</title>
+  <meta charset="UTF-8" />
+  <title>تحويل الصوت إلى نص - Vosk</title>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f8f8f8;
-      padding: 30px;
+      font-family: Arial, sans-serif;
       text-align: center;
+      padding: 40px;
+      background-color: #f4f4f4;
     }
     h1 {
       color: #333;
     }
     button {
-      padding: 15px 30px;
       font-size: 18px;
+      padding: 10px 20px;
       margin-top: 20px;
-      cursor: pointer;
-      background-color: #007bff;
-      border: none;
-      color: white;
-      border-radius: 5px;
-    }
-    button:hover {
-      background-color: #0056b3;
     }
     #result {
       margin-top: 30px;
-      font-size: 20px;
-      background-color: #fff;
       padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      background-color: #fff;
+      border: 1px solid #ccc;
+      min-height: 100px;
       direction: rtl;
-      text-align: right;
     }
   </style>
 </head>
 <body>
-  <h1>🎙️ تحويل الصوت إلى نص</h1>
-  <button onclick="startRecognition()">ابدأ التسجيل</button>
-  <div id="result">النص سيظهر هنا...</div>
+  <h1>🎙️ تحويل الصوت إلى نص باستخدام Vosk</h1>
+  <button id="startBtn">ابدأ التسجيل</button>
+  <div id="result">النص يظهر هنا...</div>
 
+  <script src="vosk.js"></script>
   <script>
-    let recognition;
-    function startRecognition() {
+    let recognizer;
+    let context;
+    let stream;
+    let isRunning = false;
+
+    const initRecognizer = async () => {
+      const model = new Vosk.Model('model'); // مجلد النموذج
+      recognizer = new model.Recognizer(16000);
+    };
+
+    const startRecording = async () => {
+      if (isRunning) return;
+
+      isRunning = true;
       const resultDiv = document.getElementById("result");
-      resultDiv.textContent = "⏳ جاري الاستماع...";
+      resultDiv.innerText = "يتم الاستماع الآن...";
 
-      if (!('webkitSpeechRecognition' in window)) {
-        resultDiv.textContent = "🚫 المتصفح لا يدعم ميزة التعرف على الصوت.";
-        return;
+      const audioCtx = new AudioContext({ sampleRate: 16000 });
+      context = audioCtx;
+
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const source = audioCtx.createMediaStreamSource(stream);
+      const processor = audioCtx.createScriptProcessor(4096, 1, 1);
+
+      source.connect(processor);
+      processor.connect(audioCtx.destination);
+
+      processor.onaudioprocess = (e) => {
+        const input = e.inputBuffer.getChannelData(0);
+        recognizer.acceptWaveform(input);
+        const result = recognizer.result();
+        if (result.text) {
+          resultDiv.innerText = result.text;
+        }
+      };
+    };
+
+    document.getElementById("startBtn").addEventListener("click", async () => {
+      if (!recognizer) {
+        await initRecognizer();
       }
-
-      recognition = new webkitSpeechRecognition();
-      recognition.lang = 'ar-EG'; // العربية المصرية
-      recognition.interimResults = false;
-      recognition.maxAlternatives = 1;
-
-      recognition.onresult = function(event) {
-        const transcript = event.results[0][0].transcript;
-        resultDiv.textContent = transcript;
-      };
-
-      recognition.onerror = function(event) {
-        resultDiv.textContent = "❌ حدث خطأ: " + event.error;
-      };
-
-      recognition.start();
-    }
+      await startRecording();
+    });
   </script>
 </body>
 </html>
