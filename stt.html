@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>تحويل الصوت إلى نص</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f8f8f8;
+      padding: 30px;
+      text-align: center;
+    }
+    h1 {
+      color: #333;
+    }
+    button {
+      padding: 15px 30px;
+      font-size: 18px;
+      margin-top: 20px;
+      cursor: pointer;
+      background-color: #007bff;
+      border: none;
+      color: white;
+      border-radius: 5px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    #result {
+      margin-top: 30px;
+      font-size: 20px;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      direction: rtl;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎙️ تحويل الصوت إلى نص</h1>
+  <button onclick="startRecognition()">ابدأ التسجيل</button>
+  <div id="result">النص سيظهر هنا...</div>
+
+  <script>
+    let recognition;
+    function startRecognition() {
+      const resultDiv = document.getElementById("result");
+      resultDiv.textContent = "⏳ جاري الاستماع...";
+
+      if (!('webkitSpeechRecognition' in window)) {
+        resultDiv.textContent = "🚫 المتصفح لا يدعم ميزة التعرف على الصوت.";
+        return;
+      }
+
+      recognition = new webkitSpeechRecognition();
+      recognition.lang = 'ar-EG'; // العربية المصرية
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
+      recognition.onresult = function(event) {
+        const transcript = event.results[0][0].transcript;
+        resultDiv.textContent = transcript;
+      };
+
+      recognition.onerror = function(event) {
+        resultDiv.textContent = "❌ حدث خطأ: " + event.error;
+      };
+
+      recognition.start();
+    }
+  </script>
+</body>
+</html>
